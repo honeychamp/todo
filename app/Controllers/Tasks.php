@@ -7,46 +7,77 @@ use CodeIgniter\Controller;
 
 class Tasks extends Controller
 {
+    
     public function index()
     {
+        $userId = session('user_id');
         $model = new TaskModel();
-        $data['tasks'] = $model->orderBy('created_at', 'DESC')->findAll();
         
-        return view('todo_list', $data);
+        $data['tasks'] = $userId ? $model->where('user_id', $userId)->orderBy('created_at', 'DESC')->findAll() : [];
+        
+        return view('tasks/index', $data);
     }
 
+    
     public function create()
     {
-        $model = new TaskModel();
+        if (!session('logged_in')) {
+            return redirect()->to(base_url('auth/login'))->with('error', 'Please login first.');
+        }
+
         $title = $this->request->getPost('title');
         
         if (!empty($title)) {
-            $model->save([
-                'title' => $title,
-                'status' => 'pending'
+            (new TaskModel())->insert([
+                'title'   => $title,
+                'status'  => 'pending',
+                'user_id' => session('user_id')
             ]);
+            return redirect()->to(base_url('/'))->with('success', 'Task added successfully!');
         }
-        
-        return redirect()->to(base_url('/'));
+
+        return redirect()->to(base_url('/'))->with('error', 'Task title cannot be empty.');
     }
 
+    
     public function update($id)
     {
+        if (!session('logged_in')) return redirect()->to(base_url('auth/login'));
+
         $model = new TaskModel();
-        $task = $model->find($id);
-        
+        $task = $model->where('user_id', session('user_id'))->find($id);
+
         if ($task) {
-            $newStatus = ($task['status'] === 'pending') ? 'completed' : 'pending';
-            $model->update($id, ['status' => $newStatus]);
+            $model->update($id, ['status' => ($task['status'] == 'pending' ? 'completed' : 'pending')]);
+            return redirect()->to(base_url('/'))->with('success', 'Task status updated!');
         }
-        
-        return redirect()->to(base_url('/'));
+
+        return redirect()->to(base_url('/'))->with('error', 'Access denied.');
     }
 
+    
     public function delete($id)
     {
+        if (!session('logged_in')) return redirect()->to(base_url('auth/login'));
+
         $model = new TaskModel();
-        $model->delete($id);
-        return redirect()->to(base_url('/'));
+        if ($model->where('user_id', session('user_id'))->find($id)) {
+            $model->delete($id);
+            return redirect()->to(base_url('/'))->with('success', 'Task deleted!');
+        }
+
+        return redirect()->to(base_url('/'))->with('error', 'Access denied.');
+    }
+
+   
+    public function history()
+    {
+        if (!session('logged_in')) {
+            return redirect()->to(base_url('auth/login'))->with('error', 'Please login first.');
+        }
+
+        $data['all_tasks'] = (new TaskModel())->where('user_id', session('user_id'))->orderBy('created_at', 'DESC')->findAll();
+        
+        return view('tasks/history', $data);
     }
 }
