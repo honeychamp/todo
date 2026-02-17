@@ -7,86 +7,71 @@ use CodeIgniter\Controller;
 
 class Auth extends BaseController
 {
-    
+    // Just show the login page
     public function login() 
     { 
         return view('auth/login'); 
     }
 
-    
+    // Just show the registration page
     public function register() 
     { 
         return view('auth/register'); 
     }
     
-    
+    // This part handles the registration form
     public function process_register()
     {
+        // Rules for form validation
         $rules = [
-            'username' => [
-                'rules'  => 'required|min_length[3]|is_unique[users.username]',
-                'errors' => [
-                    'is_unique' => 'This username is already taken.',
-                    'min_length' => 'Username must be at least 3 characters long.'
-                ]
-            ],
-            'email' => [
-                'rules'  => 'required|valid_email|is_unique[users.email]',
-                'errors' => [
-                    'is_unique' => 'This email is already registered.',
-                    'valid_email' => 'Please provide a valid email address.'
-                ]
-            ],
-            'password' => [
-                'rules'  => 'required|min_length[6]',
-                'errors' => [
-                    'min_length' => 'Password must be at least 6 characters long.'
-                ]
-            ],
-            'confpassword' => [
-                'rules'  => 'matches[password]',
-                'errors' => [
-                    'matches' => 'Passwords do not match.'
-                ]
-            ]
+            'username' => 'required|min_length[3]|is_unique[users.username]',
+            'email'    => 'required|valid_email|is_unique[users.email]',
+            'password' => 'required|min_length[6]',
+            'confpassword' => 'matches[password]'
         ];
 
+        // If validation fails, go back with errors
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        // Save New User to Database
         $userModel = new UserModel();
         $userModel->save([
-            'username' => trim($this->request->getPost('username')),
-            'email'    => trim($this->request->getPost('email')),
+            'username' => $this->request->getPost('username'),
+            'email'    => $this->request->getPost('email'),
             'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT)
         ]);
         
-        return redirect()->to(base_url('auth/login'))->with('success', 'Account created! Please login.');
+        return redirect()->to(base_url('auth/login'))->with('success', 'Registration Done! You can login now.');
     }
 
-    
+    // This part handles the login form
     public function process_login()
     {
-        $input = trim($this->request->getVar('username'));
-        $password = $this->request->getVar('password');
+        $user_input = $this->request->getVar('username');
+        $pass_input = $this->request->getVar('password');
         
-        $user = (new UserModel())->where('username', $input)->orWhere('email', $input)->first();
+        $model = new UserModel();
+        // Look for user by username or email
+        $user = $model->where('username', $user_input)->orWhere('email', $user_input)->first();
         
-        if ($user && password_verify($password, $user['password'])) {
+        // If user exists and password is correct
+        if ($user && password_verify($pass_input, $user['password'])) {
+            // Start the session
             session()->set([
                 'user_id'   => $user['id'],
                 'username'  => $user['username'],
-                'email'     => $user['email'],
                 'logged_in' => true
             ]);
             return redirect()->to(base_url('/'));
         }
 
-        return redirect()->back()->with('error', 'Invalid username or password');
+        // If login fails
+        return redirect()->back()->with('error', 'Wrong username or password');
     }
 
-    
+    // Kill the session to logout
     public function logout()
     {
         session()->destroy();

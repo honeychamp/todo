@@ -5,12 +5,28 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'Tasks::index');
-$routes->get('tasks/index', 'Tasks::index');
-$routes->post('tasks/create', 'Tasks::create');
-$routes->post('tasks/update/(:num)', 'Tasks::update/$1');
-$routes->post('tasks/delete/(:num)', 'Tasks::delete/$1');
-$routes->get('tasks/history', 'Tasks::history');
+$routes->get('/', 'Products::index');
+
+// Pharmacy Routes
+$routes->get('categories', 'Categories::index');
+$routes->post('categories/create', 'Categories::create');
+$routes->get('categories/delete/(:num)', 'Categories::delete/$1');
+
+$routes->get('vendors', 'Vendors::index');
+$routes->post('vendors/create', 'Vendors::create');
+$routes->get('vendors/delete/(:num)', 'Vendors::delete/$1');
+
+$routes->get('products', 'Products::index');
+$routes->post('products/create', 'Products::create');
+$routes->get('products/delete/(:num)', 'Products::delete/$1');
+
+$routes->get('stocks/purchase', 'Stocks::purchase');
+$routes->post('stocks/add_purchase', 'Stocks::add_purchase');
+$routes->get('stocks/delete_purchase/(:num)', 'Stocks::delete_purchase/$1');
+$routes->post('stocks/update_purchase', 'Stocks::update_purchase');
+$routes->get('stocks/sales', 'Stocks::sales');
+$routes->get('stocks/report', 'Stocks::sales_report');
+$routes->post('stocks/process_sale', 'Stocks::process_sale');
 
 
 $routes->get('auth/login', 'Auth::login');
