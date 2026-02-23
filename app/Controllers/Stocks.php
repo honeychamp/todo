@@ -17,14 +17,17 @@ class Stocks extends BaseController
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
         
         $model = new StockModel();
-        // Grabbing all purchases with product names so we know what is what
-        $data['purchases'] = $model->select('stock_purchase.*, products.name as product_name')
+        $data['purchases'] = $model->select('stock_purchase.*, products.name as product_name, products.unit as product_unit, products.unit_value as product_unit_value, vendors.name as vendor_name')
                                   ->join('products', 'products.id = stock_purchase.product_id')
+                                  ->join('vendors', 'vendors.id = stock_purchase.vendor_id', 'left')
                                   ->orderBy('stock_purchase.id', 'DESC')
                                   ->findAll();
 
         $prodModel = new ProductModel();
         $data['products'] = $prodModel->findAll();
+
+        $vendorModel = new \App\Models\VendorModel();
+        $data['vendors'] = $vendorModel->findAll();
 
         return view('stocks/purchase', $data);
     }
@@ -37,6 +40,7 @@ class Stocks extends BaseController
         $model = new StockModel();
         $data = [
             'batch_id'         => $this->request->getPost('batch_id'),
+            'vendor_id'        => $this->request->getPost('vendor_id'),
             'product_id'       => $this->request->getPost('product_id'),
             'manufacture_date' => $this->request->getPost('manufacture_date'),
             'expiry_date'      => $this->request->getPost('expiry_date'),
@@ -70,6 +74,7 @@ class Stocks extends BaseController
         $id = $this->request->getPost('id');
         $data = [
             'batch_id'         => $this->request->getPost('batch_id'),
+            'vendor_id'        => $this->request->getPost('vendor_id'),
             'product_id'       => $this->request->getPost('product_id'),
             'manufacture_date' => $this->request->getPost('manufacture_date'),
             'expiry_date'      => $this->request->getPost('expiry_date'),
@@ -91,9 +96,11 @@ class Stocks extends BaseController
         
         $model = new StockModel();
         // We only show items that are actually in stock
-        $data['stocks'] = $model->select('stock_purchase.*, products.name as product_name')
+        $data['stocks'] = $model->select('stock_purchase.*, products.name as product_name, products.unit as product_unit, products.unit_value as product_unit_value, vendors.name as vendor_name')
                                ->join('products', 'products.id = stock_purchase.product_id')
+                               ->join('vendors', 'vendors.id = stock_purchase.vendor_id', 'left')
                                ->where('stock_purchase.qty >', 0)
+                               ->orderBy('products.name', 'ASC')
                                ->findAll();
 
         return view('stocks/sales', $data);
@@ -114,7 +121,7 @@ class Stocks extends BaseController
         if ($stock && $stock['qty'] >= $qtyToSell) {
             // Log the sale
             $saleModel = new SaleModel();
-            $saleModel->insert([
+            $saleId = $saleModel->insert([
                 'stock_id'   => $stockId,
                 'product_id' => $stock['product_id'],
                 'qty'        => $qtyToSell,
@@ -125,7 +132,7 @@ class Stocks extends BaseController
             // Deduct from stock
             $stockModel->update($stockId, ['qty' => $stock['qty'] - $qtyToSell]);
 
-            return redirect()->to(base_url('stocks/sales'))->with('success', 'Sale processed successfully.');
+            return redirect()->to(base_url('stocks/sales'))->with('success', 'Sale processed successfully!')->with('last_sale_id', $saleId);
         }
 
         return redirect()->back()->with('error', 'Not enough stock or invalid quantity.');
@@ -138,12 +145,56 @@ class Stocks extends BaseController
         }
 
         $saleModel = new SaleModel();
-        $data['sales'] = $saleModel->select('sales.*, products.name as product_name, stock_purchase.batch_id')
-                                  ->join('products', 'products.id = sales.product_id')
-                                  ->join('stock_purchase', 'stock_purchase.id = sales.stock_id')
-                                  ->orderBy('sales.sale_date', 'DESC')
-                                  ->findAll();
+        
+        $start_date = $this->request->getGet('start_date');
+        $end_date = $this->request->getGet('end_date');
+
+        $query = $saleModel->select('sales.*, products.name as product_name, products.unit as product_unit, products.unit_value as product_unit_value, stock_purchase.batch_id, stock_purchase.cost as cost_price, vendors.name as vendor_name')
+                          ->join('products', 'products.id = sales.product_id')
+                          ->join('stock_purchase', 'stock_purchase.id = sales.stock_id')
+                          ->join('vendors', 'vendors.id = stock_purchase.vendor_id', 'left');
+
+        if ($start_date && $end_date) {
+            $query->where('DATE(sale_date) >=', $start_date)
+                  ->where('DATE(sale_date) <=', $end_date);
+        }
+
+        $data['sales'] = $query->orderBy('sale_date', 'DESC')->findAll();
+
+        $grandTotal = 0;
+        $totalProfit = 0;
+        foreach ($data['sales'] as $sale) {
+            $grandTotal += ($sale['qty'] * $sale['sale_price']);
+            // Profit = (Sale Price - Cost Price) * Qty
+            $totalProfit += ($sale['sale_price'] - $sale['cost_price']) * $sale['qty'];
+        }
+
+        $data['grandTotal'] = $grandTotal;
+        $data['totalProfit'] = $totalProfit;
+        $data['start_date'] = $start_date;
+        $data['end_date'] = $end_date;
 
         return view('stocks/sales_report', $data);
+    }
+
+    public function invoice($sale_id)
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to(base_url('auth/login'));
+        }
+
+        $saleModel = new SaleModel();
+        $invoice = $saleModel->select('sales.*, products.name as product_name, stock_purchase.batch_id')
+                            ->join('products', 'products.id = sales.product_id')
+                            ->join('stock_purchase', 'stock_purchase.id = sales.stock_id')
+                            ->where('sales.id', $sale_id)
+                            ->first();
+
+        if (!$invoice) {
+            return redirect()->back()->with('error', 'Invoice not found.');
+        }
+
+        $data['invoice'] = $invoice;
+        return view('stocks/invoice', $data);
     }
 }

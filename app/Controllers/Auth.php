@@ -75,6 +75,34 @@ class Auth extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to(base_url('/'));
+        return redirect()->to(base_url('auth/login'));
+    }
+
+    public function profile()
+    {
+        if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
+        return view('auth/profile');
+    }
+
+    public function updatePassword()
+    {
+        if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
+
+        $rules = [
+            'password' => 'required|min_length[6]',
+            'confpassword' => 'matches[password]'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->with('errors', $this->validator->getErrors());
+        }
+
+        $model = new UserModel();
+        $userId = session()->get('user_id');
+        $model->update($userId, [
+            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT)
+        ]);
+
+        return redirect()->to(base_url('auth/profile'))->with('success', 'Password updated successfully!');
     }
 }

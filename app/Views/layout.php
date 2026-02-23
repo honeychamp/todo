@@ -3,28 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galaxy Pharmacy | Pro Management</title>
-    <!-- Google Fonts: Outfit -->
+    <title>Galaxy Pharmacy | Management System</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #a855f7;
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --secondary: #6366f1;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
             --info: #06b6d4;
-            --dark: #1e293b;
+            --dark: #0f172a;
             --light-bg: #f8fafc;
-            --sidebar-grad: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
-            --card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-            --neon-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+            --sidebar-grad: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            --card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.03), 0 10px 10px -5px rgba(0, 0, 0, 0.01);
+            --neon-shadow: 0 0 20px rgba(14, 165, 233, 0.2);
         }
 
         body {
@@ -34,12 +31,11 @@
             overflow-x: hidden;
         }
 
-        /* Animated Background Elements */
         .bg-blob {
             position: fixed;
             width: 500px;
             height: 500px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.05) 100%);
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.08) 0%, rgba(99, 102, 241, 0.05) 100%);
             filter: blur(80px);
             border-radius: 50%;
             z-index: -1;
@@ -53,7 +49,6 @@
             min-height: 100vh;
         }
 
-        /* Sidebar Styling */
         #sidebar {
             min-width: 280px;
             max-width: 280px;
@@ -75,7 +70,7 @@
             font-weight: 800;
             font-size: 1.8rem;
             letter-spacing: -1px;
-            background: linear-gradient(to right, #fff, #a5b4fc);
+            background: linear-gradient(to right, #0ea5e9, #a5b4fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin: 0;
@@ -112,7 +107,7 @@
         }
 
         #sidebar ul li.active > a {
-            background: linear-gradient(90deg, var(--primary) 0%, rgba(99, 102, 241, 0.5) 100%);
+            background: linear-gradient(90deg, var(--primary) 0%, rgba(14, 165, 233, 0.5) 100%);
             box-shadow: var(--neon-shadow);
         }
 
@@ -120,7 +115,6 @@
             transform: translateX(3px);
         }
 
-        /* Content Area */
         #content {
             flex: 1;
             margin-left: 280px;
@@ -128,7 +122,6 @@
             transition: all 0.4s;
         }
 
-        /* Glass Floating Navbar */
         .glass-nav {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);
@@ -166,7 +159,6 @@
             font-size: 0.8rem;
         }
 
-        /* Premium Forms & Inputs */
         .form-control, .form-select {
             border-radius: 12px;
             padding: 12px 18px;
@@ -198,9 +190,39 @@
             color: white;
         }
 
+        .premium-card, .premium-list {
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.05), 0 4px 15px -5px rgba(0, 0, 0, 0.02);
+            border: 1px solid #eef2f6;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            padding: 24px;
+        }
+
+        .premium-card::after, .premium-list::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #0ea5e9, #6366f1);
+            opacity: 0.9;
+            border-radius: 28px 28px 0 0;
+        }
+
+        .premium-card:hover, .premium-list:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.1);
+            border-color: #e2e8f0;
+        }
+
         .premium-table-card {
+            @extend .premium-card;
             background: white;
-            border-radius: 30px;
+            border-radius: 32px;
             overflow: hidden;
             box-shadow: var(--card-shadow);
             border: 1px solid #f1f5f9;
@@ -231,6 +253,68 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .glass-card {
+            background: #ffffff;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eef2f6;
+            position: relative;
+        }
+
+        .glass-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #0ea5e9, #6366f1);
+        }
+
+        .card-header-premium {
+            padding: 22px 28px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+            color: white;
+            border: none;
+            padding: 11px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 8px 20px -5px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 15px 25px -5px rgba(14, 165, 233, 0.45);
+            color: white;
+        }
+
+        .btn-outline-emerald {
+            color: var(--success);
+            border: 1px solid var(--success);
+            background: transparent;
+            border-radius: 20px;
+            padding: 6px 16px;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .btn-outline-emerald:hover {
+            background: var(--success);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -246,28 +330,36 @@
 
         <ul class="list-unstyled components">
             <li class="<?= (url_is('products') || url_is('/')) ? 'active' : '' ?>">
-                <a href="<?= base_url('products') ?>"><i class="fas fa-grid-2"></i> Dashboard</a>
+                <a href="<?= base_url('products') ?>"><i class="fas fa-house"></i> Dashboard</a>
+            </li>
+            <li class="<?= url_is('products/add') ? 'active' : '' ?>">
+                <a href="<?= base_url('products/add') ?>"><i class="fas fa-plus-circle"></i> Add Product</a>
             </li>
             <li class="<?= url_is('categories') ? 'active' : '' ?>">
                 <a href="<?= base_url('categories') ?>"><i class="fas fa-shapes"></i> Categories</a>
             </li>
             <li class="<?= url_is('vendors') ? 'active' : '' ?>">
-                <a href="<?= base_url('vendors') ?>"><i class="fas fa-handshake"></i> Suppliers</a>
+                <a href="<?= base_url('vendors') ?>"><i class="fas fa-truck"></i> Vendors</a>
             </li>
             <li class="<?= url_is('stocks/purchase') ? 'active' : '' ?>">
-                <a href="<?= base_url('stocks/purchase') ?>"><i class="fas fa-box-open"></i> Inventory Log</a>
+                <a href="<?= base_url('stocks/purchase') ?>"><i class="fas fa-box-open"></i> Stock Purchase</a>
             </li>
             <li class="<?= url_is('stocks/sales') ? 'active' : '' ?>">
-                <a href="<?= base_url('stocks/sales') ?>"><i class="fas fa-shopping-bag"></i> Retail POS</a>
+                <a href="<?= base_url('stocks/sales') ?>"><i class="fas fa-shopping-bag"></i> Sales</a>
             </li>
             <li class="<?= url_is('stocks/report') ? 'active' : '' ?>">
-                <a href="<?= base_url('stocks/report') ?>"><i class="fas fa-chart-pie"></i> Sales Audit</a>
+                <a href="<?= base_url('stocks/report') ?>"><i class="fas fa-chart-pie"></i> Sales Report</a>
             </li>
             
             <div style="margin-top: 100px; padding: 0 10px;">
-                <li class="mt-auto">
+                <li class="<?= url_is('auth/profile') ? 'active' : '' ?>">
+                    <a href="<?= base_url('auth/profile') ?>" style="background: rgba(99, 102, 241, 0.1); color: var(--indigo); margin-bottom: 8px;">
+                        <i class="fas fa-user-cog"></i> Profile Settings
+                    </a>
+                </li>
+                <li>
                     <a href="<?= base_url('auth/logout') ?>" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">
-                        <i class="fas fa-power-off"></i> Secure Logout
+                        <i class="fas fa-power-off"></i> Logout
                     </a>
                 </li>
             </div>
@@ -287,7 +379,7 @@
             <div class="d-flex gap-4 align-items-center">
                 <div class="d-none d-lg-block">
                     <span class="badge rounded-pill bg-light text-dark py-2 px-3 border">
-                        <i class="fas fa-shield-halved text-primary me-2"></i>System Active
+                        <i class="fas fa-circle-check text-success me-2"></i>System Active
                     </span>
                 </div>
                 <div class="user-chip">
@@ -303,6 +395,11 @@
                 <div class="alert alert-success border-0 shadow-lg animate-wow rounded-4 p-3 d-flex align-items-center mb-4" role="alert">
                     <div class="bg-success rounded-circle p-2 me-3 text-white"><i class="fas fa-check"></i></div>
                     <div><?= session()->getFlashdata('success') ?></div>
+                    <?php if(session()->getFlashdata('last_sale_id')): ?>
+                        <a href="<?= base_url('stocks/invoice/'.session()->getFlashdata('last_sale_id')) ?>" target="_blank" class="btn btn-sm btn-dark rounded-pill ms-3 px-3">
+                            <i class="fas fa-print me-1"></i> Print Receipt
+                        </a>
+                    <?php endif; ?>
                     <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
                 </div>
             <?php endif; ?>

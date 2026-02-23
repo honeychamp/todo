@@ -4,14 +4,14 @@
 
 <div class="row g-4 animate-up">
     <div class="col-12">
-        <div class="glass-card">
-            <div class="card-header-premium">
+        <div class="premium-list p-0">
+            <div class="p-4 px-5 border-bottom d-flex justify-content-between align-items-center">
                 <div>
-                    <h5 class="m-0">Stock Procurement Log</h5>
-                    <p class="text-muted small m-0 mt-1">Record and track inventory batches as they arrive from vendors.</p>
+                    <h5 class="m-0 fw-800">Stock Purchase Log</h5>
+                    <p class="text-muted small m-0 mt-1">Record and track stock batches received from vendors.</p>
                 </div>
-                <button type="button" class="btn-premium" data-bs-toggle="modal" data-bs-target="#addPurchaseModal">
-                    <i class="fas fa-truck me-2"></i> Log New Shipment
+                <button type="button" class="btn btn-vibrant rounded-3" data-bs-toggle="modal" data-bs-target="#addPurchaseModal">
+                    <i class="fas fa-plus me-2"></i> Add Stock
                 </button>
             </div>
             <div class="p-0">
@@ -20,21 +20,29 @@
                         <thead class="bg-light">
                             <tr>
                                 <th class="border-0 px-4 py-3">Batch ID</th>
+                                <th class="border-0 py-3">Vendor</th>
                                 <th class="border-0 py-3">Product Name</th>
                                 <th class="border-0 py-3">MFG & EXP Date</th>
                                 <th class="border-0 py-3 text-center">Qty</th>
-                                <th class="border-0 py-3">Cost/Resale</th>
-                                <th class="border-0 py-3 text-end px-4">Management</th>
+                                <th class="border-0 py-3">Cost / Price</th>
+                                <th class="border-0 py-3 text-end px-4">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if(empty($purchases)): ?>
-                                <tr><td colspan="6" class="text-center py-5 text-muted">No shipment logs found.</td></tr>
+                                <tr><td colspan="6" class="text-center py-5 text-muted">No stock records found.</td></tr>
                             <?php else: ?>
                                 <?php foreach($purchases as $purchase): ?>
                                     <tr>
                                         <td class="px-4"><code><?= esc($purchase['batch_id']) ?></code></td>
-                                        <td class="fw-bold"><?= esc($purchase['product_name']) ?></td>
+                                        <td>
+                                            <div class="fw-bold small"><?= esc($purchase['vendor_name'] ?: 'N/A') ?></div>
+                                            <div class="text-muted small">Supplier</div>
+                                        </td>
+                                        <td class="fw-bold">
+                                            <?= esc($purchase['product_name']) ?>
+                                            <div class="text-muted small fw-normal"><?= esc($purchase['product_unit_value']) ?> <?= esc($purchase['product_unit']) ?></div>
+                                        </td>
                                         <td>
                                             <div class="small fw-bold">M: <span class="text-muted"><?= date('d/m/y', strtotime($purchase['manufacture_date'])) ?></span></div>
                                             <div class="small fw-bold">E: <span class="<?= (strtotime($purchase['expiry_date']) < strtotime('+3 months')) ? 'text-danger' : 'text-success' ?>"><?= date('d/m/y', strtotime($purchase['expiry_date'])) ?></span></div>
@@ -43,8 +51,8 @@
                                             <span class="badge bg-light text-dark p-2 border"><?= esc($purchase['qty']) ?> Units</span>
                                         </td>
                                         <td>
-                                            <div class="small fw-bold">Cost: <span class="text-primary">$<?= number_format($purchase['cost'], 2) ?></span></div>
-                                            <div class="small fw-bold">Sale: <span class="text-success">$<?= number_format($purchase['price'], 2) ?></span></div>
+                                            <div class="small fw-bold">Cost: <span class="text-primary">Rs. <?= number_format($purchase['cost'], 2) ?></span></div>
+                                            <div class="small fw-bold">Sale: <span class="text-success">Rs. <?= number_format($purchase['price'], 2) ?></span></div>
                                         </td>
                                         <td class="text-end px-4">
                                             <button class="btn btn-outline-warning btn-sm border-0 btn-edit-stock" 
@@ -52,6 +60,7 @@
                                                     data-bs-target="#editPurchaseModal"
                                                     data-id="<?= $purchase['id'] ?>"
                                                     data-batch="<?= esc($purchase['batch_id']) ?>"
+                                                    data-vendor="<?= $purchase['vendor_id'] ?>"
                                                     data-product="<?= $purchase['product_id'] ?>"
                                                     data-mfg="<?= $purchase['manufacture_date'] ?>"
                                                     data-exp="<?= $purchase['expiry_date'] ?>"
@@ -60,7 +69,7 @@
                                                     data-price="<?= $purchase['price'] ?>">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <a href="<?= base_url('stocks/delete_purchase/'.$purchase['id']) ?>" class="btn btn-outline-danger btn-sm border-0" onclick="return confirm('Remove this record?')">
+                                            <a href="<?= base_url('stocks/delete_purchase/'.$purchase['id']) ?>" class="btn btn-outline-danger btn-sm border-0" onclick="return confirm('Delete this record?')">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </td>
@@ -80,21 +89,32 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
             <div class="modal-header border-0 p-4 pb-0">
-                <h5 class="modal-title fw-bold">Log Shipment Batch</h5>
+                <h5 class="modal-title fw-bold">Add New Stock</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="<?= base_url('stocks/add_purchase') ?>" method="POST">
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Batch Reference ID</label>
+                        <label class="form-label small fw-bold">Batch ID</label>
                         <input type="text" class="form-control bg-light border-0" name="batch_id" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Pharmaceutical Product</label>
-                        <select class="form-select bg-light border-0" name="product_id" required>
+                        <label class="form-label small fw-bold">Vendor / Supplier</label>
+                        <select class="form-select bg-light border-0" name="vendor_id">
+                            <option value="">Select Vendor...</option>
+                            <?php foreach($vendors as $vendor): ?>
+                                <option value="<?= $vendor['id'] ?>"><?= esc($vendor['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Product</label>
+                        <select class="form-select bg-light border-0" name="product_id" id="prod_select" required>
                             <option value="">Select product...</option>
                             <?php foreach($products as $prod): ?>
-                                <option value="<?= $prod['id'] ?>"><?= esc($prod['name']) ?></option>
+                                <option value="<?= $prod['id'] ?>" data-cost="<?= $prod['cost'] ?>">
+                                    <?= esc($prod['name']) ?> [<?= esc($prod['unit_value']) ?> <?= esc($prod['unit']) ?>]
+                                </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -109,22 +129,22 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">Received Quantity</label>
+                        <label class="form-label small fw-bold">Quantity</label>
                         <input type="number" class="form-control bg-light border-0" name="qty" required>
                     </div>
                     <div class="row">
                         <div class="col">
-                            <label class="form-label small fw-bold">Costing Unit</label>
-                            <input type="number" step="0.01" class="form-control bg-light border-0" name="cost" required>
+                            <label class="form-label small fw-bold">Cost Price</label>
+                            <input type="number" step="0.01" class="form-control bg-light border-0" name="cost" id="add_cost_price" required>
                         </div>
                         <div class="col">
-                            <label class="form-label small fw-bold">Selling Unit</label>
+                            <label class="form-label small fw-bold">Selling Price</label>
                             <input type="number" step="0.01" class="form-control bg-light border-0" name="price" required>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="submit" class="btn btn-premium w-100 py-3">Update Inventory</button>
+                    <button type="submit" class="btn btn-premium w-100 py-3">Save Stock</button>
                 </div>
             </form>
         </div>
@@ -136,7 +156,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
             <div class="modal-header border-0 p-4 pb-0">
-                <h5 class="modal-title fw-bold">Refine Stock Data</h5>
+                <h5 class="modal-title fw-bold">Edit Stock Record</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="<?= base_url('stocks/update_purchase') ?>" method="POST">
@@ -147,10 +167,21 @@
                         <input type="text" class="form-control bg-light border-0" name="batch_id" id="edit_batch_id" required>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label small fw-bold">Vendor</label>
+                        <select class="form-select bg-light border-0" name="vendor_id" id="edit_vendor_id">
+                            <option value="">Select Vendor...</option>
+                            <?php foreach($vendors as $v): ?>
+                                <option value="<?= $v['id'] ?>"><?= esc($v['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label small fw-bold">Product</label>
                         <select class="form-select bg-light border-0" name="product_id" id="edit_product_id" required>
                             <?php foreach($products as $prod): ?>
-                                <option value="<?= $prod['id'] ?>"><?= esc($prod['name']) ?></option>
+                                <option value="<?= $prod['id'] ?>">
+                                    <?= esc($prod['name']) ?> [<?= esc($prod['unit_value']) ?> <?= esc($prod['unit']) ?>]
+                                </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -180,7 +211,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="submit" class="btn btn-premium w-100 py-3">Commit Changes</button>
+                    <button type="submit" class="btn btn-premium w-100 py-3">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -194,6 +225,7 @@
             button.addEventListener('click', function() {
                 document.getElementById('edit_stock_id').value = this.getAttribute('data-id');
                 document.getElementById('edit_batch_id').value = this.getAttribute('data-batch');
+                document.getElementById('edit_vendor_id').value = this.getAttribute('data-vendor');
                 document.getElementById('edit_product_id').value = this.getAttribute('data-product');
                 document.getElementById('edit_mfg_date').value = this.getAttribute('data-mfg');
                 document.getElementById('edit_exp_date').value = this.getAttribute('data-exp');
@@ -202,6 +234,18 @@
                 document.getElementById('edit_price').value = this.getAttribute('data-price');
             });
         });
+
+        // Auto fill cost price
+        const prodSelect = document.getElementById('prod_select');
+        if (prodSelect) {
+            prodSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const cost = selectedOption.getAttribute('data-cost');
+                if (cost) {
+                    document.getElementById('add_cost_price').value = cost;
+                }
+            });
+        }
     });
 </script>
 

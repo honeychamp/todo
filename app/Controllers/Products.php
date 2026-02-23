@@ -17,17 +17,11 @@ class Products extends BaseController
         }
 
         $model = new ProductModel();
-        
-        $data['products'] = $model->select('products.*, categories.name as category_name')
-                                 ->join('categories', 'categories.id = products.category_id', 'left')
-                                 ->findAll();
-        
         $catModel = new CategoryModel();
-        $data['categories'] = $catModel->findAll();
-
         $stockModel = new \App\Models\StockModel();
         $saleModel = new \App\Models\SaleModel();
 
+        // Basic Stats
         $data['total_products'] = $model->countAllResults();
         $data['total_categories'] = $catModel->countAllResults();
         
@@ -36,8 +30,84 @@ class Products extends BaseController
 
         $today = date('Y-m-d');
         $data['today_sales'] = $saleModel->where('DATE(sale_date)', $today)->countAllResults();
+
+        // Calculate Today's Profit
+        $todaySalesData = $saleModel->select('sales.*, stock_purchase.cost as cost_price')
+                                   ->join('stock_purchase', 'stock_purchase.id = sales.stock_id')
+                                   ->where('DATE(sale_date)', $today)
+                                   ->findAll();
+        
+        $todayProfit = 0;
+        foreach($todaySalesData as $ts) {
+            $todayProfit += ($ts['sale_price'] - $ts['cost_price']) * $ts['qty'];
+        }
+        $data['today_profit'] = $todayProfit;
+
+        // 1. Real Chart Data (Last 7 Days Sales)
+        $sevenDaysAgo = date('Y-m-d', strtotime('-6 days'));
+        $chartSales = $saleModel->select("DATE(sale_date) as day, SUM(qty * sale_price) as total")
+                                ->where('sale_date >=', $sevenDaysAgo)
+                                ->groupBy('day')
+                                ->orderBy('day', 'ASC')
+                                ->findAll();
+        
+        $chartLabels = [];
+        $chartValues = [];
+        for($i = 6; $i >= 0; $i--) {
+            $date = date('Y-m-d', strtotime("-$i days"));
+            $label = date('D', strtotime($date));
+            $chartLabels[] = $label;
+            
+            $val = 0;
+            foreach($chartSales as $cs) {
+                if($cs['day'] == $date) {
+                    $val = $cs['total'];
+                    break;
+                }
+            }
+            $chartValues[] = $val;
+        }
+        $data['chart_labels'] = json_encode($chartLabels);
+        $data['chart_values'] = json_encode($chartValues);
+
+        // 2. Real Alerts: Expiring Soon (Next 30 days)
+        $oneMonthFromNow = date('Y-m-d', strtotime('+30 days'));
+        $data['expiring_soon'] = $stockModel->select('stock_purchase.*, products.name as product_name')
+                                          ->join('products', 'products.id = stock_purchase.product_id')
+                                          ->where('expiry_date <=', $oneMonthFromNow)
+                                          ->where('expiry_date >=', date('Y-m-d'))
+                                          ->where('qty >', 0)
+                                          ->limit(3)
+                                          ->findAll();
+
+        // 3. Real Alerts: Low Stock (Less than 10 units)
+        $data['low_stock'] = $stockModel->select('stock_purchase.*, products.name as product_name')
+                                      ->join('products', 'products.id = stock_purchase.product_id')
+                                      ->where('qty <', 10)
+                                      ->where('qty >', 0)
+                                      ->limit(3)
+                                      ->findAll();
+
+        // Product list for table
+        $data['products'] = $model->select('products.*, categories.name as category_name')
+                                 ->join('categories', 'categories.id = products.category_id', 'left')
+                                 ->findAll();
+        
+        $data['categories'] = $catModel->findAll();
         
         return view('products/index', $data);
+    }
+
+    public function add()
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to(base_url('auth/login'));
+        }
+
+        $catModel = new CategoryModel();
+        $data['categories'] = $catModel->findAll();
+
+        return view('products/add', $data);
     }
 
     public function create()
@@ -46,10 +116,12 @@ class Products extends BaseController
         $model = new ProductModel();
         $data = [
             'name'        => $this->request->getPost('name'),
-            'vendor'      => $this->request->getPost('vendor'),
             'cost'        => $this->request->getPost('cost'),
-            'reg_number'  => $this->request->getPost('reg_number'),
             'category_id' => $this->request->getPost('category_id'),
+            'unit'        => $this->request->getPost('unit'),
+            'unit_value'  => $this->request->getPost('unit_value'),
+            'form_6'      => $this->request->getPost('form_6'),
+            'form_7'      => $this->request->getPost('form_7'),
         ];
 
         if ($model->insert($data)) {

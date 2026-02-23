@@ -17,6 +17,7 @@ $routes->post('vendors/create', 'Vendors::create');
 $routes->get('vendors/delete/(:num)', 'Vendors::delete/$1');
 
 $routes->get('products', 'Products::index');
+$routes->get('products/add', 'Products::add');
 $routes->post('products/create', 'Products::create');
 $routes->get('products/delete/(:num)', 'Products::delete/$1');
 
@@ -25,6 +26,7 @@ $routes->post('stocks/add_purchase', 'Stocks::add_purchase');
 $routes->get('stocks/delete_purchase/(:num)', 'Stocks::delete_purchase/$1');
 $routes->post('stocks/update_purchase', 'Stocks::update_purchase');
 $routes->get('stocks/sales', 'Stocks::sales');
+$routes->get('stocks/invoice/(:num)', 'Stocks::invoice/$1'); // Added invoice print route
 $routes->get('stocks/report', 'Stocks::sales_report');
 $routes->post('stocks/process_sale', 'Stocks::process_sale');
 
@@ -34,3 +36,5 @@ $routes->get('auth/register', 'Auth::register');
 $routes->post('auth/loginProcess', 'Auth::process_login');
 $routes->post('auth/registerProcess', 'Auth::process_register');
 $routes->get('auth/logout', 'Auth::logout');
+$routes->get('auth/profile', 'Auth::profile');
+$routes->post('auth/updatePassword', 'Auth::updatePassword');
