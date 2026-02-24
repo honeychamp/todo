@@ -76,8 +76,8 @@
             <span style="flex: 1; text-align: left;"><?= esc($invoice['product_name']) ?></span>
         </div>
         <div class="item-row" style="color: #666;">
-            <span><?= $invoice['qty'] ?> x <?= number_format($invoice['sale_price'], 2) ?></span>
-            <span><?= number_format($invoice['qty'] * $invoice['sale_price'], 2) ?></span>
+            <span><?= $invoice['qty'] ?> x Rs. <?= number_format($invoice['sale_price'], 2) ?></span>
+            <span>Rs. <?= number_format($invoice['qty'] * $invoice['sale_price'], 2) ?></span>
         </div>
 
         <div style="border-bottom: 1px solid #eee; margin: 10px 0;"></div>

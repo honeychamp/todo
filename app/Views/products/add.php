@@ -23,7 +23,7 @@
                         <label class="form-label fw-bold small text-muted text-uppercase tracking-wider">Product Name</label>
                         <div class="input-group">
                             <span class="input-group-text border-0 bg-light"><i class="fas fa-tag"></i></span>
-                            <input type="text" class="form-control border-0 bg-light" name="name" placeholder="e.g. Paracetamol Extra" required style="padding: 15px;">
+                            <input type="text" class="form-control border-0 bg-light" name="name" placeholder="e.g. Chinavit" required style="padding: 15px;">
                         </div>
                     </div>
 
@@ -62,7 +62,7 @@
                         <div class="col-md-12">
                             <label class="form-label fw-bold small text-muted text-uppercase tracking-wider">Cost Price (Rs.)</label>
                             <div class="input-group">
-                                <span class="input-group-text border-0 bg-light"><i class="fas fa-dollar-sign"></i></span>
+                                <span class="input-group-text border-0 bg-light"><i class="fas fa-money-bill-wave"></i></span>
                                 <input type="number" step="0.01" class="form-control border-0 bg-light" name="cost" required style="padding: 15px;">
                             </div>
                         </div>

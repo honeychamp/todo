@@ -12,4 +12,5 @@ class ProductModel extends Model
     protected $primaryKey       = 'id';
     // Fields that we are allowed to save
     protected $allowedFields    = ['name', 'cost', 'category_id', 'unit', 'unit_value', 'form_6', 'form_7'];
+    protected $useTimestamps    = true;
 }

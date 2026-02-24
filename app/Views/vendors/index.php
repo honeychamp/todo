@@ -80,10 +80,13 @@
                                         </td>
                                         <td class="small text-muted" style="max-width: 200px;"><?= esc($vendor['address'] ?: 'N/A') ?></td>
                                         <td class="text-end px-4">
-                                            <a href="<?= base_url('vendors/delete/'.$vendor['id']) ?>" 
-                                               class="btn btn-outline-danger btn-sm rounded-pill p-2"
-                                               onclick="return confirm('Delete this vendor?')">
-                                                <i class="fas fa-trash-alt mx-1"></i>
+                                            <button class="btn btn-sm btn-outline-warning border-0 rounded-pill px-3 me-1"
+                                                onclick="openEditVendor(<?= $vendor['id'] ?>, '<?= esc($vendor['name'], 'js') ?>', '<?= esc($vendor['phone'], 'js') ?>', '<?= esc($vendor['email'], 'js') ?>', '<?= esc($vendor['address'], 'js') ?>')"
+                                                data-bs-toggle="modal" data-bs-target="#editVendorModal">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <a href="<?= base_url('vendors/delete/'.$vendor['id']) ?>" class="btn btn-sm btn-outline-danger border-0 rounded-pill px-3" onclick="return confirm('Delete this vendor?')">
+                                                <i class="fas fa-trash-alt"></i>
                                             </a>
                                         </td>
                                     </tr>
@@ -96,5 +99,53 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Vendor Modal -->
+<div class="modal fade" id="editVendorModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 p-4 pb-0">
+                <h5 class="modal-title fw-bold"><i class="fas fa-edit me-2 text-warning"></i> Edit Vendor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="<?= base_url('vendors/update') ?>" method="POST">
+                <input type="hidden" name="id" id="edit_vendor_id">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Vendor Name</label>
+                        <input type="text" class="form-control bg-light border-0" name="name" id="edit_vendor_name" required style="padding: 12px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Phone</label>
+                        <input type="text" class="form-control bg-light border-0" name="phone" id="edit_vendor_phone" required style="padding: 12px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Email</label>
+                        <input type="email" class="form-control bg-light border-0" name="email" id="edit_vendor_email" style="padding: 12px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">Address</label>
+                        <textarea class="form-control bg-light border-0" name="address" id="edit_vendor_address" rows="2" style="padding: 12px;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="submit" class="btn btn-warning w-100 py-3 fw-bold text-white rounded-4">
+                        <i class="fas fa-save me-2"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openEditVendor(id, name, phone, email, address) {
+    document.getElementById('edit_vendor_id').value = id;
+    document.getElementById('edit_vendor_name').value = name;
+    document.getElementById('edit_vendor_phone').value = phone;
+    document.getElementById('edit_vendor_email').value = email;
+    document.getElementById('edit_vendor_address').value = address;
+}
+</script>
 
 <?= $this->endSection() ?>

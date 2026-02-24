@@ -115,6 +115,29 @@
             transform: translateX(3px);
         }
 
+        .dropdown-toggle::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-left: auto;
+            transition: transform 0.3s;
+            font-size: 0.8rem;
+        }
+        .dropdown-toggle[aria-expanded="true"]::after {
+            transform: rotate(180deg);
+        }
+        
+        .sub-menu {
+            margin-left: 15px;
+            margin-top: 5px;
+            border-left: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        .sub-menu li a {
+            padding: 10px 20px !important;
+            font-size: 0.9rem !important;
+            border-radius: 12px !important;
+        }
+
         #content {
             flex: 1;
             margin-left: 280px;
@@ -195,7 +218,7 @@
             border-radius: 28px;
             box-shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.05), 0 4px 15px -5px rgba(0, 0, 0, 0.02);
             border: 1px solid #eef2f6;
-            overflow: hidden;
+            overflow: visible;
             transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             padding: 24px;
@@ -220,20 +243,36 @@
         }
 
         .premium-table-card {
-            @extend .premium-card;
-            background: white;
+            background: #ffffff;
             border-radius: 32px;
-            overflow: hidden;
-            box-shadow: var(--card-shadow);
+            box-shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.05), 0 4px 15px -5px rgba(0, 0, 0, 0.02);
             border: 1px solid #f1f5f9;
+            overflow: visible;
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .premium-table-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.1);
         }
 
         .table thead th {
             background: #f8fafc;
             padding: 20px;
             font-weight: 700;
-            color: var(--dark);
+            color: #0f172a;
             border-bottom: 2px solid #f1f5f9;
+        }
+
+        .table tbody tr {
+            background-color: #ffffff;
+            color: #334155;
+            transition: all 0.2s;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f8fafc !important;
         }
 
         .table tbody td {
@@ -329,11 +368,25 @@
         </div>
 
         <ul class="list-unstyled components">
-            <li class="<?= (url_is('products') || url_is('/')) ? 'active' : '' ?>">
-                <a href="<?= base_url('products') ?>"><i class="fas fa-house"></i> Dashboard</a>
+            <li class="<?= url_is('/') ? 'active' : '' ?>">
+                <a href="<?= base_url('/') ?>"><i class="fas fa-house"></i> Dashboard</a>
             </li>
-            <li class="<?= url_is('products/add') ? 'active' : '' ?>">
-                <a href="<?= base_url('products/add') ?>"><i class="fas fa-plus-circle"></i> Add Product</a>
+            <li class="<?= url_is('products*') ? 'active' : '' ?>">
+                <a href="#productsSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= url_is('products*') ? '' : 'collapsed' ?>">
+                    <i class="fas fa-capsules"></i> Products
+                </a>
+                <ul class="collapse list-unstyled sub-menu <?= url_is('products*') ? 'show' : '' ?>" id="productsSubmenu">
+                    <li>
+                        <a href="<?= base_url('products') ?>" class="<?= url_is('products') ? 'text-white fw-bold' : '' ?>">
+                            <i class="fas fa-list small me-2"></i> All Products
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= base_url('products/add') ?>" class="<?= url_is('products/add') ? 'text-white fw-bold' : '' ?>">
+                            <i class="fas fa-plus small me-2"></i> Add Product
+                        </a>
+                    </li>
+                </ul>
             </li>
             <li class="<?= url_is('categories') ? 'active' : '' ?>">
                 <a href="<?= base_url('categories') ?>"><i class="fas fa-shapes"></i> Categories</a>
@@ -341,8 +394,22 @@
             <li class="<?= url_is('vendors') ? 'active' : '' ?>">
                 <a href="<?= base_url('vendors') ?>"><i class="fas fa-truck"></i> Vendors</a>
             </li>
-            <li class="<?= url_is('stocks/purchase') ? 'active' : '' ?>">
-                <a href="<?= base_url('stocks/purchase') ?>"><i class="fas fa-box-open"></i> Stock Purchase</a>
+            <li class="<?= url_is('stocks/*') ? 'active' : '' ?>">
+                <a href="#purchaseSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= url_is('stocks/*') ? '' : 'collapsed' ?>">
+                    <i class="fas fa-box-open"></i> Stock
+                </a>
+                <ul class="collapse list-unstyled sub-menu <?= url_is('stocks/*') ? 'show' : '' ?>" id="purchaseSubmenu">
+                    <li>
+                        <a href="<?= base_url('stocks/purchase') ?>" class="<?= url_is('stocks/purchase') ? 'text-white fw-bold' : '' ?>">
+                            <i class="fas fa-history small me-2"></i> Purchase Log
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= base_url('stocks/add') ?>" class="<?= url_is('stocks/add') ? 'text-white fw-bold' : '' ?>">
+                            <i class="fas fa-plus small me-2"></i> Add Stock
+                        </a>
+                    </li>
+                </ul>
             </li>
             <li class="<?= url_is('stocks/sales') ? 'active' : '' ?>">
                 <a href="<?= base_url('stocks/sales') ?>"><i class="fas fa-shopping-bag"></i> Sales</a>

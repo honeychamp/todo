@@ -67,14 +67,14 @@
                                         </td>
                                         <td class="text-center text-muted small"><?= date('D, d M Y') ?></td>
                                         <td class="text-end px-5">
-                                            <div class="dropdown">
-                                                <button class="btn btn-light btn-sm rounded-pill p-2 px-3 border-0" type="button" data-bs-toggle="dropdown">
-                                                    <i class="fas fa-ellipsis-v"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2" style="border-radius: 12px;">
-                                                    <li><a class="dropdown-item rounded-3 text-danger fw-bold" href="<?= base_url('categories/delete/'.$category['id']) ?>" onclick="return confirm('Delete this category?')">Delete</a></li>
-                                                </ul>
-                                            </div>
+                                            <button class="btn btn-sm btn-outline-warning border-0 rounded-pill px-3 me-1"
+                                                onclick="openEditCat(<?= $category['id'] ?>, '<?= esc($category['name'], 'js') ?>')"
+                                                data-bs-toggle="modal" data-bs-target="#editCatModal">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <a href="<?= base_url('categories/delete/'.$category['id']) ?>" class="btn btn-sm btn-outline-danger border-0 rounded-pill px-3" onclick="return confirm('Delete this category?')">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -86,5 +86,36 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Category Modal -->
+<div class="modal fade" id="editCatModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 p-4 pb-0">
+                <h5 class="modal-title fw-bold"><i class="fas fa-edit me-2 text-warning"></i> Edit Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="<?= base_url('categories/update') ?>" method="POST">
+                <input type="hidden" name="id" id="edit_cat_id">
+                <div class="modal-body p-4">
+                    <label class="form-label fw-bold small">Category Name</label>
+                    <input type="text" class="form-control bg-light border-0" name="name" id="edit_cat_name" required style="padding: 14px;">
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="submit" class="btn btn-warning w-100 py-3 fw-bold text-white rounded-4">
+                        <i class="fas fa-save me-2"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openEditCat(id, name) {
+    document.getElementById('edit_cat_id').value = id;
+    document.getElementById('edit_cat_name').value = name;
+}
+</script>
 
 <?= $this->endSection() ?>

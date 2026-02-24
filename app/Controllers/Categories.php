@@ -36,6 +36,17 @@ class Categories extends BaseController
     }
 
     // Remove a category
+    public function update()
+    {
+        if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
+        $model = new CategoryModel();
+        $id = $this->request->getPost('id');
+        $model->update($id, [
+            'name' => $this->request->getPost('name')
+        ]);
+        return redirect()->back()->with('success', 'Category updated successfully');
+    }
+
     public function delete($id)
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));

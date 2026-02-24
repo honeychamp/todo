@@ -12,4 +12,5 @@ class CategoryModel extends Model
     protected $primaryKey       = 'id';
     // Fields allowed to be saved
     protected $allowedFields    = ['name'];
+    protected $useTimestamps    = true;
 }

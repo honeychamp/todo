@@ -10,7 +10,7 @@ use App\Models\CategoryModel;
 
 class Products extends BaseController
 {
-    public function index()
+    public function dashboard()
     {
         if (!session()->get('logged_in')) {
             return redirect()->to(base_url('auth/login'));
@@ -22,11 +22,22 @@ class Products extends BaseController
         $saleModel = new \App\Models\SaleModel();
 
         // Basic Stats
-        $data['total_products'] = $model->countAllResults();
+        $data['total_products']   = $model->countAllResults();
         $data['total_categories'] = $catModel->countAllResults();
-        
-        $stockData = $stockModel->selectSum('qty')->first();
-        $data['total_items_in_stock'] = $stockData['qty'] ?? 0;
+
+        $vendorModel = new \App\Models\VendorModel();
+        $data['total_vendors'] = $vendorModel->countAllResults();
+
+        // Use raw DB query for 100% accurate stock figures
+        // Only count items for products that still exist and have qty > 0
+        $db = \Config\Database::connect();
+
+        $stockRow = $db->query("SELECT SUM(s.qty) as total_qty, SUM(s.qty * s.cost) as stock_value 
+                                FROM stock_purchase s 
+                                JOIN products p ON p.id = s.product_id 
+                                WHERE s.qty > 0")->getRow();
+        $data['total_items_in_stock'] = $stockRow->total_qty ?? 0;
+        $data['total_stock_value']    = $stockRow->stock_value ?? 0;
 
         $today = date('Y-m-d');
         $data['today_sales'] = $saleModel->where('DATE(sale_date)', $today)->countAllResults();
@@ -88,6 +99,18 @@ class Products extends BaseController
                                       ->limit(3)
                                       ->findAll();
 
+        return view('products/dashboard', $data);
+    }
+
+    public function index()
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to(base_url('auth/login'));
+        }
+
+        $model = new ProductModel();
+        $catModel = new CategoryModel();
+
         // Product list for table
         $data['products'] = $model->select('products.*, categories.name as category_name')
                                  ->join('categories', 'categories.id = products.category_id', 'left')
@@ -128,6 +151,42 @@ class Products extends BaseController
             return redirect()->to(base_url('products'))->with('success', 'Product added successfully');
         }
         return redirect()->back()->with('error', 'Failed to add product');
+    }
+
+    public function edit($id)
+    {
+        if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
+        $model = new ProductModel();
+        $catModel = new CategoryModel();
+        
+        $data['product'] = $model->find($id);
+        $data['categories'] = $catModel->findAll();
+        
+        if (!$data['product']) return redirect()->to(base_url('products'))->with('error', 'Product not found');
+        
+        return view('products/edit', $data);
+    }
+
+    public function update()
+    {
+        if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
+        $model = new ProductModel();
+        $id = $this->request->getPost('id');
+        
+        $data = [
+            'name'        => $this->request->getPost('name'),
+            'cost'        => $this->request->getPost('cost'),
+            'category_id' => $this->request->getPost('category_id'),
+            'unit'        => $this->request->getPost('unit'),
+            'unit_value'  => $this->request->getPost('unit_value'),
+            'form_6'      => $this->request->getPost('form_6'),
+            'form_7'      => $this->request->getPost('form_7'),
+        ];
+
+        if ($model->update($id, $data)) {
+            return redirect()->to(base_url('products'))->with('success', 'Product updated successfully');
+        }
+        return redirect()->back()->with('error', 'Failed to update product');
     }
 
     public function delete($id)

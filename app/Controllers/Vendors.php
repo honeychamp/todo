@@ -40,6 +40,20 @@ class Vendors extends BaseController
     }
 
     // Delete vendor if we don't need them anymore
+    public function update()
+    {
+        if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
+        $model = new \App\Models\VendorModel();
+        $id = $this->request->getPost('id');
+        $model->update($id, [
+            'name' => $this->request->getPost('name'),
+            'phone' => $this->request->getPost('phone'),
+            'email' => $this->request->getPost('email'),
+            'address' => $this->request->getPost('address'),
+        ]);
+        return redirect()->back()->with('success', 'Vendor updated successfully');
+    }
+
     public function delete($id)
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));

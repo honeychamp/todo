@@ -20,16 +20,28 @@ class Stocks extends BaseController
         $data['purchases'] = $model->select('stock_purchase.*, products.name as product_name, products.unit as product_unit, products.unit_value as product_unit_value, vendors.name as vendor_name')
                                   ->join('products', 'products.id = stock_purchase.product_id')
                                   ->join('vendors', 'vendors.id = stock_purchase.vendor_id', 'left')
-                                  ->orderBy('stock_purchase.id', 'DESC')
+                                  ->orderBy('created_at', 'DESC')
                                   ->findAll();
 
-        $prodModel = new ProductModel();
+        $vendorModel = new \App\Models\VendorModel();
+        $prodModel = new \App\Models\ProductModel();
+        $data['vendors'] = $vendorModel->findAll();
         $data['products'] = $prodModel->findAll();
 
-        $vendorModel = new \App\Models\VendorModel();
-        $data['vendors'] = $vendorModel->findAll();
-
         return view('stocks/purchase', $data);
+    }
+
+    public function add()
+    {
+        if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
+        
+        $vendorModel = new \App\Models\VendorModel();
+        $prodModel = new \App\Models\ProductModel();
+        
+        $data['vendors'] = $vendorModel->findAll();
+        $data['products'] = $prodModel->findAll();
+
+        return view('stocks/add', $data);
     }
 
     // Adding new stock to the systems
@@ -38,21 +50,49 @@ class Stocks extends BaseController
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
         
         $model = new StockModel();
-        $data = [
-            'batch_id'         => $this->request->getPost('batch_id'),
-            'vendor_id'        => $this->request->getPost('vendor_id'),
-            'product_id'       => $this->request->getPost('product_id'),
-            'manufacture_date' => $this->request->getPost('manufacture_date'),
-            'expiry_date'      => $this->request->getPost('expiry_date'),
-            'qty'              => $this->request->getPost('qty'),
-            'cost'             => $this->request->getPost('cost'),
-            'price'            => $this->request->getPost('price'),
-        ];
 
-        if ($model->insert($data)) {
-            return redirect()->to(base_url('stocks/purchase'))->with('success', 'Stock added successfully!');
+        $batchIds        = $this->request->getPost('batch_id');
+        $vendorIds       = $this->request->getPost('vendor_id');
+        $productIds      = $this->request->getPost('product_id');
+        $mfgDates        = $this->request->getPost('manufacture_date');
+        $expDates        = $this->request->getPost('expiry_date');
+        $qtys            = $this->request->getPost('qty');
+        $costs           = $this->request->getPost('cost');
+        $prices          = $this->request->getPost('price');
+
+        // Support both single (old modal) and multiple (new table) submissions
+        if (is_array($batchIds)) {
+            $rows = [];
+            foreach ($batchIds as $i => $batch_id) {
+                if (empty($productIds[$i])) continue;
+                $rows[] = [
+                    'batch_id'         => $batch_id,
+                    'vendor_id'        => $vendorIds[$i] ?: null,
+                    'product_id'       => $productIds[$i],
+                    'manufacture_date' => $mfgDates[$i],
+                    'expiry_date'      => $expDates[$i],
+                    'qty'              => $qtys[$i],
+                    'cost'             => $costs[$i],
+                    'price'            => $prices[$i],
+                ];
+            }
+            if (!empty($rows)) {
+                $model->insertBatch($rows);
+            }
+        } else {
+            $model->insert([
+                'batch_id'         => $batchIds,
+                'vendor_id'        => $vendorIds ?: null,
+                'product_id'       => $productIds,
+                'manufacture_date' => $mfgDates,
+                'expiry_date'      => $expDates,
+                'qty'              => $qtys,
+                'cost'             => $costs,
+                'price'            => $prices,
+            ]);
         }
-        return redirect()->back()->with('error', 'Something went wrong while adding stock.');
+
+        return redirect()->to(base_url('stocks/purchase'))->with('success', 'Stock added successfully!');
     }
 
     // Delete a purchase record
@@ -196,5 +236,22 @@ class Stocks extends BaseController
 
         $data['invoice'] = $invoice;
         return view('stocks/invoice', $data);
+    }
+
+    public function purchase_invoice($id)
+    {
+        if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
+        
+        $model = new StockModel();
+        $purchase = $model->select('stock_purchase.*, products.name as product_name, products.unit as product_unit, products.unit_value as product_unit_value, vendors.name as vendor_name, vendors.phone as vendor_phone, vendors.address as vendor_address')
+                         ->join('products', 'products.id = stock_purchase.product_id')
+                         ->join('vendors', 'vendors.id = stock_purchase.vendor_id', 'left')
+                         ->where('stock_purchase.id', $id)
+                         ->first();
+
+        if (!$purchase) return redirect()->back()->with('error', 'Record not found.');
+
+        $data['purchase'] = $purchase;
+        return view('stocks/purchase_invoice', $data);
     }
 }
