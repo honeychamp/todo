@@ -11,6 +11,6 @@ class StockModel extends Model
     // Primary key
     protected $primaryKey       = 'id';
     // All the data we keep for stock entries
-    protected $allowedFields    = ['batch_id', 'vendor_id', 'product_id', 'manufacture_date', 'expiry_date', 'qty', 'cost', 'price'];
+    protected $allowedFields    = ['batch_id', 'vendor_id', 'product_id', 'initial_qty', 'qty', 'cost', 'price', 'manufacture_date', 'expiry_date'];
     protected $useTimestamps    = true;
 }

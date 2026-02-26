@@ -52,64 +52,110 @@
     <div class="col-xl-3 col-md-6">
         <div class="stat-card card-purple shadow-lg">
             <i class="fas fa-pills icon-bg"></i>
-            <span class="action-badge">Products</span>
+            <span class="action-badge">Inventory</span>
             <div>
-                <div class="stat-value"><?= $total_products ?></div>
-                <div class="stat-label">Total Products</div>
+                <div class="stat-value"><?= number_format($total_items_in_stock) ?></div>
+                <div class="stat-label">Units Available</div>
             </div>
         </div>
     </div>
     <div class="col-xl-3 col-md-6">
         <div class="stat-card card-slate shadow-lg">
-            <i class="fas fa-truck icon-bg"></i>
-            <span class="action-badge">Vendors</span>
+            <i class="fas fa-money-bill-transfer icon-bg"></i>
+            <span class="action-badge">Invested</span>
             <div>
-                <div class="stat-value"><?= $total_vendors ?></div>
-                <div class="stat-label">Total Vendors</div>
+                <div class="stat-value" style="font-size: 1.4rem;">Rs. <?= number_format($total_investment, 0) ?></div>
+                <div class="stat-label">Total Investment</div>
             </div>
         </div>
     </div>
     <div class="col-xl-3 col-md-6">
         <div class="stat-card card-emerald shadow-lg">
             <i class="fas fa-warehouse icon-bg"></i>
-            <span class="action-badge">Stock</span>
+            <span class="action-badge">On Shelf</span>
             <div>
-                <div class="stat-value"><?= number_format($total_items_in_stock) ?></div>
-                <div class="stat-label">Items in Stock</div>
+                <div class="stat-value" style="font-size: 1.4rem;">Rs. <?= number_format($total_stock_value, 0) ?></div>
+                <div class="stat-label">Stock Value (Current)</div>
             </div>
         </div>
     </div>
     <div class="col-xl-3 col-md-6">
-        <div class="stat-card card-amber shadow-lg">
-            <i class="fas fa-money-bill-trend-up icon-bg"></i>
-            <span class="action-badge">Inventory</span>
+        <div class="stat-card card-rose shadow-lg">
+            <i class="fas fa-exclamation-triangle icon-bg"></i>
+            <span class="action-badge">Shortfall</span>
             <div>
-                <div class="stat-value" style="font-size: 1.4rem;">Rs. <?= number_format($total_stock_value, 0) ?></div>
-                <div class="stat-label">Stock Value (Cost)</div>
+                <div class="stat-value"><?= count($low_stock) + count($expiring_soon) ?></div>
+                <div class="stat-label">Active Alerts</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Row 2: 2 Cards -->
+<!-- Row 2: Today's detailed financial performance -->
 <div class="row g-4 mb-4 animate-wow" style="animation-delay: 0.1s;">
-    <div class="col-xl-6 col-md-6">
+    <div class="col-xl-3 col-md-6">
         <div class="stat-card card-cyan shadow-lg">
-            <i class="fas fa-sack-dollar icon-bg"></i>
-            <span class="action-badge">Today</span>
+            <i class="fas fa-cash-register icon-bg"></i>
+            <span class="action-badge">Revenue</span>
             <div>
-                <div class="stat-value">Rs. <?= number_format($today_profit, 2) ?></div>
-                <div class="stat-label">Profit Today</div>
+                <div class="stat-value" style="font-size: 1.6rem;">Rs. <?= number_format($today_revenue, 2) ?></div>
+                <div class="stat-label">Total Cash Today</div>
             </div>
         </div>
     </div>
-    <div class="col-xl-6 col-md-6">
-        <div class="stat-card card-rose shadow-lg">
-            <i class="fas fa-cash-register icon-bg"></i>
-            <span class="action-badge">Today</span>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card card-emerald shadow-lg">
+            <i class="fas fa-chart-line icon-bg"></i>
+            <span class="action-badge">Gross Profit</span>
             <div>
-                <div class="stat-value"><?= $today_sales ?></div>
-                <div class="stat-label">Sales Transactions Today</div>
+                <div class="stat-value" style="font-size: 1.6rem;">Rs. <?= number_format($today_profit, 2) ?></div>
+                <div class="stat-label">Profit Today (Before Exp)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card card-rose shadow-lg">
+            <i class="fas fa-wallet icon-bg"></i>
+            <span class="action-badge">Expenses</span>
+            <div>
+                <div class="stat-value" style="font-size: 1.6rem;">Rs. <?= number_format($today_expenses, 2) ?></div>
+                <div class="stat-label">Operational Costs Today</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card card-purple shadow-lg" style="background: linear-gradient(135deg, #8b5cf6, #d946ef);">
+            <i class="fas fa-sack-dollar icon-bg"></i>
+            <span class="action-badge">Net Profit</span>
+            <div>
+                <div class="stat-value" style="font-size: 1.6rem;">Rs. <?= number_format($today_net_profit, 2) ?></div>
+                <div class="stat-label">Actual Gain Today</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lifetime Performance Section -->
+<div class="row g-4 mb-4 animate-wow" style="animation-delay: 0.15s;">
+    <div class="col-12">
+        <div class="premium-list p-4 bg-light border-0 shadow-sm" style="border-radius: 20px;">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <h6 class="text-muted small fw-bold text-uppercase mb-1">Lifetime Business Health</h6>
+                    <p class="small m-0">Overall statistics since project start.</p>
+                </div>
+                <div class="col-md-3 text-center border-start">
+                    <div class="text-muted small">Total Sales Volume</div>
+                    <div class="fw-800 text-dark fs-5">Rs. <?= number_format($lifetime_sales, 2) ?></div>
+                </div>
+                <div class="col-md-3 text-center border-start">
+                    <div class="text-muted small">Total Historical Investment</div>
+                    <div class="fw-800 text-dark fs-5">Rs. <?= number_format($total_investment, 2) ?></div>
+                </div>
+                <div class="col-md-3 text-center border-start">
+                    <div class="text-muted small">Cumulative Net Profit</div>
+                    <div class="fw-800 text-success fs-5">Rs. <?= number_format($lifetime_net_profit, 2) ?></div>
+                </div>
             </div>
         </div>
     </div>
@@ -124,7 +170,7 @@
                     <h5 class="fw-800 mb-0 m-0">Revenue — Last 7 Days</h5>
                     <p class="text-muted small m-0">Daily sales revenue overview</p>
                 </div>
-                <a href="<?= base_url('stocks/report') ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                <a href="<?= base_url('sales/report') ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3">
                     <i class="fas fa-chart-bar me-1"></i> Full Report
                 </a>
             </div>
@@ -139,19 +185,31 @@
             <h5 class="fw-700 mb-3">Quick Actions</h5>
 
             <div class="d-grid gap-2 mb-4">
-                <a href="<?= base_url('stocks/sales') ?>" class="btn btn-vibrant py-2 small">
+                <a href="<?= base_url('sales') ?>" class="btn btn-vibrant py-2 small">
                     <i class="fas fa-bolt me-1 text-warning"></i> Make a Sale
                 </a>
-                <a href="<?= base_url('stocks/add') ?>" class="btn btn-outline-light py-2 border-0 rounded-4 small" style="background: rgba(255,255,255,0.07);">
-                    <i class="fas fa-box-open me-1"></i> Add Stock
-                </a>
-                <a href="<?= base_url('products/add') ?>" class="btn btn-outline-light py-2 border-0 rounded-4 small" style="background: rgba(255,255,255,0.07);">
-                    <i class="fas fa-plus-circle me-1"></i> Add Product
+                <div class="row g-2">
+                    <div class="col-6">
+                        <a href="<?= base_url('purchases/select_vendor') ?>" class="btn btn-outline-light w-100 py-2 border-0 rounded-4 small" style="background: rgba(255,255,255,0.07);">
+                             Add Stock
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="<?= base_url('expenses') ?>" class="btn btn-outline-light w-100 py-2 border-0 rounded-4 small" style="background: rgba(255,255,255,0.07);">
+                             Log Expense
+                        </a>
+                    </div>
+                </div>
+                <a href="<?= base_url('purchases/dues') ?>" class="btn btn-outline-light py-2 border-0 rounded-4 small" style="background: rgba(255,255,255,0.07);">
+                    <i class="fas fa-hand-holding-dollar me-1"></i> View Vendor Dues
                 </a>
             </div>
 
             <div style="overflow-y: auto; max-height: 200px; padding-right: 5px;">
-                <p class="text-muted small text-uppercase fw-800 mb-2">Alerts</p>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <p class="text-muted small text-uppercase fw-800 m-0">Alerts</p>
+                    <a href="<?= base_url('products/shortage') ?>" class="text-warning small text-decoration-none fw-bold" style="font-size: 0.65rem;">View All</a>
+                </div>
                 <div class="list-group list-group-flush">
                     <?php if(empty($expiring_soon) && empty($low_stock)): ?>
                         <div class="text-muted small p-2">
@@ -165,8 +223,8 @@
                                 <i class="fas fa-calendar-times"></i>
                             </div>
                             <div>
-                                <div class="fw-bold small text-warning">Expiring Soon</div>
-                                <div class="text-white-50" style="font-size: 0.75rem;"><?= esc($exp['product_name']) ?> (<?= date('d M', strtotime($exp['expiry_date'])) ?>)</div>
+                                <div class="fw-bold small text-warning">Upcoming Expiration</div>
+                                <div class="text-white-50" style="font-size: 0.75rem;"><?= esc($exp['product_name']) ?> (<?= date('d M, Y', strtotime($exp['expiry_date'])) ?>)</div>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -178,7 +236,7 @@
                             </div>
                             <div>
                                 <div class="fw-bold small text-danger">Low Stock</div>
-                                <div class="text-white-50" style="font-size: 0.75rem;"><?= esc($ls['product_name']) ?>: <?= $ls['qty'] ?> units left</div>
+                                <div class="text-white-50" style="font-size: 0.75rem;"><?= esc($ls['product_name']) ?>: <?= $ls['current_qty'] ?> units left</div>
                             </div>
                         </div>
                     <?php endforeach; ?>

@@ -31,6 +31,23 @@
             margin-bottom: 20px;
             font-size: 12px;
         }
+        .meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 12px;
+            border-top: 1px dashed #000;
+            padding-top: 10px;
+        }
+        .meta h5 {
+            margin: 0 0 5px 0;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .meta p {
+            margin: 0;
+            font-size: 12px;
+        }
         .item-row {
             display: flex;
             justify-content: space-between;
@@ -59,15 +76,18 @@
 <body onload="window.print()">
     <div class="invoice-card">
         <div class="header">
-            <h2>GALAXY PHARMACY</h2>
-            <p>123 Main Street, City Center</p>
-            <p>Tel: +123 456 7890</p>
+            <h2><?= strtoupper(esc(get_setting('pharmacy_name', 'GALAXY PHARMACY'))) ?></h2>
+            <p><?= esc(get_setting('pharmacy_address', '123 Main Street, City Center')) ?></p>
+            <p>Tel: <?= esc(get_setting('pharmacy_phone', '+123 456 7890')) ?></p>
         </div>
         
         <div class="details">
             <div><strong>Inv #:</strong> <?= str_pad($invoice['id'], 6, '0', STR_PAD_LEFT) ?></div>
             <div><strong>Date:</strong> <?= date('d/m/Y h:i A', strtotime($invoice['sale_date'])) ?></div>
-            <div><strong>Cashier:</strong> Admin</div>
+            <div><strong>Cust:</strong> <?= esc($invoice['customer_name'] ?: 'Cash Customer') ?></div>
+            <?php if($invoice['customer_phone']): ?>
+                <div><strong>Tel:</strong> <?= esc($invoice['customer_phone']) ?></div>
+            <?php endif; ?>
         </div>
 
         <div style="border-bottom: 1px solid #eee; margin-bottom: 10px;"></div>

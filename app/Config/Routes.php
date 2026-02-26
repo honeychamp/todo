@@ -6,6 +6,7 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/', 'Products::dashboard');
+$routes->get('analytics', 'Analytics::index');
 
 // Pharmacy Routes
 $routes->get('categories', 'Categories::index');
@@ -18,24 +19,47 @@ $routes->post('vendors/create', 'Vendors::create');
 $routes->post('vendors/update', 'Vendors::update');
 $routes->get('vendors/delete/(:num)', 'Vendors::delete/$1');
 
+$routes->get('expenses', 'Expenses::index');
+$routes->get('expenses/export', 'Expenses::export_expenses');
+$routes->post('expenses/create', 'Expenses::create');
+$routes->get('expenses/delete/(:num)', 'Expenses::delete/$1');
+
 $routes->get('products', 'Products::index');
+$routes->get('products/shortage', 'Products::shortage_list');
 $routes->get('products/add', 'Products::add');
 $routes->post('products/create', 'Products::create');
 $routes->get('products/edit/(:num)', 'Products::edit/$1');
 $routes->post('products/update', 'Products::update');
 $routes->get('products/delete/(:num)', 'Products::delete/$1');
 
-$routes->get('stocks/purchase', 'Stocks::purchase');
-$routes->get('stocks/add', 'Stocks::add');
-$routes->post('stocks/add_purchase', 'Stocks::add_purchase');
-$routes->get('stocks/delete_purchase/(:num)', 'Stocks::delete_purchase/$1');
-$routes->post('stocks/update_purchase', 'Stocks::update_purchase');
-$routes->get('stocks/purchase_invoice/(:num)', 'Stocks::purchase_invoice/$1');
-$routes->get('stocks/sales', 'Stocks::sales');
-$routes->get('stocks/invoice/(:num)', 'Stocks::invoice/$1'); // Added invoice print route
-$routes->get('stocks/report', 'Stocks::sales_report');
-$routes->post('stocks/process_sale', 'Stocks::process_sale');
+// Purchases Module
+$routes->get('purchases', 'Purchases::index');
+$routes->get('purchases/select_vendor', 'Purchases::select_vendor');
+$routes->get('purchases/add/(:num)', 'Purchases::add/$1');
+$routes->post('purchases/process_add', 'Purchases::process_add');
+$routes->get('purchases/delete/(:num)', 'Purchases::delete/$1');
+$routes->post('purchases/update', 'Purchases::update');
+$routes->get('purchases/vendor/(:num)', 'Purchases::vendor_history/$1');
+$routes->get('purchases/invoice/(:num)', 'Purchases::invoice/$1');
+$routes->get('purchases/dues', 'Purchases::dues');
+$routes->post('purchases/add_payment', 'Purchases::add_payment');
+$routes->get('purchases/delete_payment/(:num)', 'Purchases::delete_payment/$1');
 
+// Sales Module
+$routes->get('sales', 'Sales::index');
+$routes->get('sales/inventory', 'Sales::inventory');
+$routes->get('sales/invoice/(:num)', 'Sales::invoice/$1');
+$routes->get('sales/report', 'Sales::report');
+$routes->get('sales/export', 'Sales::export');
+$routes->get('sales/history', 'Sales::history');
+
+$routes->get('sales/void/(:num)', 'Sales::void/$1');
+$routes->post('sales/process', 'Sales::process');
+
+
+
+$routes->get('settings', 'Settings::index');
+$routes->post('settings/update', 'Settings::update');
 
 $routes->get('auth/login', 'Auth::login');
 $routes->get('auth/register', 'Auth::register');

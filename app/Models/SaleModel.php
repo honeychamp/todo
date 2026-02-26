@@ -11,5 +11,5 @@ class SaleModel extends Model
     // Primary key
     protected $primaryKey       = 'id';
     // Fields we save when a sale happens
-    protected $allowedFields    = ['stock_id', 'product_id', 'qty', 'sale_price', 'sale_date'];
+    protected $allowedFields    = ['stock_id', 'product_id', 'qty', 'sale_price', 'sale_date', 'customer_name', 'customer_phone'];
 }

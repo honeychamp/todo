@@ -24,6 +24,18 @@
             --neon-shadow: 0 0 20px rgba(14, 165, 233, 0.2);
         }
 
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-wow { animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-up { animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
         body {
             font-family: 'Outfit', sans-serif;
             background-color: var(--light-bg);
@@ -354,6 +366,16 @@
             background: var(--success);
             color: white;
         }
+
+        /* Fix Modal Shaking */
+        body.modal-open {
+            padding-right: 0 !important;
+            overflow: hidden;
+        }
+        .modal {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+        }
     </style>
 </head>
 <body>
@@ -364,10 +386,13 @@
 <div id="wrapper">
     <nav id="sidebar">
         <div class="sidebar-header">
-            <h3>Galaxy <span class="fw-light">Pharmacy</span></h3>
+            <h3><?= esc(get_setting('pharmacy_name', 'Galaxy Pharmacy')) ?></h3>
         </div>
 
         <ul class="list-unstyled components">
+            <li class="<?= url_is('analytics') ? 'active' : '' ?>">
+                <a href="<?= base_url('analytics') ?>"><i class="fas fa-chart-pie"></i> Business Intelligence</a>
+            </li>
             <li class="<?= url_is('/') ? 'active' : '' ?>">
                 <a href="<?= base_url('/') ?>"><i class="fas fa-house"></i> Dashboard</a>
             </li>
@@ -386,6 +411,11 @@
                             <i class="fas fa-plus small me-2"></i> Add Product
                         </a>
                     </li>
+                    <li>
+                        <a href="<?= base_url('products/shortage') ?>" class="<?= url_is('products/shortage') ? 'text-white fw-bold' : '' ?>">
+                            <i class="fas fa-exclamation-circle small me-2 text-warning"></i> Shortage List
+                        </a>
+                    </li>
                 </ul>
             </li>
             <li class="<?= url_is('categories') ? 'active' : '' ?>">
@@ -394,31 +424,69 @@
             <li class="<?= url_is('vendors') ? 'active' : '' ?>">
                 <a href="<?= base_url('vendors') ?>"><i class="fas fa-truck"></i> Vendors</a>
             </li>
-            <li class="<?= url_is('stocks/*') ? 'active' : '' ?>">
-                <a href="#purchaseSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= url_is('stocks/*') ? '' : 'collapsed' ?>">
-                    <i class="fas fa-box-open"></i> Stock
+            <!-- Purchases Module -->
+            <li class="<?= url_is('purchases*') ? 'active' : '' ?>">
+                <a href="#purchaseSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= url_is('purchases*') ? '' : 'collapsed' ?>">
+                    <i class="fas fa-cart-shopping"></i> Purchases
                 </a>
-                <ul class="collapse list-unstyled sub-menu <?= url_is('stocks/*') ? 'show' : '' ?>" id="purchaseSubmenu">
+                <ul class="collapse list-unstyled sub-menu <?= url_is('purchases*') ? 'show' : '' ?>" id="purchaseSubmenu">
                     <li>
-                        <a href="<?= base_url('stocks/purchase') ?>" class="<?= url_is('stocks/purchase') ? 'text-white fw-bold' : '' ?>">
+                        <a href="<?= base_url('purchases/select_vendor') ?>" class="<?= url_is('purchases/select_vendor') ? 'text-white fw-bold' : '' ?>">
+                            <i class="fas fa-plus small me-2"></i> Record Purchase
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= base_url('purchases') ?>" class="<?= url_is('purchases') ? 'text-white fw-bold' : '' ?>">
                             <i class="fas fa-history small me-2"></i> Purchase Log
                         </a>
                     </li>
                     <li>
-                        <a href="<?= base_url('stocks/add') ?>" class="<?= url_is('stocks/add') ? 'text-white fw-bold' : '' ?>">
-                            <i class="fas fa-plus small me-2"></i> Add Stock
+                        <a href="<?= base_url('purchases/dues') ?>" class="<?= url_is('purchases/dues') ? 'text-white fw-bold' : '' ?>">
+                            <i class="fas fa-hand-holding-dollar small me-2"></i> Vendor Dues
                         </a>
                     </li>
                 </ul>
             </li>
-            <li class="<?= url_is('stocks/sales') ? 'active' : '' ?>">
-                <a href="<?= base_url('stocks/sales') ?>"><i class="fas fa-shopping-bag"></i> Sales</a>
+
+            <!-- Sales Module -->
+            <li class="<?= url_is('sales*') ? 'active' : '' ?>">
+                <a href="#salesSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= url_is('sales*') ? '' : 'collapsed' ?>">
+                    <i class="fas fa-shopping-bag"></i> Sales & Stock
+                </a>
+                <ul class="collapse list-unstyled sub-menu <?= url_is('sales*') ? 'show' : '' ?>" id="salesSubmenu">
+                    <li>
+                        <a href="<?= base_url('sales') ?>" class="<?= url_is('sales') ? 'text-white fw-bold' : '' ?>">
+                            <i class="fas fa-cash-register small me-2"></i> Sales Terminal
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= base_url('sales/inventory') ?>" class="<?= url_is('sales/inventory') ? 'text-white fw-bold' : '' ?>">
+                            <i class="fas fa-boxes small me-2"></i> Available Stock
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= base_url('sales/report') ?>" class="<?= url_is('sales/report') ? 'text-white fw-bold' : '' ?>">
+                            <i class="fas fa-chart-pie small me-2"></i> Sales Report
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= base_url('sales/history') ?>" class="<?= url_is('sales/history') ? 'text-white fw-bold' : '' ?>">
+                            <i class="fas fa-history small me-2"></i> Sales History
+                        </a>
+                    </li>
+                </ul>
             </li>
-            <li class="<?= url_is('stocks/report') ? 'active' : '' ?>">
-                <a href="<?= base_url('stocks/report') ?>"><i class="fas fa-chart-pie"></i> Sales Report</a>
+
+            <li class="<?= url_is('expenses') ? 'active' : '' ?>">
+                <a href="<?= base_url('expenses') ?>"><i class="fas fa-wallet"></i> Expenses</a>
             </li>
             
-            <div style="margin-top: 100px; padding: 0 10px;">
+            <div style="margin-top: 50px; padding: 0 10px;">
+                <li class="<?= url_is('settings') ? 'active' : '' ?>">
+                    <a href="<?= base_url('settings') ?>" style="background: rgba(99, 102, 241, 0.1); color: var(--indigo); margin-bottom: 8px;">
+                        <i class="fas fa-cog"></i> System Settings
+                    </a>
+                </li>
                 <li class="<?= url_is('auth/profile') ? 'active' : '' ?>">
                     <a href="<?= base_url('auth/profile') ?>" style="background: rgba(99, 102, 241, 0.1); color: var(--indigo); margin-bottom: 8px;">
                         <i class="fas fa-user-cog"></i> Profile Settings
@@ -463,8 +531,8 @@
                     <div class="bg-success rounded-circle p-2 me-3 text-white"><i class="fas fa-check"></i></div>
                     <div><?= session()->getFlashdata('success') ?></div>
                     <?php if(session()->getFlashdata('last_sale_id')): ?>
-                        <a href="<?= base_url('stocks/invoice/'.session()->getFlashdata('last_sale_id')) ?>" target="_blank" class="btn btn-sm btn-dark rounded-pill ms-3 px-3">
-                            <i class="fas fa-print me-1"></i> Print Receipt
+                        <a href="<?= base_url('sales/invoice/'.session()->getFlashdata('last_sale_id')) ?>" target="_blank" class="btn btn-sm btn-dark rounded-pill ms-3 px-3">
+                            <i class="fas fa-print me-2"></i> Print Invoice
                         </a>
                     <?php endif; ?>
                     <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>

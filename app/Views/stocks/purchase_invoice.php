@@ -38,7 +38,7 @@
 <div class="receipt">
     <div class="header">
         <div class="brand">
-            <h1>GALAXY PHARMACY</h1>
+            <h1><?= strtoupper(esc(get_setting('pharmacy_name', 'GALAXY PHARMACY'))) ?></h1>
             <p style="margin: 5px 0 0 0; font-size: 13px; color: #64748b;">Stock Purchase Voucher</p>
         </div>
         <div class="info">

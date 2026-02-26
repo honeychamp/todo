@@ -12,8 +12,31 @@ class Vendors extends BaseController
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
         
         $model = new VendorModel();
+        $db = \Config\Database::connect();
+        
         // Latest ones at the top
-        $data['vendors'] = $model->orderBy('id', 'DESC')->findAll();
+        $vendors = $model->orderBy('id', 'DESC')->findAll();
+        
+        // Calculate total dues and top creditors for the professional summary
+        $total_dues = 0;
+        foreach($vendors as &$v) {
+            $purchase_total = $db->table('stock_purchase')
+                                ->where('vendor_id', $v['id'])
+                                ->select('SUM(initial_qty * cost) as total')
+                                ->get()->getRow()->total ?? 0;
+            $payment_total = $db->table('vendor_payments')
+                               ->where('vendor_id', $v['id'])
+                               ->selectSum('amount')->get()->getRow()->amount ?? 0;
+            $v['balance'] = $purchase_total - $payment_total;
+            $total_dues += $v['balance'];
+        }
+
+        $data['vendors'] = $vendors;
+        $data['total_dues'] = $total_dues;
+        
+        // Top 3 Creditors (where we owe most)
+        usort($vendors, function($a, $b) { return $b['balance'] - $a['balance']; });
+        $data['top_creditors'] = array_slice(array_filter($vendors, function($v) { return $v['balance'] > 0; }), 0, 3);
         
         return view('vendors/index', $data);
     }

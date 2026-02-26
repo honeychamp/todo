@@ -102,6 +102,17 @@
                         <div class="badge bg-light text-dark border" id="modal_unit_price">Price: Rs. 0.00</div>
                     </div>
                     
+                    <div class="row mb-5">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-muted">Customer Name (Optional)</label>
+                            <input type="text" class="form-control" name="customer_name" placeholder="e.g. Ali Khan">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-muted">Phone Number</label>
+                            <input type="text" class="form-control" name="customer_phone" placeholder="0300...">
+                        </div>
+                    </div>
+
                     <div class="mb-5">
                         <label class="form-label fw-bold small text-muted">QUANTITY (MAX: <span id="modal_max_qty">0</span>)</label>
                         <input type="number" class="form-control form-control-lg fs-3 fw-800 bg-light border-0 py-3 text-center" name="qty" id="sale_qty" min="1" required oninput="calcTotal()">

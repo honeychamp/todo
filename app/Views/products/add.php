@@ -105,3 +105,9 @@
 </div>
 
 <?= $this->endSection() ?>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?= $this->endSection() ?>

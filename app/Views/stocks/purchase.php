@@ -5,26 +5,26 @@
 <div class="row g-4 mb-4">
     <div class="col-md-4">
         <div class="premium-list p-4 text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #6366f1, #0ea5e9);">
-            <div class="text-white opacity-75 small fw-bold text-uppercase">Total Stock Value (Cost)</div>
+            <div class="text-white opacity-75 small fw-bold text-uppercase">Total Investment (Cost)</div>
             <?php 
-                $totalCostValue = array_sum(array_map(function($p) { return $p['cost'] * $p['qty']; }, $purchases));
+                $totalInvested = array_sum(array_map(function($p) { return $p['cost'] * $p['initial_qty']; }, $purchases));
             ?>
-            <h3 class="text-white fw-800 m-0 mt-1">Rs. <?= number_format($totalCostValue, 2) ?></h3>
+            <h3 class="text-white fw-800 m-0 mt-1">Rs. <?= number_format($totalInvested, 2) ?></h3>
         </div>
     </div>
     <div class="col-md-4">
         <div class="premium-list p-4 text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #10b981, #059669);">
-            <div class="text-white opacity-75 small fw-bold text-uppercase">Expected Revenue (Sale)</div>
+            <div class="text-white opacity-75 small fw-bold text-uppercase">Total Sale Value (Original)</div>
             <?php 
-                $totalSaleValue = array_sum(array_map(function($p) { return $p['price'] * $p['qty']; }, $purchases));
+                $totalSaleValueOriginal = array_sum(array_map(function($p) { return $p['price'] * $p['initial_qty']; }, $purchases));
             ?>
-            <h3 class="text-white fw-800 m-0 mt-1">Rs. <?= number_format($totalSaleValue, 2) ?></h3>
+            <h3 class="text-white fw-800 m-0 mt-1">Rs. <?= number_format($totalSaleValueOriginal, 2) ?></h3>
         </div>
     </div>
     <div class="col-md-4">
         <div class="premium-list p-4 text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-            <div class="text-white opacity-75 small fw-bold text-uppercase">Expected Potential Profit</div>
-            <h3 class="text-white fw-800 m-0 mt-1">Rs. <?= number_format($totalSaleValue - $totalCostValue, 2) ?></h3>
+            <div class="text-white opacity-75 small fw-bold text-uppercase">Potential Profit (Est.)</div>
+            <h3 class="text-white fw-800 m-0 mt-1">Rs. <?= number_format($totalSaleValueOriginal - $totalInvested, 2) ?></h3>
         </div>
     </div>
 </div>
@@ -37,7 +37,7 @@
                     <h5 class="m-0 fw-800">Stock Purchase Log</h5>
                     <p class="text-muted small m-0 mt-1">Record and track stock batches received from vendors.</p>
                 </div>
-                <a href="<?= base_url('stocks/add') ?>" class="btn btn-vibrant rounded-pill px-4">
+                <a href="<?= base_url('stocks/select_vendor') ?>" class="btn btn-vibrant rounded-pill px-4">
                     <i class="fas fa-plus me-2"></i> Add Stock
                 </a>
             </div>
@@ -62,9 +62,10 @@
                             <?php else: ?>
                                 <?php foreach($purchases as $purchase): ?>
                                     <?php 
-                                        $rowTotalCost = $purchase['cost'] * $purchase['qty'];
-                                        $rowTotalSale = $purchase['price'] * $purchase['qty'];
-                                        $rowProfit = $rowTotalSale - $rowTotalCost;
+                                        $invested = $purchase['cost'] * $purchase['initial_qty'];
+                                        $revenue = $purchase['batch_revenue'] ?? 0;
+                                        $items_sold = $purchase['sold_qty'] ?? 0;
+                                        $current_stock_value = $purchase['cost'] * $purchase['qty'];
                                     ?>
                                     <tr>
                                         <td class="px-4">
@@ -95,12 +96,16 @@
                                             <div class="small fw-bold text-muted">Sale: <span class="text-success">Rs. <?= number_format($purchase['price'], 2) ?></span></div>
                                         </td>
                                         <td class="text-center">
-                                            <span class="badge bg-light text-dark p-2 border"><?= esc($purchase['qty']) ?> Units</span>
+                                            <div class="fw-bold fs-6 text-dark"><?= esc($purchase['initial_qty']) ?> <span class="text-muted small" style="font-size: 10px;">Bought</span></div>
+                                            <div class="badge bg-light text-dark border mt-1"><?= esc($purchase['qty']) ?> <span class="small opacity-75">Left</span></div>
+                                            <?php if($items_sold > 0): ?>
+                                                <div class="text-primary small mt-1" style="font-size: 10px;"><?= $items_sold ?> Sold</div>
+                                            <?php endif; ?>
                                         </td>
                                         <td>
-                                            <div class="small fw-bold text-muted">Total Cost: <span class="text-dark float-end">Rs. <?= number_format($rowTotalCost, 2) ?></span></div>
-                                            <div class="small fw-bold text-muted">Total Sale: <span class="text-dark float-end">Rs. <?= number_format($rowTotalSale, 2) ?></span></div>
-                                            <div class="small fw-bold text-primary mt-1 border-top pt-1">Profit: <span class="float-end">Rs. <?= number_format($rowProfit, 2) ?></span></div>
+                                            <div class="small fw-bold text-muted">Invested: <span class="text-dark float-end">Rs. <?= number_format($invested, 2) ?></span></div>
+                                            <div class="small fw-bold text-muted">Earned: <span class="text-success float-end">Rs. <?= number_format($revenue, 2) ?></span></div>
+                                            <div class="small fw-bold text-primary mt-1 border-top pt-1">Remaining: <span class="float-end">Rs. <?= number_format($current_stock_value, 2) ?></span></div>
                                         </td>
                                         <td class="text-end px-4">
                                             <a href="<?= base_url('stocks/purchase_invoice/'.$purchase['id']) ?>" target="_blank" class="btn btn-sm btn-outline-primary border-0 rounded-pill px-3 me-1">

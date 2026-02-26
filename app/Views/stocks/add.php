@@ -5,27 +5,59 @@
 <!-- Products data for JS -->
 <script>
     const productsData = <?= json_encode(array_column($products, null, 'id')) ?>;
-    const vendorsOptions = `<?php foreach($vendors as $v): ?><option value="<?= $v['id'] ?>"><?= esc($v['name']) ?></option><?php endforeach; ?>`;
+    const selectedVendorId = <?= $vendor['id'] ?>;
     const productsOptions = `<?php foreach($products as $p): ?><option value="<?= $p['id'] ?>" data-cost="<?= $p['cost'] ?>"><?= esc($p['name']) ?> [<?= esc($p['unit_value']) ?> <?= esc($p['unit']) ?>]</option><?php endforeach; ?>`;
 </script>
 
 <form action="<?= base_url('stocks/add_purchase') ?>" method="POST" id="bulkStockForm">
+<!-- Hidden: redirect back to this vendor after save -->
+<input type="hidden" name="redirect_vendor_id" value="<?= $vendor['id'] ?>">
+
 <div class="row g-4 animate-wow">
 
     <!-- Page Title -->
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="fw-800 m-0">Add Stock Entry</h4>
-                <p class="text-muted small m-0">Add multiple products in a single batch submission.</p>
+                <h4 class="fw-800 m-0">Stock Add Karein</h4>
+                <p class="text-muted small m-0">
+                    <i class="fas fa-building me-1 text-primary"></i>
+                    Vendor: <strong class="text-primary"><?= esc($vendor['name']) ?></strong>
+                    &nbsp;&bull;&nbsp;
+                    <a href="<?= base_url('stocks/select_vendor') ?>" class="text-muted text-decoration-none small">
+                        <i class="fas fa-exchange-alt me-1"></i> Vendor Change Karein
+                    </a>
+                </p>
             </div>
             <div class="d-flex gap-2">
-                <a href="<?= base_url('stocks/purchase') ?>" class="btn btn-light rounded-pill px-4">
+                <a href="<?= base_url('stocks/vendor/' . $vendor['id']) ?>" class="btn btn-light rounded-pill px-4">
                     <i class="fas fa-arrow-left me-2"></i> Back
                 </a>
                 <button type="submit" class="btn btn-vibrant rounded-pill px-4">
                     <i class="fas fa-check-circle me-2"></i> Save All Stock
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendor Info Banner -->
+    <div class="col-12">
+        <div class="p-3 px-4 rounded-4 d-flex align-items-center gap-3" style="background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(14,165,233,0.08)); border: 1.5px solid rgba(99,102,241,0.15);">
+            <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#0ea5e9);display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-building text-white"></i>
+            </div>
+            <div>
+                <div class="fw-800 text-dark"><?= esc($vendor['name']) ?></div>
+                <div class="small text-muted">
+                    <i class="fas fa-phone me-1"></i><?= esc($vendor['phone']) ?>
+                    <?php if ($vendor['email']): ?> &nbsp;&bull;&nbsp; <i class="fas fa-envelope me-1"></i><?= esc($vendor['email']) ?><?php endif; ?>
+                    <?php if ($vendor['address']): ?> &nbsp;&bull;&nbsp; <i class="fas fa-location-dot me-1"></i><?= esc($vendor['address']) ?><?php endif; ?>
+                </div>
+            </div>
+            <div class="ms-auto">
+                <span class="badge rounded-pill px-3 py-2 fw-bold" style="background:rgba(99,102,241,0.1);color:#6366f1;">
+                    Yahi vendor ka stock add ho raha hai
+                </span>
             </div>
         </div>
     </div>
@@ -36,10 +68,10 @@
             <div class="p-4 px-5 border-bottom d-flex justify-content-between align-items-center">
                 <div>
                     <h5 class="fw-800 m-0">Stock Items</h5>
-                    <p class="text-muted small m-0">Each row is one product batch entry.</p>
+                    <p class="text-muted small m-0">Har row ek product batch entry hai.</p>
                 </div>
                 <button type="button" class="btn btn-outline-primary rounded-pill px-4" onclick="addStockRow()">
-                    <i class="fas fa-plus me-2"></i> Add Row
+                    <i class="fas fa-plus me-2"></i> Row Add Karein
                 </button>
             </div>
 
@@ -47,8 +79,7 @@
                 <table class="table align-middle mb-0" id="stockTable">
                     <thead class="bg-light">
                         <tr>
-                            <th class="px-4 py-3 border-0" style="min-width:60px;">#</th>
-                            <th class="py-3 border-0" style="min-width:160px;">Vendor</th>
+                            <th class="px-4 py-3 border-0" style="min-width:50px;">#</th>
                             <th class="py-3 border-0" style="min-width:130px;">Batch ID</th>
                             <th class="py-3 border-0" style="min-width:220px;">Product</th>
                             <th class="py-3 border-0" style="min-width:140px;">MFG Date</th>
@@ -135,13 +166,7 @@ function addStockRow() {
     tr.id = 'row_' + rowIndex;
     tr.innerHTML = `
         <td class="px-4"><span class="row-num">${rowIndex}</span></td>
-        <td>
-            <select name="vendor_id[]">
-                <option value="">— Select —</option>
-                ${vendorsOptions}
-            </select>
-        </td>
-        <td>
+        <td><input type="hidden" name="vendor_id[]" value="${selectedVendorId}">
             <input type="text" name="batch_id[]" placeholder="BATCH-101" required>
         </td>
         <td>
@@ -185,7 +210,6 @@ function updateRowCount() {
     document.getElementById('rowCount').textContent = count + ' item(s) added';
 }
 
-// Start with one row
 document.addEventListener('DOMContentLoaded', function() {
     addStockRow();
 });
