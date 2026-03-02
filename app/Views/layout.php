@@ -519,6 +519,24 @@
                 </ul>
             </li>
 
+            <li class="<?= url_is('doctors*') ? 'active' : '' ?>">
+                <a href="#doctorSubmenu" data-bs-toggle="collapse" class="<?= !url_is('doctors*') ? 'collapsed' : '' ?> dropdown-toggle">
+                    <i class="fas fa-user-md"></i> Doctor Hub
+                </a>
+                <ul class="collapse list-unstyled <?= url_is('doctors*') ? 'show' : '' ?>" id="doctorSubmenu">
+                    <li>
+                        <a href="<?= base_url('doctors') ?>" class="<?= url_is('doctors') ? 'text-white fw-bold' : '' ?>">
+                            <i class="fas fa-list small me-2"></i> Doctor Network
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= base_url('doctors/payments') ?>" class="<?= url_is('doctors/payments') ? 'text-white fw-bold' : '' ?>">
+                            <i class="fas fa-receipt small me-2"></i> Payment Logs
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
             <li class="<?= url_is('expenses') ? 'active' : '' ?>">
                 <a href="<?= base_url('expenses') ?>"><i class="fas fa-wallet"></i> Expenses</a>
             </li>

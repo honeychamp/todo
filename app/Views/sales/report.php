@@ -24,23 +24,23 @@
             <div class="row g-4 mb-5">
                 <div class="col-md-3">
                     <div class="p-4 rounded-4 text-center h-100 d-flex flex-column justify-content-center" style="background: rgba(99,102,241,0.05); border: 2.5px dashed rgba(99,102,241,0.2);">
-                        <div class="text-muted small fw-bold text-uppercase mb-2">Total Sales</div>
-                        <?php $rev = array_sum(array_map(function($s){ return $s['qty'] * $s['sale_price']; }, $sales)); ?>
+                        <div class="text-muted small fw-bold text-uppercase mb-2">Net Sales Revenue</div>
+                        <?php $rev = array_sum(array_map(function($s){ return ($s['qty'] * $s['sale_price']) - ($s['discount'] ?? 0); }, $sales)); ?>
                         <div class="fw-900 h2 m-0 text-primary">Rs. <?= number_format($rev, 2) ?></div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="p-4 rounded-4 text-center h-100 d-flex flex-column justify-content-center" style="background: rgba(16,185,129,0.05); border: 2.5px dashed rgba(16,185,129,0.2);">
-                        <div class="text-muted small fw-bold text-uppercase mb-2">Total Profit</div>
-                        <?php $prof = array_sum(array_map(function($s){ return ($s['sale_price'] - $s['purchase_cost']) * $s['qty']; }, $sales)); ?>
+                        <div class="text-muted small fw-bold text-uppercase mb-2">Net Profit</div>
+                        <?php $prof = array_sum(array_map(function($s){ return (($s['qty'] * $s['sale_price']) - ($s['discount'] ?? 0)) - ($s['purchase_cost'] * $s['qty']); }, $sales)); ?>
                         <div class="fw-900 h2 m-0 text-success">Rs. <?= number_format($prof, 2) ?></div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="p-4 rounded-4 text-center h-100 d-flex flex-column justify-content-center" style="background: rgba(245,158,11,0.05); border: 2.5px dashed rgba(245,158,11,0.2);">
-                        <div class="text-muted small fw-bold text-uppercase mb-2">Quantity Sold</div>
-                        <?php $qtyS = array_sum(array_column($sales, 'qty')); ?>
-                        <div class="fw-900 h2 m-0 text-warning"><?= number_format($qtyS) ?></div>
+                        <div class="text-muted small fw-bold text-uppercase mb-2">Discount Burden</div>
+                        <?php $discTotal = array_sum(array_column($sales, 'discount')); ?>
+                        <div class="fw-900 h2 m-0 text-warning">Rs. <?= number_format($discTotal, 2) ?></div>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -55,12 +55,12 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr class="text-muted small text-uppercase">
-                            <th class="border-0 px-4 py-3">Order ID & Date</th>
-                            <th class="border-0 py-3">Product Name</th>
+                            <th class="border-0 px-4 py-3">Order & Date</th>
+                            <th class="border-0 py-3">Payer / Product</th>
                             <th class="border-0 py-3 text-center">Qty</th>
-                            <th class="border-0 py-3 text-end">Amount</th>
-                            <th class="border-0 py-3 text-end">Total Profit</th>
-                            <th class="border-0 py-3 text-end px-5">Status</th>
+                            <th class="border-0 py-3 text-end">Net Sale</th>
+                            <th class="border-0 py-3 text-end">Profit Loss</th>
+                            <th class="border-0 py-3 text-end px-5">Performance</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -69,24 +69,37 @@
                         <?php else: ?>
                             <?php foreach($sales as $sale): ?>
                                 <?php 
-                                    $revenue = $sale['qty'] * $sale['sale_price'];
-                                    $profit = ($sale['sale_price'] - $sale['purchase_cost']) * $sale['qty'];
+                                    $subtotal = $sale['qty'] * $sale['sale_price'];
+                                    $revenue = $subtotal - ($sale['discount'] ?? 0);
+                                    $cost = $sale['purchase_cost'] * $sale['qty'];
+                                    $profit = $revenue - $cost;
                                     $margin = $revenue > 0 ? ($profit / $revenue) * 100 : 0;
                                 ?>
                                 <tr>
                                     <td class="px-4">
                                         <div class="fw-800 text-dark">S-<?= str_pad($sale['id'], 5, '0', STR_PAD_LEFT) ?></div>
-                                        <div class="text-muted small" style="font-size: 0.7rem;"><?= date('d M, Y h:i A', strtotime($sale['sale_date'])) ?></div>
+                                        <div class="text-muted small" style="font-size: 0.7rem;"><?= date('d M, Y', strtotime($sale['sale_date'])) ?></div>
                                     </td>
                                     <td>
-                                        <div class="fw-bold fs-6"><?= esc($sale['product_name']) ?></div>
-                                        <div class="text-muted small">Batch: <?= esc($sale['batch_id']) ?></div>
+                                        <div class="fw-900 text-primary small">
+                                            <i class="fas <?= !empty($sale['doctor_name']) ? 'fa-user-md' : 'fa-user' ?> me-1"></i>
+                                            <?= esc($sale['doctor_name'] ?: ($sale['customer_name'] ?: 'Cash Guest')) ?>
+                                        </div>
+                                        <div class="fw-bold text-dark fs-6"><?= esc($sale['product_name']) ?></div>
+                                        <div class="text-muted extra-small">Batch: <?= esc($sale['batch_id']) ?></div>
                                     </td>
                                     <td class="text-center fw-bold fs-5"><?= number_format($sale['qty']) ?></td>
-                                    <td class="text-end fw-bold">Rs. <?= number_format($revenue, 2) ?></td>
-                                    <td class="text-end fw-bold text-success">Rs. <?= number_format($profit, 2) ?></td>
+                                    <td class="text-end fw-bold">
+                                        <div class="text-dark">Rs. <?= number_format($revenue, 2) ?></div>
+                                        <?php if($sale['discount'] > 0): ?>
+                                            <div class="text-danger extra-small">Disc: Rs. <?= number_format($sale['discount'], 2) ?></div>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-end fw-bold <?= $profit > 0 ? 'text-success' : 'text-danger' ?>">
+                                        Rs. <?= number_format($profit, 2) ?>
+                                    </td>
                                     <td class="text-end px-5">
-                                        <span class="badge rounded-pill <?= $margin > 20 ? 'bg-success' : 'bg-primary' ?> px-3 py-1"><?= number_format($margin, 1) ?>% Margin</span>
+                                        <span class="badge rounded-pill <?= $profit > 0 ? ($margin > 20 ? 'bg-success' : 'bg-primary') : 'bg-danger' ?> px-3 py-1"><?= number_format($margin, 1) ?>%</span>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

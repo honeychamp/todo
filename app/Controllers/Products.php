@@ -55,13 +55,15 @@ class Products extends BaseController
                            ->findAll();
 
     $todayRevenue = 0;
-    $todayProfit = 0;
-    foreach($todaySalesData as $ts) {
-        $todayRevenue += $ts['sale_price'] * $ts['qty'];
-        $todayProfit += ($ts['sale_price'] - $ts['cost_price']) * $ts['qty'];
-    }
-    $data['today_revenue'] = $todayRevenue;
-    $data['today_profit'] = $todayProfit;
+$todayProfit = 0;
+foreach($todaySalesData as $ts) {
+    $subtotal = $ts['sale_price'] * $ts['qty'];
+    $netSale = $subtotal - ($ts['discount'] ?? 0);
+    $todayRevenue += $netSale;
+    $todayProfit += ($netSale - ($ts['cost_price'] * $ts['qty']));
+}
+$data['today_revenue'] = $todayRevenue;
+$data['today_profit'] = $todayProfit;
 
     // Today's Expenses
     $expenseModel = new \App\Models\ExpenseModel();
@@ -72,16 +74,23 @@ class Products extends BaseController
     $data['today_net_profit'] = $todayProfit - $todayExpenses;
 
     // Lifetime Stats
-    $data['lifetime_sales'] = $saleModel->select('SUM(qty * sale_price) as total')->first()['total'] ?? 0;
-    $allProfitData = $saleModel->select('sales.qty, sales.sale_price, stock_purchase.cost')
-                              ->join('stock_purchase', 'stock_purchase.id = sales.stock_id')
-                              ->findAll();
-    $totalLifeProfit = 0;
-    foreach($allProfitData as $ap) {
-        $totalLifeProfit += ($ap['sale_price'] - $ap['cost']) * $ap['qty'];
-    }
-    $totalAllExpenses = $expenseModel->selectSum('amount')->first()['amount'] ?? 0;
-    $data['lifetime_net_profit'] = $totalLifeProfit - $totalAllExpenses;
+    $data['lifetime_sales'] = $saleModel->select('SUM(qty * sale_price - discount) as total')->first()['total'] ?? 0;
+$allProfitData = $saleModel->select('sales.qty, sales.sale_price, sales.discount, stock_purchase.cost')
+                          ->join('stock_purchase', 'stock_purchase.id = sales.stock_id')
+                          ->findAll();
+$totalLifeProfit = 0;
+foreach($allProfitData as $ap) {
+    $subtotal = $ap['sale_price'] * $ap['qty'];
+    $netSale = $subtotal - ($ap['discount'] ?? 0);
+    $totalLifeProfit += ($netSale - ($ap['cost'] * $ap['qty']));
+}
+$totalAllExpenses = $expenseModel->selectSum('amount')->first()['amount'] ?? 0;
+$data['lifetime_net_profit'] = $totalLifeProfit - $totalAllExpenses;
+
+    // Doctor Stats
+    $doctorModel = new \App\Models\DoctorModel();
+    $data['total_doctors'] = $doctorModel->countAllResults();
+    $data['total_doctor_receivables'] = $db->query("SELECT (SELECT COALESCE(SUM(qty * sale_price), 0) FROM sales WHERE doctor_id IS NOT NULL) - (SELECT COALESCE(SUM(amount), 0) FROM doctor_payments) as net_receivable")->getRow()->net_receivable ?? 0;
 
     // 1. Real Chart Data (Last 7 Days Sales)
     $sevenDaysAgo = date('Y-m-d', strtotime('-6 days'));

@@ -58,6 +58,14 @@ $routes->post('sales/process', 'Sales::process');
 
 
 
+// Doctors Module
+$routes->get('doctors', 'Doctors::index');
+$routes->post('doctors/create', 'Doctors::create');
+$routes->get('doctors/ledger/(:num)', 'Doctors::ledger/$1');
+$routes->post('doctors/add_payment', 'Doctors::add_payment');
+$routes->get('doctors/payments', 'Doctors::payments');
+$routes->get('doctors/delete/(:num)', 'Doctors::delete/$1');
+
 $routes->get('settings', 'Settings::index');
 $routes->post('settings/update', 'Settings::update');
 

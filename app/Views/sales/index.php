@@ -156,25 +156,39 @@
                     </div>
                     
                     <div class="row g-4 mb-5">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted text-uppercase">Customer Name</label>
-                            <input type="text" class="form-control form-control-lg bg-light border-0 py-3" name="customer_name" placeholder="Name">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Select Doctor / Clinic (Optional)</label>
+                            <select name="doctor_id" class="form-select border-0 bg-light py-3 rounded-4 fw-bold">
+                                <option value="">Walking Customer (Cash Sale)</option>
+                                <?php foreach($doctors as $dr): ?>
+                                    <option value="<?= $dr['id'] ?>"><?= esc($dr['name']) ?> - <?= esc($dr['phone']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small class="text-muted extra-small mt-1 d-block"><i class="fas fa-info-circle me-1"></i> Selecting a doctor will add this amount to their debit ledger.</small>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted text-uppercase">Phone Number</label>
-                            <input type="text" class="form-control form-control-lg bg-light border-0 py-3" name="customer_phone" placeholder="03XXXXXXXXX">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Manual Name</label>
+                            <input type="text" class="form-control form-control-lg bg-light border-0 py-3 rounded-4" name="customer_name" placeholder="Guest Name">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Manual Phone</label>
+                            <input type="text" class="form-control form-control-lg bg-light border-0 py-3 rounded-4" name="customer_phone" placeholder="03XXXXXXXXX">
                         </div>
                     </div>
 
                     <div class="row align-items-center mb-5">
-                        <div class="col-7">
+                        <div class="col-4">
                             <label class="form-label fw-bold small text-muted text-uppercase">Quantity</label>
-                            <input type="number" class="form-control form-control-lg fs-2 fw-900 bg-white border-bottom border-primary border-4 rounded-0 shadow-none py-3" name="qty" id="sale_qty" min="1" required oninput="calcTotal()" value="1">
+                            <input type="number" class="form-control form-control-lg fs-3 fw-900 bg-white border-bottom border-primary border-4 rounded-0 shadow-none py-2" name="qty" id="sale_qty" min="1" required oninput="calcTotal()" value="1">
                         </div>
-                        <div class="col-5">
-                            <div class="text-center p-3 rounded-4 bg-light">
-                                <span class="text-muted extra-small d-block fw-bold">MAX AVAIL</span>
-                                <span class="fw-900 h4 m-0" id="modal_max_qty">0</span>
+                        <div class="col-4">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Discount (Rs.)</label>
+                            <input type="number" step="0.01" class="form-control form-control-lg fs-3 fw-900 bg-white border-bottom border-danger border-4 rounded-0 shadow-none py-2" name="discount" id="sale_discount" min="0" oninput="calcTotal()" value="0">
+                        </div>
+                        <div class="col-4">
+                            <div class="text-center p-2 rounded-4 bg-light border">
+                                <span class="text-muted extra-small d-block fw-bold">MAX STOCK</span>
+                                <span class="fw-900 h5 m-0" id="modal_max_qty">0</span>
                             </div>
                         </div>
                     </div>
@@ -217,17 +231,21 @@
 
     function calcTotal() {
         const qtyBox = document.getElementById('sale_qty');
+        const discBox = document.getElementById('sale_discount');
         const max = parseInt(qtyBox.max);
         let qty = parseInt(qtyBox.value) || 0;
+        let discount = parseFloat(discBox.value) || 0;
         
         if(qty > max) {
             qty = max;
             qtyBox.value = max;
         }
         
-        const total = qty * currentPrice;
-        document.getElementById('modal_total_amount').innerText = 'Rs. ' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
-        document.getElementById('sub_total_disp').innerText = 'Rs. ' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
+        const subtotal = qty * currentPrice;
+        const total = subtotal - discount;
+        
+        document.getElementById('modal_total_amount').innerText = 'Rs. ' + (total > 0 ? total : 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('sub_total_disp').innerText = 'Rs. ' + subtotal.toLocaleString(undefined, {minimumFractionDigits: 2});
     }
 
     function filterTable() {

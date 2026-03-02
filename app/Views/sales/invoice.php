@@ -21,13 +21,22 @@
 
             <div class="row mb-5">
                 <div class="col-md-6">
-                    <h6 class="text-muted text-uppercase fw-bold small">Customer Info</h6>
-                    <div class="fw-800 text-dark"><?= esc($sale['customer_name'] ?: 'Guest Customer') ?></div>
-                    <div class="text-muted small"><?= esc($sale['customer_phone'] ?: 'No Phone Provided') ?></div>
+                    <h6 class="text-muted text-uppercase fw-bold small">Payer Information</h6>
+                    <?php if(!empty($sale['doctor_name'])): ?>
+                        <div class="fw-900 text-primary fs-5"><i class="fas fa-user-md me-1"></i> <?= esc($sale['doctor_name']) ?></div>
+                        <div class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 extra-small">RECORDED TO DOCTOR LEDGER</div>
+                    <?php else: ?>
+                        <div class="fw-800 text-dark"><?= esc($sale['customer_name'] ?: 'Retail Customer') ?></div>
+                        <div class="text-muted small"><?= esc($sale['customer_phone'] ?: 'Walk-in Cash Sale') ?></div>
+                    <?php endif; ?>
                 </div>
                 <div class="col-md-6 text-end">
-                    <h6 class="text-muted text-uppercase fw-bold small">Payment Status</h6>
-                    <div class="badge bg-success rounded-pill px-3 py-2 fs-6">PAID IN FULL</div>
+                    <h6 class="text-muted text-uppercase fw-bold small">Transaction Status</h6>
+                    <?php if(!empty($sale['doctor_id'])): ?>
+                        <div class="badge bg-warning text-dark rounded-pill px-3 py-2 fs-6">CREDIT / ON ACCOUNT</div>
+                    <?php else: ?>
+                        <div class="badge bg-success text-white rounded-pill px-3 py-2 fs-6">PAID (CASH)</div>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -56,8 +65,18 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="4" class="text-end border-0 pt-4 fw-800 h4 m-0">Grand Total Payable:</td>
-                            <td class="text-end border-0 pt-4 fw-900 h3 m-0 text-primary">Rs. <?= number_format($sale['qty'] * $sale['sale_price'], 2) ?></td>
+                            <td colspan="4" class="text-end border-0 pt-4 fw-800 text-muted">Sub-Total:</td>
+                            <td class="text-end border-0 pt-4 fw-800 text-dark">Rs. <?= number_format($sale['qty'] * $sale['sale_price'], 2) ?></td>
+                        </tr>
+                        <?php if($sale['discount'] > 0): ?>
+                        <tr>
+                            <td colspan="4" class="text-end border-0 pt-1 fw-800 text-danger">Discount Given (-):</td>
+                            <td class="text-end border-0 pt-1 fw-800 text-danger">Rs. <?= number_format($sale['discount'], 2) ?></td>
+                        </tr>
+                        <?php endif; ?>
+                        <tr>
+                            <td colspan="4" class="text-end border-0 pt-3 fw-900 h4 m-0">Net Amount:</td>
+                            <td class="text-end border-0 pt-3 fw-900 h2 m-0 text-primary">Rs. <?= number_format(($sale['qty'] * $sale['sale_price']) - ($sale['discount'] ?? 0), 2) ?></td>
                         </tr>
                     </tfoot>
                 </table>

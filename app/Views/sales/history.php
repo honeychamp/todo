@@ -41,8 +41,13 @@
                                             <div class="text-muted small fw-normal"><?= esc($sale['product_unit_value']) ?> <?= esc($sale['product_unit']) ?></div>
                                         </td>
                                         <td>
-                                            <div class="fw-bold"><?= esc($sale['customer_name'] ?: 'Guest') ?></div>
-                                            <div class="text-muted small"><?= esc($sale['customer_phone'] ?: '-') ?></div>
+                                            <?php if(!empty($sale['doctor_name'])): ?>
+                                                <div class="fw-900 text-primary"><i class="fas fa-user-md me-1"></i> <?= esc($sale['doctor_name']) ?></div>
+                                                <div class="badge bg-primary bg-opacity-10 text-primary extra-small px-2">DOCTOR NETWORK</div>
+                                            <?php else: ?>
+                                                <div class="fw-bold"><?= esc($sale['customer_name'] ?: 'Retail Guest') ?></div>
+                                                <div class="text-muted extra-small fw-bold"><?= esc($sale['customer_phone'] ?: 'CASH SALE') ?></div>
+                                            <?php endif; ?>
                                         </td>
                                         <td class="text-center fw-bold fs-5"><?= number_format($sale['qty']) ?></td>
                                         <td class="text-end fw-bold">Rs. <?= number_format($sale['qty'] * $sale['sale_price'], 2) ?></td>

@@ -67,6 +67,8 @@ class Sales extends BaseController
             }
         }
 
+        $dModel = new \App\Models\DoctorModel();
+        $data['doctors'] = $dModel->orderBy('name', 'ASC')->findAll();
         $data['stocks'] = $available;
         return view('sales/index', $data);
     }
@@ -78,6 +80,7 @@ class Sales extends BaseController
         
         $stockId   = $this->request->getPost('stock_id');
         $qtyToSell = $this->request->getPost('qty');
+        $doctorId  = $this->request->getPost('doctor_id');
 
         $stockModel = new StockModel();
         $stock = $stockModel->find($stockId);
@@ -92,20 +95,18 @@ class Sales extends BaseController
         $available = $stock['initial_qty'] - $sold;
 
         if ($available >= $qtyToSell) {
+            $discount = $this->request->getPost('discount') ?: 0;
             $saleId = $saleModel->insert([
                 'stock_id'       => $stockId,
                 'product_id'     => $stock['product_id'],
+                'doctor_id'      => !empty($doctorId) ? $doctorId : null,
                 'qty'            => $qtyToSell,
                 'sale_price'     => $stock['price'],
+                'discount'       => $discount,
                 'customer_name'  => $this->request->getPost('customer_name'),
                 'customer_phone' => $this->request->getPost('customer_phone'),
                 'sale_date'      => date('Y-m-d H:i:s')
             ]);
-
-            // IMPORTANT: We do NOT decrement the 'qty' in stock_purchase here.
-            // This satisfies the requirement: "hum jo cheez sale kara wo purchase wala sa remove na ho"
-            // The purchase record (initial_qty) stays untouched, and the sold items are in the 'sales' table.
-            // The 'qty' column in stock_purchase will eventually become redundant or act as a static field.
 
             return redirect()->to(base_url('sales'))->with('success', 'Sale processed successfully!')
                                                   ->with('last_sale_id', $saleId);
@@ -119,9 +120,10 @@ class Sales extends BaseController
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
 
         $saleModel = new SaleModel();
-        $data['sales'] = $saleModel->select('sales.*, products.name as product_name, products.unit as product_unit, products.unit_value as product_unit_value, stock_purchase.batch_id')
+        $data['sales'] = $saleModel->select('sales.*, products.name as product_name, products.unit as product_unit, products.unit_value as product_unit_value, stock_purchase.batch_id, doctors.name as doctor_name')
                                    ->join('products', 'products.id = sales.product_id')
                                    ->join('stock_purchase', 'stock_purchase.id = sales.stock_id')
+                                   ->join('doctors', 'doctors.id = sales.doctor_id', 'left')
                                    ->orderBy('sales.sale_date', 'DESC')
                                    ->findAll();
 
@@ -137,9 +139,10 @@ class Sales extends BaseController
 
         $db = \Config\Database::connect();
         $builder = $db->table('sales s');
-        $builder->select('s.*, p.name as product_name, st.batch_id, st.cost as purchase_cost');
+        $builder->select('s.*, p.name as product_name, st.batch_id, st.cost as purchase_cost, d.name as doctor_name');
         $builder->join('products p', 'p.id = s.product_id');
         $builder->join('stock_purchase st', 'st.id = s.stock_id');
+        $builder->join('doctors d', 'd.id = s.doctor_id', 'left');
         $builder->where('DATE(s.sale_date) >=', $start_date);
         $builder->where('DATE(s.sale_date) <=', $end_date);
         $builder->orderBy('s.sale_date', 'DESC');
@@ -155,9 +158,10 @@ class Sales extends BaseController
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
         $saleModel = new SaleModel();
-        $data['sale'] = $saleModel->select('sales.*, products.name as product_name, products.unit as product_unit, products.unit_value as product_unit_value, stock_purchase.batch_id')
+        $data['sale'] = $saleModel->select('sales.*, products.name as product_name, products.unit as product_unit, products.unit_value as product_unit_value, stock_purchase.batch_id, doctors.name as doctor_name')
                                  ->join('products', 'products.id = sales.product_id')
                                  ->join('stock_purchase', 'stock_purchase.id = sales.stock_id')
+                                 ->join('doctors', 'doctors.id = sales.doctor_id', 'left')
                                  ->find($id);
         return view('sales/invoice', $data);
     }
@@ -197,10 +201,11 @@ class Sales extends BaseController
         header("Content-Type: application/csv;");
 
         $file = fopen('php://output', 'w');
-        fputcsv($file, ['ID', 'Date', 'Product', 'Customer', 'Phone', 'Qty', 'Unit Price', 'Cost Price', 'Total Sale', 'Profit', 'Batch', 'Vendor']);
+        fputcsv($file, ['ID', 'Date', 'Product', 'Customer/Doctor', 'Qty', 'Unit Price', 'Cost Price', 'Discount', 'Total Net Sale', 'Profit', 'Batch', 'Vendor']);
 
         foreach ($sales as $s) {
-            $totalSale = $s['qty'] * $s['sale_price'];
+            $subtotal = $s['qty'] * $s['sale_price'];
+            $totalSale = $subtotal - ($s['discount'] ?? 0);
             $totalCost = $s['qty'] * $s['cost_price'];
             $profit = $totalSale - $totalCost;
             
@@ -208,15 +213,15 @@ class Sales extends BaseController
                 $s['id'],
                 $s['sale_date'],
                 $s['product_name'],
-                $s['customer_name'] ?: 'Cash Customer',
-                $s['customer_phone'] ?: '-',
+                $s['doctor_name'] ?: ($s['customer_name'] ?: 'Cash Customer'),
                 $s['qty'],
                 $s['sale_price'],
                 $s['cost_price'],
+                $s['discount'],
                 $totalSale,
                 $profit,
                 $s['batch_id'],
-                $s['vendor_name'] ?: 'N/A'
+                $s['vendor_name'] ?: 'Local'
             ]);
         }
         fclose($file);

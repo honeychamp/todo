@@ -91,6 +91,36 @@
     </div>
 </div>
 
+<!-- Doctor Network Section -->
+<div class="row g-4 mb-4 animate-wow" style="animation-delay: 0.1s;">
+    <div class="col-xl-6 col-md-12">
+        <div class="stat-card shadow-lg" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white;">
+            <i class="fas fa-user-doctor icon-bg"></i>
+            <span class="action-badge">Supply Network</span>
+            <div class="d-flex justify-content-between align-items-end">
+                <div>
+                   <div class="stat-value"><?= number_format($total_doctors) ?></div>
+                   <div class="stat-label">Registered Client Doctors</div>
+                </div>
+                <a href="<?= base_url('doctors') ?>" class="btn btn-sm btn-light rounded-pill px-3 fw-bold border-0" style="font-size: 0.7rem;">COMMAND NODE <i class="fas fa-arrow-right-long ms-1"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6 col-md-12">
+        <div class="stat-card shadow-lg" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+            <i class="fas fa-receipt icon-bg"></i>
+            <span class="action-badge">Financial Liquidity</span>
+            <div class="d-flex justify-content-between align-items-end">
+                <div>
+                   <div class="stat-value">Rs. <?= number_format($total_doctor_receivables ?? 0, 2) ?></div>
+                   <div class="stat-label">Total Network Receivables</div>
+                </div>
+                <div class="badge bg-white bg-opacity-20 text-white p-2 px-3 rounded-pill fw-bold" style="font-size: 0.7rem;">ACTIVE LIABILITIES</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Row 2: Today's detailed financial performance -->
 <div class="row g-4 mb-4 animate-wow" style="animation-delay: 0.1s;">
     <div class="col-xl-3 col-md-6">
