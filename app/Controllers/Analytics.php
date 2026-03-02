@@ -66,14 +66,14 @@ class Analytics extends BaseController
 
         // 3. MASTER COMMAND STATS
         $data['lifetime'] = [
-            'total_sales'      => $db->query("SELECT SUM(qty * sale_price) as total FROM sales")->getRow()->total ?? 0,
+            'total_sales'      => $db->query("SELECT SUM((qty * sale_price) - discount) as total FROM sales")->getRow()->total ?? 0,
             'total_investment' => $db->query("SELECT SUM(initial_qty * cost) as total FROM stock_purchase")->getRow()->total ?? 0,
             'total_expenses'   => $db->query("SELECT SUM(amount) as total FROM expenses")->getRow()->total ?? 0,
             'current_stock_valuation' => $db->query("SELECT SUM((initial_qty - COALESCE((SELECT SUM(qty) FROM sales WHERE stock_id = sp.id), 0)) * sp.cost) as total FROM stock_purchase sp")->getRow()->total ?? 0,
         ];
 
         // 4. TOP PERFORMERS
-        $data['top_selling_products'] = $db->query("SELECT p.name, SUM(s.qty) as units, SUM(s.qty * s.sale_price) as revenue 
+        $data['top_selling_products'] = $db->query("SELECT p.name, SUM(s.qty) as units, SUM((s.qty * s.sale_price) - s.discount) as revenue 
                                                   FROM sales s 
                                                   JOIN products p ON p.id = s.product_id 
                                                   GROUP BY s.product_id 
@@ -102,8 +102,8 @@ class Analytics extends BaseController
         $purchases = $db->query("SELECT SUM(initial_qty * cost) as total FROM stock_purchase WHERE DATE(created_at) BETWEEN ? AND ?", [$start, $end])->getRow()->total ?? 0;
 
         $salesRow = $db->query("SELECT 
-                                    COALESCE(SUM(s.qty * s.sale_price), 0) as revenue,
-                                    COALESCE(SUM((s.sale_price - sp.cost) * s.qty), 0) as gross_profit,
+                                    COALESCE(SUM((s.qty * s.sale_price) - s.discount), 0) as revenue,
+                                    COALESCE(SUM(((s.sale_price * s.qty) - s.discount) - (sp.cost * s.qty)), 0) as gross_profit,
                                     COUNT(DISTINCT s.id) as tx
                                  FROM sales s 
                                  JOIN stock_purchase sp ON sp.id = s.stock_id
