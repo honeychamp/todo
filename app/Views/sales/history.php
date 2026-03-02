@@ -6,7 +6,7 @@
             <div class="p-4 px-5 border-bottom d-flex justify-content-between align-items-center">
                 <div>
                     <h5 class="m-0 fw-800">Sales History</h5>
-                    <p class="text-muted small m-0 mt-1">Audit log of all successful sales transactions.</p>
+                    <p class="text-muted small m-0 mt-1">List of all products you sold.</p>
                 </div>
             </div>
             <div class="p-0">
@@ -14,12 +14,12 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
-                                <th class="border-0 px-4 py-3">ID & Date</th>
-                                <th class="border-0 py-3">Batch Info</th>
-                                <th class="border-0 py-3">Product Sold</th>
+                                <th class="border-0 px-4 py-3">Order ID & Date</th>
+                                <th class="border-0 py-3">Batch</th>
+                                <th class="border-0 py-3">Product Name</th>
                                 <th class="border-0 py-3">Customer</th>
                                 <th class="border-0 py-3 text-center">Qty</th>
-                                <th class="border-0 py-3 text-end">Sale Amount</th>
+                                <th class="border-0 py-3 text-end">Amount</th>
                                 <th class="border-0 py-3 text-end px-4">Action</th>
                             </tr>
                         </thead>
@@ -50,7 +50,7 @@
                                             <a href="<?= base_url('sales/invoice/'.$sale['id']) ?>" target="_blank" class="btn btn-sm btn-outline-primary border-0 rounded-pill px-3">
                                                 <i class="fas fa-print"></i>
                                             </a>
-                                            <a href="<?= base_url('sales/void/'.$sale['id']) ?>" class="btn btn-sm btn-outline-danger border-0 rounded-pill px-3" onclick="return confirm('Void this sale?')">
+                                            <a href="<?= base_url('sales/void/'.$sale['id']) ?>" class="btn btn-sm btn-outline-danger border-0 rounded-pill px-3" onclick="return confirm('Cancel this sale?')">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </td>

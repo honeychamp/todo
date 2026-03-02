@@ -4,9 +4,9 @@
 <div class="row g-4 mb-4 animate-wow">
     <div class="col-md-4">
         <div class="premium-list p-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #1e293b, #334155); color: white;">
-            <div class="opacity-75 small fw-bold text-uppercase">Total Company Debt</div>
+            <div class="opacity-75 small fw-bold text-uppercase">Total Amount to Pay</div>
             <h1 class="fw-900 m-0 mt-2">Rs. <?= number_format(array_sum(array_map(fn($v) => ($v['total_purchase_value'] ?? 0) - ($v['total_paid'] ?? 0), $vendors)), 2) ?></h1>
-            <p class="small opacity-50 m-0 mt-2">Combined outstanding balance for all vendors.</p>
+            <p class="small opacity-50 m-0 mt-2">Total money you owe to all vendors.</p>
         </div>
     </div>
     <div class="col-md-8">
@@ -29,8 +29,8 @@
         <div class="premium-list p-0 shadow-lg border-0 bg-white">
             <div class="p-4 px-5 border-bottom d-flex justify-content-between align-items-center">
                 <div>
-                    <h5 class="m-0 fw-800 text-dark">Supplier Balances & Settlement</h5>
-                    <p class="text-muted small m-0 mt-1">Real-time ledger tracking for your pharmacy suppliers.</p>
+                    <h5 class="m-0 fw-800 text-dark">Vendor Balances</h5>
+                    <p class="text-muted small m-0 mt-1">Track and pay your suppliers here.</p>
                 </div>
                 <div class="text-end">
                     <i class="fas fa-building-user fa-2x opacity-10"></i>
@@ -43,10 +43,10 @@
                         <thead class="bg-light">
                             <tr>
                                 <th class="px-5 py-4 border-0">Vendor Details</th>
-                                <th class="py-4 border-0 text-end">Total Purchased</th>
-                                <th class="py-4 border-0 text-end">Total Paid</th>
-                                <th class="py-4 border-0 text-end">Remaining Balance</th>
-                                <th class="py-4 border-0 text-end px-5">Financial Actions</th>
+                                <th class="py-4 border-0 text-end">Purchased Amount</th>
+                                <th class="py-4 border-0 text-end">Paid Amount</th>
+                                <th class="py-4 border-0 text-end">Balance Left</th>
+                                <th class="py-4 border-0 text-end px-5">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -73,13 +73,13 @@
                                     <td class="text-end px-5">
                                         <div class="d-flex gap-2 justify-content-end">
                                             <a href="<?= base_url('purchases/vendor/'.$v['id']) ?>" class="btn btn-sm btn-outline-dark rounded-pill px-3 border-0 bg-light hover-lift">
-                                                <i class="fas fa-file-invoice me-1"></i> View Ledger
+                                                <i class="fas fa-file-invoice me-1"></i> View History
                                             </a>
                                             <button class="btn btn-vibrant rounded-pill px-4 btn-sm shadow-sm" 
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#payModal"
                                                     onclick="settlePayment(<?= $v['id'] ?>, '<?= esc($v['name'], 'js') ?>', <?= $balance ?>)">
-                                                <i class="fas fa-money-bill-transfer me-1"></i> Pay Vendor
+                                                <i class="fas fa-money-bill-transfer me-1"></i> Pay Now
                                             </button>
                                         </div>
                                     </td>
@@ -101,7 +101,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h4 class="m-0 fw-900" id="modalVendorName">Vendor Name</h4>
-                        <p class="text-white-50 m-0 mt-1 small">Record a new payment to clear your dues.</p>
+                        <p class="text-white-50 m-0 mt-1 small">Record a new payment to clear your balance.</p>
                     </div>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -110,7 +110,7 @@
                 <input type="hidden" name="vendor_id" id="modalVendorId">
                 <div class="modal-body p-5">
                     <div class="mb-4 text-center p-4 rounded-4" style="background: rgba(14,165,233,0.05); border: 1.5px dashed rgba(14,165,233,0.2);">
-                        <div class="text-muted small fw-bold text-uppercase mb-1">Current Outstanding</div>
+                        <div class="text-muted small fw-bold text-uppercase mb-1">Balance to Pay</div>
                         <h2 class="fw-900 text-primary m-0" id="modalBalance">Rs. 0.00</h2>
                     </div>
 
@@ -130,8 +130,8 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-5 pt-0">
-                    <button type="submit" class="btn btn-vibrant w-100 py-4 rounded-4 fw-bold shadow-lg fs-5">Confirm Dispatch Payment</button>
-                    <p class="text-muted extra-small text-center w-100 mt-3"><i class="fas fa-shield-halved me-1"></i> This will be recorded instantly in the vendor ledger.</p>
+                    <button type="submit" class="btn btn-vibrant w-100 py-4 rounded-4 fw-bold shadow-lg fs-5">Confirm Payment</button>
+                    <p class="text-muted extra-small text-center w-100 mt-3"><i class="fas fa-shield-halved me-1"></i> This will be added to the history instantly.</p>
                 </div>
             </form>
         </div>

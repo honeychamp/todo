@@ -104,21 +104,21 @@
                         <i class="fas fa-truck-loading fa-2x text-primary"></i>
                     </div>
                     <div>
-                        <h1 class="fw-900 m-0 text-white tracking-tight">Stock Procurement</h1>
-                        <p class="text-white-50 m-0 fs-5 mt-1">Select your primary supplier to begin data record.</p>
+                        <h1 class="fw-900 m-0 text-white tracking-tight">Add Stock</h1>
+                        <p class="text-white-50 m-0 fs-5 mt-1">Select a vendor to record new stock items.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-5 text-md-end mt-4 mt-md-0">
                 <a href="<?= base_url('vendors') ?>" class="btn btn-outline-primary rounded-pill px-5 py-3 fw-900 border-2">
-                    <i class="fas fa-plus-circle me-2"></i> REGISTER NEW VENDOR
+                    <i class="fas fa-plus-circle me-2"></i> ADD NEW VENDOR
                 </a>
             </div>
         </div>
 
         <div class="position-relative">
             <i class="fas fa-search position-absolute text-white-50 opacity-50" style="left: 25px; top: 50%; transform: translateY(-50%); font-size: 1.2rem;"></i>
-            <input type="text" id="vendorSearch" class="search-box-premium ps-5" placeholder="Search supplier by name, phone or address...">
+            <input type="text" id="vendorSearch" class="search-box-premium ps-5" placeholder="Search vendor by name, phone or address...">
         </div>
     </div>
 
@@ -140,8 +140,8 @@
         <?php if(empty($vendors)): ?>
             <div class="empty-state">
                 <i class="fas fa-building-circle-exclamation fa-3x text-muted mb-4"></i>
-                <h4 class="fw-800 text-dark">No Suppliers Registered</h4>
-                <p class="text-muted">You need to add at least one vendor before you can record purchases.</p>
+                <h4 class="fw-800 text-dark">No Vendors Found</h4>
+                <p class="text-muted">You need to add at least one vendor before you can add stock.</p>
                 <a href="<?= base_url('vendors') ?>" class="btn btn-primary rounded-pill px-5 py-3 mt-3 fw-900 shadow-lg">Add First Vendor</a>
             </div>
         <?php endif; ?>

@@ -165,8 +165,8 @@
                                 <?php foreach($ledger as $row): ?>
                                     <tr class="transaction-row type-<?= strtolower($row['type']) ?>">
                                         <td class="px-5">
-                                            <div class="fw-900 text-dark"><?= date('d M, Y', strtotime($row['date'])) ?></div>
-                                            <div class="text-muted extra-small fw-bold"><?= date('h:i A', strtotime($row['date'])) ?></div>
+                                            <div class="fw-900 text-dark"><?= $row['date'] ? date('d M, Y', strtotime($row['date'])) : '—' ?></div>
+                                            <div class="text-muted extra-small fw-bold"><?= $row['date'] ? date('h:i A', strtotime($row['date'])) : '—' ?></div>
                                         </td>
                                         <td>
                                             <div class="fw-bold fs-6 text-dark"><?= esc($row['description']) ?></div>
@@ -252,8 +252,8 @@
                                                      <td class="py-3 text-center">
                                                          <div class="fw-900 fs-5 text-primary"><?= number_format($ai['on_shelf']) ?></div>
                                                      </td>
-                                                     <td class="py-3 text-end fw-bold <?= (strtotime($ai['expiry_date']) < strtotime('+90 days')) ? 'text-danger' : 'text-muted' ?>">
-                                                         <?= date('M, Y', strtotime($ai['expiry_date'])) ?>
+                                                     <td class="py-3 text-end fw-bold <?= ($ai['expiry_date'] && strtotime($ai['expiry_date']) < strtotime('+90 days')) ? 'text-danger' : 'text-muted' ?>">
+                                                         <?= $ai['expiry_date'] ? date('M, Y', strtotime($ai['expiry_date'])) : '—' ?>
                                                      </td>
                                                  </tr>
                                              <?php endforeach; ?>

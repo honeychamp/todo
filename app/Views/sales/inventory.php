@@ -5,22 +5,22 @@
 <div class="row g-4 mb-4">
     <div class="col-md-4">
         <div class="premium-list p-4 text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #10b981, #059669);">
-            <div class="text-white opacity-75 small fw-bold text-uppercase">Saleable Stock Value</div>
+            <div class="text-white opacity-75 small fw-bold text-uppercase">Total Selling Value</div>
             <?php 
                 $totalAvailableValue = array_sum(array_map(function($p) { return $p['price'] * $p['available_qty']; }, $inventory));
             ?>
             <h3 class="text-white fw-800 m-0 mt-1">Rs. <?= number_format($totalAvailableValue, 2) ?></h3>
-            <div class="text-white opacity-60 small mt-1">Selling value of items on shelf</div>
+            <div class="text-white opacity-60 small mt-1">Total worth of items on shelf</div>
         </div>
     </div>
     <div class="col-md-4">
         <div class="premium-list p-4 text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #6366f1, #0ea5e9);">
-            <div class="text-white opacity-75 small fw-bold text-uppercase">Items Available</div>
+            <div class="text-white opacity-75 small fw-bold text-uppercase">Items for Sale</div>
             <?php 
                 $totalItems = array_sum(array_column($inventory, 'available_qty'));
             ?>
             <h3 class="text-white fw-800 m-0 mt-1"><?= number_format($totalItems) ?> Units</h3>
-            <div class="text-white opacity-60 small mt-1">Total loose items across all active batches</div>
+            <div class="text-white opacity-60 small mt-1">Total items in all batches</div>
         </div>
     </div>
     <div class="col-md-4">
@@ -37,8 +37,8 @@
         <div class="premium-list p-0">
             <div class="p-4 px-5 border-bottom d-flex justify-content-between align-items-center">
                 <div>
-                    <h5 class="m-0 fw-800">Current Available Inventory</h5>
-                    <p class="text-muted small m-0 mt-1">Calculated as: Original Purchase - Recorded Sales.</p>
+                    <h5 class="m-0 fw-800">Current Stock</h5>
+                    <p class="text-muted small m-0 mt-1">Shows how much stock you have left.</p>
                 </div>
                 <div class="d-flex gap-2">
                     <a href="<?= base_url('sales') ?>" class="btn btn-vibrant rounded-pill px-4">
@@ -52,12 +52,12 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
-                                <th class="border-0 px-4 py-3">Batch & Vendor</th>
-                                <th class="border-0 py-3">Product Description</th>
+                                <th class="border-0 px-4 py-3">Batch Info</th>
+                                <th class="border-0 py-3">Product Name</th>
                                 <th class="border-0 py-3">Expiry</th>
                                 <th class="border-0 py-3 text-center">In Stock</th>
                                 <th class="border-0 py-3 text-end">Sale Price</th>
-                                <th class="border-0 py-3 text-end px-5">Stock Value</th>
+                                <th class="border-0 py-3 text-end px-5">Total Value</th>
                             </tr>
                         </thead>
                         <tbody>

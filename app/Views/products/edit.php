@@ -64,7 +64,7 @@
                     </div>
 
                     <div class="mt-4 mb-2">
-                        <h6 class="fw-bold text-primary text-uppercase">Product Registration</h6>
+                        <h6 class="fw-bold text-primary text-uppercase">Other Details</h6>
                         <hr class="mt-1 mb-4">
                     </div>
 

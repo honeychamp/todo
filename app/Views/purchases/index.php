@@ -5,13 +5,13 @@
 <div class="row g-4 mb-4 animate-wow">
     <div class="col-xl-3 col-md-6">
         <div class="premium-list p-4 bg-white border-0 shadow-sm">
-            <div class="text-muted extra-small fw-bold text-uppercase">Total Cash Outlay</div>
+            <div class="text-muted extra-small fw-bold text-uppercase">Total Money Spent</div>
             <?php $totalInvested = array_sum(array_map(fn($p) => $p['cost'] * $p['initial_qty'], $purchases)); ?>
             <h2 class="fw-900 m-0 mt-1 text-dark">Rs. <?= number_format($totalInvested, 2) ?></h2>
             <div class="progress mt-3" style="height: 6px; border-radius: 10px;">
                 <div class="progress-bar bg-primary" style="width: 100%"></div>
             </div>
-            <div class="small text-muted mt-2">Historical investment in stock</div>
+            <div class="small text-muted mt-2">Total money spent on stock history</div>
         </div>
     </div>
     <div class="col-xl-3 col-md-6">
@@ -27,7 +27,7 @@
             <div class="progress mt-3 bg-white bg-opacity-25" style="height: 6px; border-radius: 10px;">
                 <div class="progress-bar bg-white" style="width: <?= $totalInvested > 0 ? ($stockVal / $totalInvested) * 100 : 0 ?>%"></div>
             </div>
-            <div class="small opacity-75 mt-2">Value of items still on shelf</div>
+            <div class="small opacity-75 mt-2">Value of items on shelf</div>
         </div>
     </div>
     <div class="col-xl-6 col-md-12">
@@ -39,7 +39,7 @@
                     $potentialProfit = $potentialRev - $totalInvested;
                 ?>
                 <h2 class="fw-900 m-0 mt-1 text-success">Rs. <?= number_format($potentialProfit, 2) ?></h2>
-                <div class="small text-muted mt-2">Expected return on total investments</div>
+                <div class="small text-muted mt-2">Estimated profit from this stock</div>
             </div>
             <div class="text-end">
                 <div class="h5 m-0 fw-bold text-primary"><?= number_format($totalInvested > 0 ? ($potentialProfit / $totalInvested) * 100 : 0, 1) ?>%</div>
@@ -54,8 +54,8 @@
         <div class="premium-list p-0 shadow-lg border-0 bg-white overflow-hidden">
             <div class="p-5 border-bottom d-flex justify-content-between align-items-center bg-light bg-opacity-30">
                 <div>
-                    <h5 class="m-0 fw-900 text-dark">Central Procurement Log</h5>
-                    <p class="text-muted small m-0 mt-1">Audit and manage all incoming stock batches and vendor supplies.</p>
+                    <h5 class="m-0 fw-900 text-dark">Stock Purchase History</h5>
+                    <p class="text-muted small m-0 mt-1">List of all products you bought from vendors.</p>
                 </div>
                 <div class="d-flex gap-3 align-items-center">
                     <form action="<?= base_url('purchases') ?>" method="GET" class="d-flex gap-2">
@@ -80,12 +80,12 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr class="text-muted extra-small text-uppercase">
-                                <th class="border-0 px-5 py-4">Receipt & Vendor</th>
-                                <th class="border-0 py-4">Product Inventory</th>
-                                <th class="border-0 py-4">Date Range</th>
-                                <th class="border-0 py-4 text-center">Batch Stock</th>
-                                <th class="border-0 py-4">Pricing & ROI</th>
-                                <th class="border-0 py-4 text-end px-5">Management</th>
+                                <th class="border-0 px-5 py-4">Bill & Vendor</th>
+                                <th class="border-0 py-4">Product Name</th>
+                                <th class="border-0 py-4">MFG/EXP Dates</th>
+                                <th class="border-0 py-4 text-center">Quantity</th>
+                                <th class="border-0 py-4">Pricing</th>
+                                <th class="border-0 py-4 text-end px-5">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -105,15 +105,15 @@
                                             <a href="<?= base_url('purchases/vendor/'.$purchase['vendor_id']) ?>" class="text-decoration-none text-muted extra-small fw-bold text-uppercase hover-primary">
                                                 <i class="fas fa-building-circle-check me-1"></i> <?= esc($purchase['vendor_name'] ?: 'Local Source') ?>
                                             </a>
-                                            <div class="extra-small text-muted mt-1"><?= date('d M, Y', strtotime($purchase['created_at'])) ?></div>
+                                            <div class="extra-small text-muted mt-1"><?= $purchase['created_at'] ? date('d M, Y', strtotime($purchase['created_at'])) : '—' ?></div>
                                         </td>
                                         <td>
                                             <div class="fw-900 fs-6 text-dark"><?= esc($purchase['product_name']) ?></div>
                                             <div class="badge bg-light text-dark border extra-small px-2">BATCH: <?= esc($purchase['batch_id']) ?></div>
                                         </td>
                                         <td>
-                                            <div class="extra-small fw-bold text-muted">MFG: <span class="text-dark"><?= date('m/y', strtotime($purchase['manufacture_date'])) ?></span></div>
-                                            <div class="extra-small fw-bold text-muted">EXP: <span class="<?= (strtotime($purchase['expiry_date']) < strtotime('+90 days')) ? 'text-danger' : 'text-success' ?>"><?= date('m/y', strtotime($purchase['expiry_date'])) ?></span></div>
+                                            <div class="extra-small fw-bold text-muted">MFG: <span class="text-dark"><?= $purchase['manufacture_date'] ? date('m/y', strtotime($purchase['manufacture_date'])) : '—' ?></span></div>
+                                            <div class="extra-small fw-bold text-muted">EXP: <span class="<?= ($purchase['expiry_date'] && strtotime($purchase['expiry_date']) < strtotime('+90 days')) ? 'text-danger' : 'text-success' ?>"><?= $purchase['expiry_date'] ? date('m/y', strtotime($purchase['expiry_date'])) : '—' ?></span></div>
                                         </td>
                                         <td class="text-center">
                                             <div class="h5 fw-900 m-0 text-dark"><?= esc($purchase['initial_qty']) ?></div>
@@ -156,7 +156,7 @@
                                                     </li>
                                                     <li><hr class="dropdown-divider"></li>
                                                     <li>
-                                                        <a class="dropdown-item rounded-3 py-2 text-danger" href="<?= base_url('purchases/delete/'.$purchase['id']) ?>" onclick="return confirm('Archive this procurement record?')">
+                                                        <a class="dropdown-item rounded-3 py-2 text-danger" href="<?= base_url('purchases/delete/'.$purchase['id']) ?>" onclick="return confirm('Are you sure you want to delete this record?')">
                                                             <i class="fas fa-trash-can me-2"></i> Delete Entry
                                                         </a>
                                                     </li>
@@ -180,8 +180,8 @@
         <div class="modal-content border-0 shadow-2xl overflow-hidden" style="border-radius: 40px;">
             <div class="p-5 bg-dark text-white d-flex justify-content-between align-items-center">
                 <div>
-                    <h4 class="fw-900 m-0">Correct Purchase</h4>
-                    <p class="text-white-50 m-0 mt-2 small">Audit and modify historical procurement data.</p>
+                    <h4 class="fw-900 m-0">Edit Purchase</h4>
+                    <p class="text-white-50 m-0 mt-2 small">Update correct details of this purchase.</p>
                 </div>
                 <i class="fas fa-file-pen fa-3x opacity-25"></i>
             </div>
@@ -235,8 +235,8 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-5 pt-0">
-                    <button type="submit" class="btn btn-vibrant w-100 py-4 fs-5 rounded-5 shadow-lg fw-900">COMMIT AUDIT CHANGES</button>
-                    <p class="text-muted extra-small text-center w-100 mt-4 px-4">Modifying this record will recalculate financial reports and current stock value immediately.</p>
+                    <button type="submit" class="btn btn-vibrant w-100 py-4 fs-5 rounded-5 shadow-lg fw-900">SAVE CHANGES</button>
+                    <p class="text-muted extra-small text-center w-100 mt-4 px-4">Modifying this record will update reports and stock value instantly.</p>
                 </div>
             </form>
         </div>

@@ -5,7 +5,7 @@
     <div class="col-lg-6 mx-auto">
         <div class="glass-card">
             <div class="card-header-premium">
-                <h5 class="m-0">User Profile</h5>
+                <h5 class="m-0">My Profile</h5>
             </div>
             <div class="p-4">
                 <div class="text-center mb-4">
@@ -18,7 +18,7 @@
 
                 <hr class="opacity-10 mb-4">
 
-                <h6 class="fw-bold mb-3">Change Password</h6>
+                <h6 class="fw-bold mb-3 text-primary">Change Password</h6>
                 
                 <?php if(session()->getFlashdata('errors')): ?>
                     <div class="alert alert-danger border-0 small rounded-3 mb-4">

@@ -5,14 +5,14 @@
     <div class="col-lg-8">
         <div class="premium-list p-0 shadow-lg">
             <div class="p-5 border-bottom" style="background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%); color: white; border-radius: 28px 28px 0 0;">
-                <h2 class="fw-900 m-0"><i class="fas fa-gears me-3 opacity-50"></i>System Configuration</h2>
-                <p class="opacity-75 m-0 mt-1">Customize your pharmacy branding and operational defaults.</p>
+                <h2 class="fw-900 m-0"><i class="fas fa-gears me-3 opacity-50"></i>System Settings</h2>
+                <p class="opacity-75 m-0 mt-1">Customize your pharmacy name and other settings here.</p>
             </div>
             
             <form action="<?= base_url('settings/update') ?>" method="POST" class="p-5">
                 <div class="row g-4">
                     <div class="col-md-12">
-                        <label class="form-label fw-bold text-dark small">Pharmacy Branding Name</label>
+                        <label class="form-label fw-bold text-dark small">Pharmacy Name</label>
                         <div class="input-group">
                             <span class="input-group-text border-0 bg-light px-4"><i class="fas fa-hospital text-primary"></i></span>
                             <input type="text" name="pharmacy_name" class="form-control bg-light border-0 py-3" value="<?= esc($settings['pharmacy_name'] ?? 'Galaxy Pharmacy') ?>" required>
@@ -28,7 +28,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label fw-bold text-dark small">System Currency Symbol</label>
+                        <label class="form-label fw-bold text-dark small">Currency Symbol</label>
                         <div class="input-group">
                             <span class="input-group-text border-0 bg-light px-4"><i class="fas fa-coins text-primary"></i></span>
                             <input type="text" name="currency_symbol" class="form-control bg-light border-0 py-3" value="<?= esc($settings['currency_symbol'] ?? 'Rs.') ?>">
@@ -36,7 +36,7 @@
                     </div>
 
                     <div class="col-md-12">
-                        <label class="form-label fw-bold text-dark small">Business Address (Shown on Invoices)</label>
+                        <label class="form-label fw-bold text-dark small">Business Address (shown on invoices)</label>
                         <div class="input-group">
                             <span class="input-group-text border-0 bg-light px-4"><i class="fas fa-location-dot text-primary"></i></span>
                             <textarea name="pharmacy_address" class="form-control bg-light border-0 py-3" rows="3"><?= esc($settings['pharmacy_address'] ?? '') ?></textarea>
@@ -45,7 +45,7 @@
 
                     <div class="col-12 mt-5">
                         <button type="submit" class="btn btn-vibrant w-100 py-3 shadow-lg fs-5 fw-bold">
-                            <i class="fas fa-save me-2"></i> Update System Settings
+                            <i class="fas fa-save me-2"></i> Save Settings
                         </button>
                     </div>
                 </div>

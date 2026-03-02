@@ -7,8 +7,8 @@
         <div class="premium-list p-0 overflow-hidden">
             <div class="p-5 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #0f172a 0%, #0ea5e9 100%); color: white;">
                 <div>
-                    <h2 class="fw-800 m-0">SALES TERMINAL</h2>
-                    <p class="opacity-75 m-0 mt-1">Process medicine sales from available stock.</p>
+                    <h2 class="fw-800 m-0">SALES COUNTER</h2>
+                    <p class="opacity-75 m-0 mt-1">Sell items from available stock.</p>
                 </div>
                 <div class="text-end">
                     <div class="h5 m-0 fw-bold"><i class="fas fa-cash-register me-2"></i>POS SYSTEM</div>
@@ -19,7 +19,7 @@
             <div class="p-5">
                 <div class="mb-5 d-flex gap-3">
                     <div class="flex-grow-1">
-                        <input type="text" id="searchInput" class="form-control form-control-lg bg-light border-0 rounded-4 px-4 shadow-sm" placeholder="Search medicine name..." onkeyup="filterTable()">
+                        <input type="text" id="searchInput" class="form-control form-control-lg bg-light border-0 rounded-4 px-4 shadow-sm" placeholder="Search product name..." onkeyup="filterTable()">
                     </div>
                     <button class="btn btn-dark rounded-4 px-4 shadow-sm"><i class="fas fa-search"></i></button>
                 </div>
@@ -28,7 +28,7 @@
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr class="text-muted small text-uppercase">
-                                <th class="border-0 pb-4 px-0">Batch ID</th>
+                                <th class="border-0 pb-4 px-0">Batch No.</th>
                                 <th class="border-0 pb-4">Product Name</th>
                                 <th class="border-0 pb-4">Expiry Date</th>
                                 <th class="border-0 pb-4 text-center">In Stock</th>
@@ -91,7 +91,7 @@
         <div class="modal-content border-0 shadow-2xl overflow-hidden" style="border-radius: 40px;">
             <div class="p-5" style="background: #1e293b; color: white;">
                 <h4 class="fw-800 m-0">Confirm Sale</h4>
-                <p class="text-white-50 m-0 mt-2 small">Enter the quantity to sell.</p>
+                <p class="text-white-50 m-0 mt-2 small">Enter the quantity you want to sell.</p>
             </div>
             <form action="<?= base_url('stocks/process_sale') ?>" method="POST">
                 <input type="hidden" name="stock_id" id="modal_stock_id">
@@ -104,12 +104,12 @@
                     
                     <div class="row mb-5">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted">Customer Name (Optional)</label>
+                            <label class="form-label fw-bold small text-muted">Customer Name</label>
                             <input type="text" class="form-control" name="customer_name" placeholder="e.g. Ali Khan">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold small text-muted">Phone Number</label>
-                            <input type="text" class="form-control" name="customer_phone" placeholder="0300...">
+                            <input type="text" class="form-control" name="customer_phone" placeholder="03XXXXXXXXX">
                         </div>
                     </div>
 
@@ -131,7 +131,7 @@
                 </div>
                 <div class="modal-footer border-0 p-5 pt-0">
                     <button type="submit" class="btn btn-vibrant w-100 py-4 fs-5 shadow-lg">
-                        <i class="fas fa-check me-2"></i> Confirm Sale
+                        <i class="fas fa-check me-2"></i> Complete Sale
                     </button>
                 </div>
             </form>

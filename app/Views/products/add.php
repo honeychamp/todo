@@ -12,7 +12,7 @@
                     </div>
                     <div>
                         <h3 class="fw-800 mb-0">Add New Product</h3>
-                        <p class="text-muted small mb-0">Enter the details of the new product to register it.</p>
+                        <p class="text-muted small mb-0">Fill in the product details below.</p>
                     </div>
                 </div>
             </div>
@@ -69,7 +69,7 @@
                     </div>
 
                     <div class="mt-4 mb-2">
-                        <h6 class="fw-bold text-primary text-uppercase tracking-widest">Product Registration</h6>
+                        <h6 class="fw-bold text-primary text-uppercase tracking-widest">Other Details</h6>
                         <hr class="mt-1 mb-4">
                     </div>
 
@@ -105,9 +105,4 @@
 </div>
 
 <?= $this->endSection() ?>
-            </form>
-        </div>
-    </div>
-</div>
 
-<?= $this->endSection() ?>

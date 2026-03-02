@@ -56,14 +56,14 @@
 </style>
 
 <div class="animate-wow">
-    <!-- Cost Audit Header -->
+    <!-- Expenses Header -->
     <div class="cost-audit-header d-flex flex-column flex-md-row gap-4">
         <div>
-            <h2 class="fw-900 m-0">Business Cost Audit</h2>
-            <p class="text-muted m-0 mt-1">Operational expense tracking for Galaxy Pharmacy.</p>
+            <h2 class="fw-900 m-0">Expenses</h2>
+            <p class="text-muted m-0 mt-1">Track all your daily shop costs here.</p>
         </div>
         <div class="text-md-end d-flex flex-column align-items-md-end">
-            <div class="text-muted extra-small fw-900 text-uppercase tracking-widest mb-1">Total Reported Expenses</div>
+            <div class="text-muted extra-small fw-900 text-uppercase tracking-widest mb-1">Total Expenses</div>
             <div class="h1 fw-900 text-danger m-0">Rs. <?= number_format($total_expense, 0) ?></div>
             <?php if($start_date && $end_date): ?>
                 <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-1 rounded-pill mt-2 small fw-bold">Period: <?= $start_date ?> — <?= $end_date ?></span>
@@ -79,8 +79,8 @@
                     <div class="bg-danger text-white rounded-4 d-inline-flex p-3 mb-4 shadow-lg shadow-danger-subtle">
                         <i class="fas fa-wallet fs-4"></i>
                     </div>
-                    <h4 class="fw-900 m-0">Record Outflow</h4>
-                    <p class="text-muted mt-2 small">Audit entries for utilities, salaries, and maintenance.</p>
+                    <h4 class="fw-900 m-0">Add Expense</h4>
+                    <p class="text-muted mt-2 small">Enter details for bills, rent, or salaries.</p>
                 </div>
 
                 <form action="<?= base_url('expenses/create') ?>" method="POST">
@@ -93,14 +93,14 @@
                         <input type="number" step="0.01" name="amount" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill" placeholder="0.00" required>
                     </div>
                     <div class="mb-4">
-                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Operational Category</label>
+                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Expense Category</label>
                         <select name="category" class="form-select form-select-lg bg-light border-0 px-4 py-3 rounded-pill" required>
-                            <option value="Utility">Utility Bills</option>
+                            <option value="Utility">Electricity/Water/Gas</option>
                             <option value="Rent">Shop Rent</option>
                             <option value="Salary">Staff Salary</option>
-                            <option value="Inventory">Inventory Shipping</option>
-                            <option value="Admin">Admin / Maintenance</option>
-                            <option value="Other">Miscellaneous</option>
+                            <option value="Inventory">Shipping/Delivery</option>
+                            <option value="Admin">Maintenance</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div class="mb-5">
@@ -108,7 +108,7 @@
                         <input type="date" name="expense_date" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill" value="<?= date('Y-m-d') ?>" required>
                     </div>
                     <button type="submit" class="btn btn-dark w-100 py-3 rounded-pill fw-900 shadow-lg text-uppercase tracking-widest">
-                        <i class="fas fa-plus-circle me-2"></i> RECORD EXPENSE
+                        <i class="fas fa-plus-circle me-2"></i> ADD EXPENSE
                     </button>
                 </form>
             </div>
@@ -119,8 +119,8 @@
             <div class="expense-log-table">
                 <div class="p-4 px-5 border-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-4 bg-white">
                     <div>
-                        <h4 class="fw-900 m-0">Ledger Log</h4>
-                        <p class="text-muted small m-0 mt-1">Audit trail of all validated expense records.</p>
+                        <h4 class="fw-900 m-0">Expense History</h4>
+                        <p class="text-muted small m-0 mt-1">List of all recorded expenses.</p>
                     </div>
                     <div class="d-flex gap-2">
                         <form action="" method="get" class="d-flex gap-2">
@@ -145,23 +145,23 @@
                                 <th>Description</th>
                                 <th>Category</th>
                                 <th>Amount</th>
-                                <th class="text-end px-5">Management</th>
+                                <th class="text-end px-5">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="tbody">
                             <?php if(empty($expenses)): ?>
-                                <tr><td colspan="5" class="text-center py-5 text-muted fw-bold">Audit trail is currently empty.</td></tr>
+                                <tr><td colspan="5" class="text-center py-5 text-muted fw-bold">No expenses found.</td></tr>
                             <?php else: ?>
                                 <?php foreach($expenses as $exp): ?>
                                     <tr>
-                                        <td class="px-5 fw-900 text-dark small"><?= date('d M, Y', strtotime($exp['expense_date'])) ?></td>
+                                        <td class="px-5 fw-900 text-dark small"><?= $exp['expense_date'] ? date('d M, Y', strtotime($exp['expense_date'])) : '—' ?></td>
                                         <td class="fw-900 text-dark"><?= esc($exp['title']) ?></td>
                                         <td><span class="category-token-sm"><?= esc($exp['category']) ?></span></td>
                                         <td class="fw-900 text-danger">Rs. <?= number_format($exp['amount'], 0) ?></td>
                                         <td class="text-end px-5">
                                             <a href="<?= base_url('expenses/delete/'.$exp['id']) ?>" 
                                                class="btn btn-sm btn-outline-danger border-0 rounded-pill px-3" 
-                                               onclick="return confirm('Archive this expense audit entry?')">
+                                               onclick="return confirm('Are you sure you want to delete this expense?')">
                                                 <i class="fas fa-trash-can"></i>
                                             </a>
                                         </td>

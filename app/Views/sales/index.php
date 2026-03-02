@@ -5,19 +5,19 @@
 <div class="row g-4 mb-4 animate-wow">
     <div class="col-xl-3 col-md-6">
         <div class="premium-list p-4 bg-dark text-white border-0 shadow-sm" style="background: #0f172a !important;">
-            <div class="text-white-50 small fw-bold text-uppercase">Items Available</div>
+            <div class="text-white-50 small fw-bold text-uppercase">Items for Sale</div>
             <div class="d-flex align-items-center gap-3 mt-2">
                 <i class="fas fa-boxes-stacked fs-1 text-primary"></i>
                 <h1 class="fw-900 m-0"><?= number_format(count($stocks)) ?></h1>
             </div>
-            <div class="small text-white-50 mt-2">Active batches for sale</div>
+            <div class="small text-white-50 mt-2">Batches ready to sell</div>
         </div>
     </div>
     <div class="col-xl-9 col-md-6">
         <div class="premium-list p-4 bg-white border-0 shadow-sm d-flex align-items-center justify-content-between h-100">
             <div>
-                <h5 class="fw-800 m-0 text-dark">Live Stock Audit</h5>
-                <p class="text-muted small m-0 mt-1">Real-time inventory data directly from your purchase logs.</p>
+                <h5 class="fw-800 m-0 text-dark">Available Items</h5>
+                <p class="text-muted small m-0 mt-1">Real-time stock data of your pharmacy.</p>
             </div>
             <div class="d-flex gap-4">
                 <div class="text-center">
@@ -46,7 +46,7 @@
                 </div>
                 <div class="text-end d-none d-md-block">
                     <div class="badge bg-primary bg-opacity-10 text-primary p-3 rounded-4 border-0">
-                        <i class="fas fa-cash-register me-2"></i> POS TERMINAL ACTIVE
+                        <i class="fas fa-cash-register me-2"></i> SALES COUNTER ACTIVE
                     </div>
                 </div>
             </div>
@@ -56,12 +56,12 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr class="text-muted extra-small text-uppercase">
-                                <th class="border-0 py-4 px-5">Batch & Supplier</th>
-                                <th class="border-0 py-4">Product Specification</th>
-                                <th class="border-0 py-4 text-center">Expiry Status</th>
-                                <th class="border-0 py-4 text-center">Stock Level</th>
-                                <th class="border-0 py-4 text-center">Unit Price</th>
-                                <th class="border-0 py-4 text-end px-5">Settle Sale</th>
+                                <th class="border-0 py-4 px-5">Batch Info</th>
+                                <th class="border-0 py-4">Product Name</th>
+                                <th class="border-0 py-4 text-center">Expiry</th>
+                                <th class="border-0 py-4 text-center">In Stock</th>
+                                <th class="border-0 py-4 text-center">Price</th>
+                                <th class="border-0 py-4 text-end px-5">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -69,8 +69,8 @@
                                 <tr><td colspan="6" class="text-center py-5">
                                     <div class="opacity-25 py-5">
                                         <i class="fas fa-box-open fs-1 mb-3"></i>
-                                        <p class="m-0 h5">Zero Stock Available</p>
-                                        <small>Please add new inventory via the Purchase module.</small>
+                                        <p class="m-0 h5">No Stock Available</p>
+                                        <small>Please add items from the Purchase section.</small>
                                     </div>
                                 </td></tr>
                             <?php else: ?>
@@ -78,11 +78,11 @@
                                     <tr class="stock-row">
                                         <td class="px-5">
                                             <div class="fw-bold mb-1 text-dark">#<?= esc($stock['batch_id']) ?></div>
-                                            <div class="text-muted extra-small text-uppercase fw-bold"><i class="fas fa-truck me-1"></i><?= esc($stock['vendor_name'] ?: 'Internal Purchase') ?></div>
+                                            <div class="text-muted extra-small text-uppercase fw-bold"><i class="fas fa-truck me-1"></i><?= esc(($stock['vendor_name'] ?? '') ?: 'Internal Purchase') ?></div>
                                         </td>
                                         <td>
                                             <div class="fw-900 fs-5 text-dark"><?= esc($stock['product_name']) ?></div>
-                                            <div class="text-muted small fw-bold"><?= esc($stock['unit_value']) ?> <?= esc($stock['unit']) ?></div>
+                                            <div class="text-muted small fw-bold"><?= esc($stock['product_unit_value'] ?? '') ?> <?= esc($stock['unit'] ?? '') ?></div>
                                         </td>
                                         <td class="text-center">
                                             <?php 
@@ -113,7 +113,7 @@
                                             <button class="btn btn-dark rounded-4 p-3 px-4 shadow-sm hover-lift" 
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#saleModal" 
-                                                    onclick="setupSale(<?= $stock['id'] ?>, '<?= esc($stock['product_name'], 'js') ?> [<?= esc($stock['unit_value'], 'js') ?> <?= esc($stock['unit'], 'js') ?>]', <?= $stock['price'] ?>, <?= $stock['available_qty'] ?>)">
+                                                    onclick="setupSale(<?= $stock['id'] ?>, '<?= esc($stock['product_name'] ?? '', 'js') ?> [<?= esc($stock['product_unit_value'] ?? '', 'js') ?> <?= esc($stock['unit'] ?? '', 'js') ?>]', <?= $stock['price'] ?? 0 ?>, <?= $stock['available_qty'] ?? 0 ?>)">
                                                 <i class="fas fa-cart-plus me-2"></i> SELL NOW
                                             </button>
                                         </td>
@@ -135,8 +135,8 @@
             <div class="p-5" style="background: #0f172a; color: white;">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h3 class="fw-900 m-0">Customer Invoice</h3>
-                        <p class="text-white-50 m-0 mt-2 small">Processing unit sale from batch inventory.</p>
+                        <h3 class="fw-900 m-0">Sell Product</h3>
+                        <p class="text-white-50 m-0 mt-2 small">Fill details to confirm the sale.</p>
                     </div>
                     <i class="fas fa-receipt fa-3x opacity-25"></i>
                 </div>
@@ -157,23 +157,23 @@
                     
                     <div class="row g-4 mb-5">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted text-uppercase">Buyer Name</label>
-                            <input type="text" class="form-control form-control-lg bg-light border-0 py-3" name="customer_name" placeholder="Walk-in Customer">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Customer Name</label>
+                            <input type="text" class="form-control form-control-lg bg-light border-0 py-3" name="customer_name" placeholder="Name">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted text-uppercase">Contact Num</label>
+                            <label class="form-label fw-bold small text-muted text-uppercase">Phone Number</label>
                             <input type="text" class="form-control form-control-lg bg-light border-0 py-3" name="customer_phone" placeholder="03XXXXXXXXX">
                         </div>
                     </div>
 
                     <div class="row align-items-center mb-5">
                         <div class="col-7">
-                            <label class="form-label fw-bold small text-muted text-uppercase">Quantity to Sell</label>
+                            <label class="form-label fw-bold small text-muted text-uppercase">Quantity</label>
                             <input type="number" class="form-control form-control-lg fs-2 fw-900 bg-white border-bottom border-primary border-4 rounded-0 shadow-none py-3" name="qty" id="sale_qty" min="1" required oninput="calcTotal()" value="1">
                         </div>
                         <div class="col-5">
                             <div class="text-center p-3 rounded-4 bg-light">
-                                <span class="text-muted extra-small d-block fw-bold">STOCK MAX</span>
+                                <span class="text-muted extra-small d-block fw-bold">MAX AVAIL</span>
                                 <span class="fw-900 h4 m-0" id="modal_max_qty">0</span>
                             </div>
                         </div>
@@ -192,9 +192,9 @@
                 </div>
                 <div class="modal-footer border-0 p-5 pt-0">
                     <button type="submit" class="btn btn-vibrant w-100 py-4 fs-4 rounded-5 shadow-lg fw-900">
-                        <i class="fas fa-print me-2"></i> COMPLETE SALE
+                        <i class="fas fa-print me-2"></i> CONFIRM SALE
                     </button>
-                    <p class="text-muted extra-small text-center w-100 mt-4"><i class="fas fa-circle-info me-1"></i> Inventory balances will be adjusted automatically on completion.</p>
+                    <p class="text-muted extra-small text-center w-100 mt-4"><i class="fas fa-circle-info me-1"></i> Stock will be updated instantly on completion.</p>
                 </div>
             </form>
         </div>

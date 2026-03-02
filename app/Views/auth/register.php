@@ -147,7 +147,7 @@
         <div class="row g-3">
             <div class="col-md-6">
                 <label class="form-label small fw-bold text-muted">USERNAME</label>
-                <input type="text" name="username" class="form-control" value="<?= old('username') ?>" required>
+                <input type="text" name="username" class="form-control" value="<?= old('username') ?>" placeholder="e.g. Ali123" required>
             </div>
             <div class="col-md-6">
                 <label class="form-label small fw-bold text-muted">EMAIL</label>
@@ -159,10 +159,10 @@
             </div>
             <div class="col-md-6">
                 <label class="form-label small fw-bold text-muted">CONFIRM PASSWORD</label>
-                <input type="password" name="confpassword" class="form-control" required>
+                <input type="password" name="confpassword" class="form-control" placeholder="Re-enter password" required>
             </div>
         </div>
-        <button type="submit" class="btn-register">Register</button>
+        <button type="submit" class="btn-register">Create Account</button>
     </form>
     
     <div class="footer-links">

@@ -50,7 +50,7 @@ class Sales extends BaseController
         // Only show batches with stock available
         $db = \Config\Database::connect();
         $builder = $db->table('stock_purchase s');
-        $builder->select('s.*, p.name as product_name, p.unit_value, p.unit, v.name as vendor_name, 
+        $builder->select('s.*, p.name as product_name, p.unit_value as product_unit_value, p.unit, v.name as vendor_name, 
                          (SELECT COALESCE(SUM(qty), 0) FROM sales WHERE stock_id = s.id) as total_sold');
         $builder->join('products p', 'p.id = s.product_id');
         $builder->join('vendors v', 'v.id = s.vendor_id', 'left');

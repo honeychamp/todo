@@ -5,12 +5,12 @@
 <!-- Products data for JS -->
 <script>
     const productsData = <?= json_encode(array_column($products, null, 'id')) ?>;
-    const selectedVendorId = <?= $vendor['id'] ?>;
-    const productsOptions = `<?php foreach($products as $p): ?><option value="<?= $p['id'] ?>" data-cost="<?= $p['cost'] ?>"><?= esc($p['name']) ?> [<?= esc($p['unit_value']) ?> <?= esc($p['unit']) ?>]</option><?php endforeach; ?>`;
+    const selectedVendorId = <?= $vendor['id'] ?? 0 ?>;
+    const productsOptions = `<?php foreach($products as $p): ?><option value="<?= $p['id'] ?>" data-cost="<?= $p['cost'] ?>"><?= esc($p['name']) ?> [<?= esc($p['unit_value'] ?? '') ?> <?= esc($p['unit'] ?? '') ?>]</option><?php endforeach; ?>`;
 </script>
 
 <form action="<?= base_url('purchases/process_add') ?>" method="POST" id="bulkStockForm">
-<input type="hidden" name="redirect_vendor_id" value="<?= $vendor['id'] ?>">
+<input type="hidden" name="redirect_vendor_id" value="<?= $vendor['id'] ?? 0 ?>">
 
 <div class="row g-4 animate-wow">
     <div class="col-12">
@@ -22,14 +22,14 @@
                             <i class="fas fa-truck-ramp-box fa-2x"></i>
                         </div>
                         <div>
-                            <h2 class="fw-900 m-0">STOCK PROCUREMENT</h2>
-                            <p class="text-white-50 m-0 mt-1">Vendor: <span class="text-white fw-bold"><?= esc($vendor['name']) ?></span></p>
+                            <h2 class="fw-900 m-0">ADD NEW STOCK</h2>
+                            <p class="text-white-50 m-0 mt-1">Vendor: <span class="text-white fw-bold"><?= esc($vendor['name'] ?? 'Unknown') ?></span></p>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 text-md-end">
                     <div class="d-inline-block text-start p-3 px-4 rounded-4" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
-                        <div class="text-white-50 extra-small fw-bold text-uppercase">Projected Total Value</div>
+                        <div class="text-white-50 extra-small fw-bold text-uppercase">Total Bill Value</div>
                         <h2 class="fw-900 m-0 text-primary" id="grand_total_disp">Rs. 0.00</h2>
                     </div>
                 </div>
@@ -41,11 +41,11 @@
         <div class="premium-list p-0 shadow-lg border-0 bg-white overflow-hidden">
             <div class="p-4 px-5 border-bottom d-flex justify-content-between align-items-center bg-light bg-opacity-30">
                 <div>
-                    <h5 class="fw-900 m-0 text-dark">Material Entry Terminal</h5>
-                    <p class="text-muted small m-0 mt-1">Multi-batch procurement grid for bulk stock intake.</p>
+                    <h5 class="fw-900 m-0 text-dark">Add Items</h5>
+                    <p class="text-muted small m-0 mt-1">Add details of the items you bought.</p>
                 </div>
                 <button type="button" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm" onclick="addStockRow()">
-                    <i class="fas fa-plus-circle me-2"></i> Add Item Batch
+                    <i class="fas fa-plus-circle me-2"></i> Add Item
                 </button>
             </div>
 
@@ -53,10 +53,10 @@
                 <table class="table align-middle mb-0" id="stockTable">
                     <thead class="bg-light">
                         <tr class="text-muted extra-small text-uppercase fw-900">
-                            <th class="px-5 py-4 border-0" style="width: 50px;">Index</th>
-                            <th class="py-4 border-0">Batch Identifer</th>
-                            <th class="py-4 border-0">Medicine / Material</th>
-                            <th class="py-4 border-0">Life Dates (MFG/EXP)</th>
+                            <th class="px-5 py-4 border-0" style="width: 50px;">#</th>
+                            <th class="py-4 border-0">Batch No.</th>
+                            <th class="py-4 border-0">Product Name</th>
+                            <th class="py-4 border-0">MFG / EXP Dates</th>
                             <th class="py-4 border-0 text-center" style="width: 100px;">Units</th>
                             <th class="py-4 border-0" style="width: 130px;">Cost (Rs.)</th>
                             <th class="py-4 border-0" style="width: 130px;">MRP (Rs.)</th>
@@ -72,7 +72,7 @@
             <div class="p-5 border-top d-flex justify-content-between align-items-center bg-light bg-opacity-20">
                 <div class="d-flex gap-2">
                     <a href="<?= base_url('purchases') ?>" class="btn btn-light rounded-pill px-5 py-3 fw-bold text-muted border">
-                        <i class="fas fa-times-circle me-2"></i> DISCARD LOG
+                        <i class="fas fa-times-circle me-2"></i> CANCEL
                     </a>
                 </div>
                 <div class="d-flex align-items-center gap-4">
@@ -81,7 +81,7 @@
                         <div class="h3 fw-900 m-0 text-dark" id="grand_total_footer">Rs. 0.00</div>
                     </div>
                     <button type="submit" class="btn btn-vibrant rounded-pill px-5 py-3 fw-900 shadow-xl fs-5">
-                        <i class="fas fa-database me-2"></i> COMMIT TO DATABASE
+                        <i class="fas fa-check-circle me-2"></i> SAVE STOCK
                     </button>
                 </div>
             </div>
@@ -165,11 +165,11 @@ function addStockRow() {
         </td>
         <td>
             <input type="hidden" name="vendor_id[]" value="${selectedVendorId}">
-            <input type="text" name="batch_id[]" class="input-field" placeholder="E.g. BAT-102" required>
+            <input type="text" name="batch_id[]" class="input-field" placeholder="E.g. BAT-001" required>
         </td>
         <td>
             <select name="product_id[]" class="input-field" required onchange="autoCost(this, ${rowIndex})">
-                <option value="">Select Material...</option>
+                <option value="">Select Item...</option>
                 ${productsOptions}
             </select>
         </td>

@@ -142,14 +142,14 @@
 
     <form action="<?= base_url('auth/loginProcess') ?>" method="POST">
         <div class="mb-3">
-            <label class="form-label small fw-bold text-muted">USERNAME / EMAIL</label>
-            <input type="text" name="username" class="form-control" placeholder="Enter username or email" required>
+            <label class="form-label small fw-bold text-muted">USERNAME OR EMAIL</label>
+            <input type="text" name="username" class="form-control" placeholder="Enter your username or email" required>
         </div>
         <div class="mb-4">
             <label class="form-label small fw-bold text-muted">PASSWORD</label>
             <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
         </div>
-        <button type="submit" class="btn-login">Login</button>
+        <button type="submit" class="btn-login">Sign In</button>
     </form>
     
     <div class="footer-links">

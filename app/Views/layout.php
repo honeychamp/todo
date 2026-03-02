@@ -376,6 +376,48 @@
             background: rgba(15, 23, 42, 0.4);
             backdrop-filter: blur(8px);
         }
+
+        /* Dark Mode */
+        body.dark-mode {
+            background-color: #0f172a;
+            color: #cbd5e1;
+        }
+        body.dark-mode #sidebar { background: linear-gradient(180deg, #020617 0%, #0f172a 100%); }
+        body.dark-mode .glass-nav { background: rgba(15,23,42,0.8); border-color: rgba(255,255,255,0.05); }
+        body.dark-mode .premium-card,
+        body.dark-mode .premium-list,
+        body.dark-mode .glass-card,
+        body.dark-mode .kpi-card-premium,
+        body.dark-mode .table-container { background: #1e293b; border-color: #334155; }
+        body.dark-mode .table tbody tr { background-color: #1e293b; color: #cbd5e1; }
+        body.dark-mode .table thead th { background: #0f172a; color: #94a3b8; }
+        body.dark-mode .table tbody tr:hover { background-color: #334155 !important; }
+        body.dark-mode .bg-light { background-color: #0f172a !important; }
+        body.dark-mode .bg-white { background-color: #1e293b !important; }
+        body.dark-mode .text-dark { color: #e2e8f0 !important; }
+        body.dark-mode .form-control, body.dark-mode .form-select { background: #0f172a; border-color: #334155; color: #cbd5e1; }
+        body.dark-mode .user-chip { background: #1e293b; border-color: #334155; }
+
+        /* Expiry Alert Banner */
+        .expiry-alert-bar {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            animation: fadeInUp 0.5s ease;
+        }
+        .expiry-alert-bar .badge-count {
+            background: rgba(255,255,255,0.2);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
@@ -518,15 +560,53 @@
                     </span>
                 </div>
                 <div class="user-chip">
-                    <i class="fas fa-moon text-muted"></i>
+                    <i class="fas fa-moon text-muted" id="darkModeToggle" style="cursor:pointer;" title="Toggle Dark Mode"></i>
                     <div class="vr mx-1" style="height: 15px;"></div>
-                    <i class="fas fa-bell text-muted"></i>
+                    <?php
+                        // Count expiring soon items (within 60 days)
+                        $db_temp = \Config\Database::connect();
+                        $expiring_count = $db_temp->query("SELECT COUNT(*) as cnt FROM stock_purchase WHERE qty > 0 AND expiry_date <= DATE_ADD(NOW(), INTERVAL 60 DAY)")->getRow()->cnt ?? 0;
+                    ?>
+                    <i class="fas fa-bell text-muted position-relative" style="cursor:pointer;" title="<?= $expiring_count ?> medicines expiring soon">
+                        <?php if($expiring_count > 0): ?>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:8px;padding:2px 4px;"><?= $expiring_count ?></span>
+                        <?php endif; ?>
+                    </i>
                 </div>
             </div>
         </header>
 
         <div class="container-fluid p-0">
-            <?php if (session()->getFlashdata('success')): ?>
+            <?php
+            // Expiry warning banner (medicines expiring in 30 days)
+            $db_exp = \Config\Database::connect();
+            $soon_expiring = $db_exp->query("SELECT COUNT(*) as cnt FROM stock_purchase WHERE qty > 0 AND expiry_date <= DATE_ADD(NOW(), INTERVAL 30 DAY) AND expiry_date >= NOW()")->getRow()->cnt ?? 0;
+            $already_expired = $db_exp->query("SELECT COUNT(*) as cnt FROM stock_purchase WHERE qty > 0 AND expiry_date < NOW()")->getRow()->cnt ?? 0;
+        ?>
+        <?php if($already_expired > 0): ?>
+            <div class="expiry-alert-bar">
+                <i class="fas fa-skull-crossbones fa-lg"></i>
+                <div>
+                    <strong>EXPIRED STOCK ALERT!</strong>
+                    You have <span class="badge-count"><?= $already_expired ?> batch(es)</span> that have already <strong>expired</strong> but still have stock. Remove them immediately!
+                </div>
+                <a href="<?= base_url('stocks/inventory') ?>" class="btn btn-sm btn-light rounded-pill ms-auto px-3">View Stock</a>
+                <button class="btn btn-sm btn-outline-light rounded-pill" onclick="this.parentElement.style.display='none'"><i class="fas fa-times"></i></button>
+            </div>
+        <?php endif; ?>
+        <?php if($soon_expiring > 0): ?>
+            <div class="expiry-alert-bar" style="background: linear-gradient(90deg, #f59e0b, #d97706);">
+                <i class="fas fa-triangle-exclamation fa-lg"></i>
+                <div>
+                    <strong>Expiry Warning!</strong>
+                    <span class="badge-count"><?= $soon_expiring ?> batch(es)</span> will expire within <strong>30 days</strong>. Sell or return them soon.
+                </div>
+                <a href="<?= base_url('stocks/inventory') ?>" class="btn btn-sm btn-light rounded-pill ms-auto px-3">View Stock</a>
+                <button class="btn btn-sm btn-outline-light rounded-pill" onclick="this.parentElement.style.display='none'"><i class="fas fa-times"></i></button>
+            </div>
+        <?php endif; ?>
+
+        <?php if (session()->getFlashdata('success')): ?>
                 <div class="alert alert-success border-0 shadow-lg animate-wow rounded-4 p-3 d-flex align-items-center mb-4" role="alert">
                     <div class="bg-success rounded-circle p-2 me-3 text-white"><i class="fas fa-check"></i></div>
                     <div><?= session()->getFlashdata('success') ?></div>
@@ -554,5 +634,22 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Dark Mode Toggle
+    const darkToggle = document.getElementById('darkModeToggle');
+    if (localStorage.getItem('darkMode') === 'on') {
+        document.body.classList.add('dark-mode');
+        if (darkToggle) darkToggle.classList.replace('fa-moon', 'fa-sun');
+    }
+    if (darkToggle) {
+        darkToggle.addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'on' : 'off');
+            this.classList.toggle('fa-moon', !isDark);
+            this.classList.toggle('fa-sun', isDark);
+        });
+    }
+</script>
 </body>
 </html>

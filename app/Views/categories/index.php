@@ -37,41 +37,41 @@
 </style>
 
 <div class="row g-5 animate-wow">
-    <!-- Classification Desk (Add Form) -->
+    <!-- Add Category Section -->
     <div class="col-lg-4">
         <div class="category-entry-panel animate-up">
             <div class="mb-5">
                 <div class="bg-primary text-white rounded-4 d-inline-flex p-3 mb-4 shadow-lg shadow-primary-subtle">
                     <i class="fas fa-layer-group fs-4"></i>
                 </div>
-                <h3 class="fw-900 m-0">Define Classification</h3>
-                <p class="text-muted mt-2">Create logical groups for your pharmacy inventory.</p>
+                <h3 class="fw-900 m-0">Add Category</h3>
+                <p class="text-muted mt-2">Create groups for your products.</p>
             </div>
 
             <form action="<?= base_url('categories/create') ?>" method="POST">
                 <div class="mb-4">
-                    <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Classification Label</label>
+                    <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Category Name</label>
                     <input type="text" name="name" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill" placeholder="e.g. Antibiotics" required>
                 </div>
                 <button type="submit" class="btn btn-dark w-100 py-3 rounded-pill fw-900 shadow-lg">
-                    <i class="fas fa-plus-circle me-2"></i> RECORD CATEGORY
+                    <i class="fas fa-plus-circle me-2"></i> ADD CATEGORY
                 </button>
             </form>
             
             <div class="mt-5 p-4 rounded-4" style="background: rgba(59, 130, 246, 0.05); border: 1px dashed rgba(59, 130, 246, 0.2);">
-                <div class="small fw-900 text-primary mb-2"><i class="fas fa-circle-info me-2"></i>System Note</div>
-                <p class="small text-muted m-0 fw-500">Classification helps in generating specialized sales reports and inventory audits.</p>
+                <div class="small fw-900 text-primary mb-2"><i class="fas fa-circle-info me-2"></i>Information</div>
+                <p class="small text-muted m-0 fw-500">Categories help in searching products and making sales reports.</p>
             </div>
         </div>
     </div>
 
-    <!-- Category Database -->
+    <!-- Category List -->
     <div class="col-lg-8">
         <div class="classification-list animate-up">
             <div class="p-4 px-5 border-bottom d-flex justify-content-between align-items-center bg-white">
                 <div>
-                    <h4 class="fw-900 m-0">Library Database</h4>
-                    <p class="text-muted small m-0 mt-1">Currently registered product classifications.</p>
+                    <h4 class="fw-900 m-0">Categories</h4>
+                    <p class="text-muted small m-0 mt-1">All available product categories.</p>
                 </div>
                 <span class="badge bg-primary bg-opacity-10 text-primary px-4 py-2 rounded-pill fw-900">
                     TOTAL: <?= count($categories) ?>
@@ -80,7 +80,7 @@
             
             <div class="p-0">
                 <?php if(empty($categories)): ?>
-                    <div class="text-center py-5 text-muted fw-bold">No classifications defined yet.</div>
+                    <div class="text-center py-5 text-muted fw-bold">No categories found.</div>
                 <?php else: ?>
                     <?php foreach($categories as $category): ?>
                         <div class="category-row d-flex justify-content-between align-items-center">
@@ -99,7 +99,7 @@
                                 </button>
                                 <a href="<?= base_url('categories/delete/'.$category['id']) ?>" 
                                    class="btn btn-sm btn-outline-danger border-0 rounded-pill px-3" 
-                                   onclick="return confirm('Archive this classification?')">
+                                   onclick="return confirm('Are you sure you want to delete this category?')">
                                     <i class="fas fa-trash-can"></i>
                                 </a>
                             </div>
@@ -116,18 +116,18 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-2xl overflow-hidden" style="border-radius: 40px;">
             <div class="modal-header bg-dark text-white border-0 p-5 pb-4">
-                <h4 class="modal-title fw-900"><i class="fas fa-pen-nib text-warning me-2"></i> Update Label</h4>
+                <h4 class="modal-title fw-900"><i class="fas fa-edit text-warning me-2"></i> Edit Category</h4>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="<?= base_url('categories/update') ?>" method="POST">
                 <input type="hidden" name="id" id="edit_cat_id">
                 <div class="modal-body p-5">
-                    <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">New Classification Name</label>
+                    <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Category Name</label>
                     <input type="text" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill" name="name" id="edit_cat_name" required>
                 </div>
                 <div class="modal-footer border-0 p-5 pt-0">
                     <button type="submit" class="btn btn-dark w-100 py-3 rounded-pill fw-900 shadow-lg">
-                        <i class="fas fa-save me-2"></i> APPLY CHANGES
+                        <i class="fas fa-save me-2"></i> UPDATE CATEGORY
                     </button>
                 </div>
             </form>

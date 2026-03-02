@@ -90,8 +90,8 @@
     <!-- Header -->
     <div class="inventory-header d-flex flex-column flex-lg-row justify-content-between align-items-center gap-4">
         <div>
-            <h2 class="fw-900 m-0">Products Registry</h2>
-            <p class="text-muted m-0 mt-1">Full database of Galaxy Pharmacy stock SKU items.</p>
+            <h2 class="fw-900 m-0">Product List</h2>
+            <p class="text-muted m-0 mt-1">View and manage all available items in the pharmacy.</p>
         </div>
         <div class="d-flex flex-column flex-md-row gap-3 w-100 w-lg-auto align-items-center">
             <div class="search-pill">
@@ -111,11 +111,11 @@
                 <thead>
                     <tr>
                         <th>Product Details</th>
-                        <th>Classification</th>
+                        <th>Category</th>
                         <th class="text-center">Inventory Level</th>
                         <th class="text-center">Financial Performance</th>
-                        <th>Compliance Form</th>
-                        <th class="text-end">Management</th>
+                        <th>Product Registration Form</th>
+                        <th class="text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -171,7 +171,7 @@
                                         <i class="fas fa-pen-nib"></i>
                                     </button>
                                     <a href="<?= base_url('products/delete/'.$product['id']) ?>" 
-                                       onclick="return confirm('Archive this product SKU?')"
+                                       onclick="return confirm('Are you sure you want to delete this product?')"
                                        class="action-btn action-delete shadow-sm">
                                         <i class="fas fa-trash-can"></i>
                                     </a>
@@ -190,18 +190,18 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-2xl overflow-hidden" style="border-radius: 40px;">
             <div class="modal-header bg-dark text-white border-0 p-5 pb-4">
-                <h4 class="modal-title fw-900"><i class="fas fa-edit text-warning me-2"></i> Edit Product SKU</h4>
+                <h4 class="modal-title fw-900"><i class="fas fa-edit text-warning me-2"></i> Edit Product</h4>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="<?= base_url('products/update') ?>" method="POST">
                 <input type="hidden" name="id" id="edit_product_id">
                 <div class="modal-body p-5">
                     <div class="mb-4">
-                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">General Product Name</label>
+                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Product Name</label>
                         <input type="text" class="form-control form-control-lg bg-light border-0 px-4 py-3" name="name" id="edit_product_name" required>
                     </div>
                     <div class="mb-4">
-                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Medical Category</label>
+                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Category</label>
                         <select class="form-select form-select-lg bg-light border-0 px-4 py-3" name="category_id" id="edit_product_category" required>
                             <?php foreach($categories as $cat): ?>
                                 <option value="<?= $cat['id'] ?>"><?= esc($cat['name']) ?></option>
@@ -210,11 +210,11 @@
                     </div>
                     <div class="row g-4 mb-4">
                         <div class="col-8">
-                            <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Potency / Strength</label>
+                            <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Dosage Strength & Unit</label>
                             <input type="text" class="form-control form-control-lg bg-light border-0 px-4 py-3" name="unit_value" id="edit_product_unit_value" required>
                         </div>
                         <div class="col-4">
-                            <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Unit Type</label>
+                            <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Type</label>
                             <select class="form-select form-select-lg bg-light border-0 px-4 py-3" name="unit" id="edit_product_unit" required>
                                 <?php foreach(['mg','ml','gm','cap','tab','syp'] as $u): ?>
                                     <option value="<?= $u ?>"><?= $u ?></option>
@@ -223,8 +223,13 @@
                         </div>
                     </div>
                     <div class="mb-4">
-                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Cost Basis (Rs.)</label>
+                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Cost Price (Rs.)</label>
                         <input type="number" step="0.01" class="form-control form-control-lg bg-light border-0 px-4 py-3" name="cost" id="edit_product_cost" required>
+                    </div>
+                    
+                    <div class="mt-4 mb-2">
+                        <h6 class="fw-bold text-primary text-uppercase tracking-widest">Product Registration</h6>
+                        <hr class="mt-1 mb-4">
                     </div>
                     <div class="row g-4">
                         <div class="col-6">
@@ -239,7 +244,7 @@
                 </div>
                 <div class="modal-footer border-0 p-5 pt-0">
                     <button type="submit" class="btn btn-dark w-100 py-3 fw-900 rounded-pill shadow-lg">
-                        <i class="fas fa-save me-2"></i> UPDATE REGISTRY
+                        <i class="fas fa-save me-2"></i> UPDATE PRODUCT
                     </button>
                 </div>
             </form>

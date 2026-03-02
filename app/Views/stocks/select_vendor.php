@@ -8,11 +8,11 @@
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="fw-800 m-0">Stock Add - Step 1</h4>
-                <p class="text-muted small m-0">Pehle vendor select karein, phir us vendor ka stock add hoga.</p>
+                <h4 class="fw-800 m-0">Add Stock - Select Vendor</h4>
+                <p class="text-muted small m-0">Select a vendor below to add stock from them.</p>
             </div>
-            <a href="<?= base_url('stocks/purchase') ?>" class="btn btn-light rounded-pill px-4">
-                <i class="fas fa-arrow-left me-2"></i> Back to Purchase Log
+            <a href="<?= base_url('stocks/purchase') ?>" class="btn btn-light rounded-pill px-4 text-muted">
+                <i class="fas fa-arrow-left me-2"></i> Go Back
             </a>
         </div>
     </div>
@@ -23,8 +23,8 @@
             <div class="premium-list p-5 text-center">
                 <div class="opacity-25 py-4">
                     <i class="fas fa-truck-ramp-box fs-1 mb-3"></i>
-                    <p class="m-0 fw-bold">Koi vendor registered nahi hai.</p>
-                    <p class="text-muted small">Pehle <a href="<?= base_url('vendors') ?>">Vendors</a> section mein vendor add karein.</p>
+                    <p class="m-0 fw-bold">No vendors registered yet.</p>
+                    <p class="text-muted small">Please add a vendor in the <a href="<?= base_url('vendors') ?>">Vendors</a> section first.</p>
                 </div>
             </div>
         </div>
@@ -45,7 +45,7 @@
                         </div>
                     <?php endif; ?>
                     <div class="select-btn mt-3">
-                        <i class="fas fa-plus me-2"></i> Is Vendor Ka Stock Add Karein
+                        <i class="fas fa-plus me-2"></i> Add Stock from this Vendor
                     </div>
                 </div>
             </div>

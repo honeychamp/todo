@@ -5,7 +5,7 @@
 <div class="row g-4 mb-4">
     <div class="col-md-4">
         <div class="premium-list p-4 text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #6366f1, #0ea5e9);">
-            <div class="text-white opacity-75 small fw-bold text-uppercase">Total Investment (Cost)</div>
+            <div class="text-white opacity-75 small fw-bold text-uppercase">Total Money Spent</div>
             <?php 
                 $totalInvested = array_sum(array_map(function($p) { return $p['cost'] * $p['initial_qty']; }, $purchases));
             ?>
@@ -23,7 +23,7 @@
     </div>
     <div class="col-md-4">
         <div class="premium-list p-4 text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-            <div class="text-white opacity-75 small fw-bold text-uppercase">Potential Profit (Est.)</div>
+            <div class="text-white opacity-75 small fw-bold text-uppercase">Estimated Profit</div>
             <h3 class="text-white fw-800 m-0 mt-1">Rs. <?= number_format($totalSaleValueOriginal - $totalInvested, 2) ?></h3>
         </div>
     </div>
@@ -34,8 +34,8 @@
         <div class="premium-list p-0">
             <div class="p-4 px-5 border-bottom d-flex justify-content-between align-items-center">
                 <div>
-                    <h5 class="m-0 fw-800">Stock Purchase Log</h5>
-                    <p class="text-muted small m-0 mt-1">Record and track stock batches received from vendors.</p>
+                    <h5 class="m-0 fw-800">Purchase History</h5>
+                    <p class="text-muted small m-0 mt-1">Records of all stock batches bought from vendors.</p>
                 </div>
                 <a href="<?= base_url('stocks/select_vendor') ?>" class="btn btn-vibrant rounded-pill px-4">
                     <i class="fas fa-plus me-2"></i> Add Stock
@@ -49,10 +49,10 @@
                                 <th class="border-0 px-4 py-3">ID & Date</th>
                                 <th class="border-0 py-3">Batch & Vendor</th>
                                 <th class="border-0 py-3">Product Name</th>
-                                <th class="border-0 py-3">MFG & EXP Date</th>
-                                <th class="border-0 py-3">Per Unit Price</th>
+                                <th class="border-0 py-3">MFG/EXP Dates</th>
+                                <th class="border-0 py-3">Price Details</th>
                                 <th class="border-0 py-3 text-center">Qty</th>
-                                <th class="border-0 py-3">Pricing Analysis</th>
+                                <th class="border-0 py-3">Calculation</th>
                                 <th class="border-0 py-3 text-end px-4">Action</th>
                             </tr>
                         </thead>
@@ -200,7 +200,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="submit" class="btn btn-premium w-100 py-3">Save Changes</button>
+                    <button type="submit" class="btn btn-premium w-100 py-3">SAVE CHANGES</button>
                 </div>
             </form>
         </div>

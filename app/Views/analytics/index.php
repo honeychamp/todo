@@ -121,19 +121,19 @@
     <div class="header-panel-dark animate-wow">
         <div class="row align-items-center">
             <div class="col-lg-7">
-                <span class="badge bg-primary px-3 py-2 rounded-pill fw-900 extra-small tracking-widest mb-3">FINANCIAL AUDIT HUB</span>
-                <h1 class="fw-900 m-0 display-4">Business Command Center</h1>
-                <p class="text-white-50 mt-2 fs-5">Track every rupee moving through Galaxy Pharmacy in real-time.</p>
+                <span class="badge bg-primary px-3 py-2 rounded-pill fw-900 extra-small tracking-widest mb-3">BUSINESS REPORTS</span>
+                <h1 class="fw-900 m-0 display-4">Business Analytics</h1>
+                <p class="text-white-50 mt-2 fs-5">View your complete business report and profit summary.</p>
                 <div class="d-flex gap-2 mt-4">
                     <button class="period-pill active" onclick="switchPeriod('today')">Today</button>
-                    <button class="period-pill" onclick="switchPeriod('week')">Weekly</button>
-                    <button class="period-pill" onclick="switchPeriod('month')">Monthly</button>
-                    <button class="period-pill" onclick="switchPeriod('year')">Yearly Audit</button>
+                    <button class="period-pill" onclick="switchPeriod('week')">This Week</button>
+                    <button class="period-pill" onclick="switchPeriod('month')">This Month</button>
+                    <button class="period-pill" onclick="switchPeriod('year')">This Year</button>
                 </div>
             </div>
             <div class="col-lg-5 text-lg-end">
                 <div class="d-inline-flex flex-column gap-1 text-start p-4 bg-white bg-opacity-5 rounded-4 border border-white border-opacity-10">
-                    <div class="small fw-900 text-white-50">LIFETIME CASH VOLUME</div>
+                    <div class="small fw-900 text-white-50">LIFETIME TOTAL SALES</div>
                     <div class="h2 fw-900 text-success m-0">Rs. <?= number_format($lifetime['total_sales'], 0) ?></div>
                     <div class="text-white-50 small fw-bold">Verified Transaction History</div>
                 </div>
@@ -178,7 +178,7 @@
             <div class="col-xl-3 col-md-6">
                 <div class="kpi-card-premium">
                     <div class="kpi-icon-v2 card-stock"><i class="fas fa-truck-ramp-box"></i></div>
-                    <div class="kpi-desc">Stock Inbound Cost</div>
+                    <div class="kpi-desc">Stock Purchase Cost</div>
                     <div class="kpi-amount" style="color:#d97706;">Rs. <?= number_format($data['purchases'], 0) ?></div>
                     <div class="kpi-extra text-muted">Capital Invested in Inventory</div>
                 </div>
@@ -187,7 +187,7 @@
             <div class="col-xl-3 col-md-6">
                 <div class="kpi-card-premium">
                     <div class="kpi-icon-v2 card-expense"><i class="fas fa-file-invoice-dollar"></i></div>
-                    <div class="kpi-desc">Operating Bills</div>
+                    <div class="kpi-desc">Total Expenses</div>
                     <div class="kpi-amount text-danger">Rs. <?= number_format($data['expenses'], 0) ?></div>
                     <div class="kpi-extra text-muted">Rent, Salaries & Utility Bills</div>
                 </div>
@@ -196,7 +196,7 @@
             <div class="col-xl-3 col-md-6">
                 <div class="kpi-card-premium" style="background: #10b981; color: white;">
                     <div class="kpi-icon-v2 bg-white text-success"><i class="fas fa-sack-dollar"></i></div>
-                    <div class="kpi-desc text-white opacity-75">Clean Net Gain</div>
+                    <div class="kpi-desc text-white opacity-75">Net Profit</div>
                     <div class="kpi-amount text-white">Rs. <?= number_format($data['net_profit'], 0) ?></div>
                     <div class="mt-4 pt-3 border-top border-white border-opacity-10">
                         <div class="fw-900 fs-5"><?= $data['revenue'] > 0 ? number_format(($data['net_profit'] / $data['revenue']) * 100, 1) : 0 ?>% Margin</div>

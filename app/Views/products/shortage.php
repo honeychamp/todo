@@ -5,8 +5,8 @@
 <div class="row g-4 animate-wow">
     <div class="col-12 text-center mb-2">
         <div class="bg-white d-inline-block p-4 px-5 rounded-pill shadow-sm border border-danger border-opacity-25">
-            <h4 class="m-0 fw-900 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Pharmacy Shortage List</h4>
-            <p class="text-muted small m-0 mt-1">Products that are low or out of stock and need urgent ordering.</p>
+            <h4 class="m-0 fw-900 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Short Stock List</h4>
+            <p class="text-muted small m-0 mt-1">Items that are low or out of stock and need ordering.</p>
         </div>
     </div>
 
@@ -27,8 +27,8 @@
                         <?php if(empty($shortage_items)): ?>
                             <tr>
                                 <td colspan="5" class="text-center py-5">
-                                    <h5 class="text-success fw-bold"><i class="fas fa-check-circle me-2"></i>Inventory is healthy!</h5>
-                                    <p class="text-muted m-0">No products are currently low in stock.</p>
+                                    <h5 class="text-success fw-bold"><i class="fas fa-check-circle me-2"></i>Stock is good!</h5>
+                                    <p class="text-muted m-0">No items are currently low in stock.</p>
                                 </td>
                             </tr>
                         <?php else: ?>
@@ -47,7 +47,7 @@
                                     </td>
                                     <td class="text-center">
                                         <?php if(($item['total_qty'] ?? 0) <= 0): ?>
-                                            <span class="badge bg-danger rounded-pill px-3 py-2 shadow-sm">CRITICAL: EMPTY</span>
+                                            <span class="badge bg-danger rounded-pill px-3 py-2 shadow-sm">FINISH</span>
                                         <?php else: ?>
                                             <span class="badge bg-warning text-dark rounded-pill px-3 py-2 shadow-sm">ORDER SOON</span>
                                         <?php endif; ?>

@@ -19,22 +19,22 @@
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="fw-800 m-0">Stock Add Karein</h4>
+                <h4 class="fw-800 m-0">Add New Stock</h4>
                 <p class="text-muted small m-0">
                     <i class="fas fa-building me-1 text-primary"></i>
                     Vendor: <strong class="text-primary"><?= esc($vendor['name']) ?></strong>
                     &nbsp;&bull;&nbsp;
                     <a href="<?= base_url('stocks/select_vendor') ?>" class="text-muted text-decoration-none small">
-                        <i class="fas fa-exchange-alt me-1"></i> Vendor Change Karein
+                        <i class="fas fa-exchange-alt me-1"></i> Change Vendor
                     </a>
                 </p>
             </div>
             <div class="d-flex gap-2">
-                <a href="<?= base_url('stocks/vendor/' . $vendor['id']) ?>" class="btn btn-light rounded-pill px-4">
-                    <i class="fas fa-arrow-left me-2"></i> Back
+                <a href="<?= base_url('stocks/vendor/' . $vendor['id']) ?>" class="btn btn-light rounded-pill px-4 text-muted">
+                    <i class="fas fa-arrow-left me-2"></i> Go Back
                 </a>
                 <button type="submit" class="btn btn-vibrant rounded-pill px-4">
-                    <i class="fas fa-check-circle me-2"></i> Save All Stock
+                    <i class="fas fa-check-circle me-2"></i> Save Stock
                 </button>
             </div>
         </div>
@@ -56,7 +56,7 @@
             </div>
             <div class="ms-auto">
                 <span class="badge rounded-pill px-3 py-2 fw-bold" style="background:rgba(99,102,241,0.1);color:#6366f1;">
-                    Yahi vendor ka stock add ho raha hai
+                    Adding stock for this vendor
                 </span>
             </div>
         </div>
@@ -68,10 +68,10 @@
             <div class="p-4 px-5 border-bottom d-flex justify-content-between align-items-center">
                 <div>
                     <h5 class="fw-800 m-0">Stock Items</h5>
-                    <p class="text-muted small m-0">Har row ek product batch entry hai.</p>
+                    <p class="text-muted small m-0">Each row is one product batch entry.</p>
                 </div>
                 <button type="button" class="btn btn-outline-primary rounded-pill px-4" onclick="addStockRow()">
-                    <i class="fas fa-plus me-2"></i> Row Add Karein
+                    <i class="fas fa-plus me-2"></i> Add Another Row
                 </button>
             </div>
 
@@ -171,7 +171,7 @@ function addStockRow() {
         </td>
         <td>
             <select name="product_id[]" required onchange="autoCost(this, ${rowIndex})">
-                <option value="">— Select —</option>
+                <option value="">— Select Product —</option>
                 ${productsOptions}
             </select>
         </td>

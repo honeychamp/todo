@@ -64,8 +64,11 @@ class Purchases extends BaseController
         $vModel = new VendorModel();
         
         $data['products'] = $pModel->findAll();
-        $data['vendor']   = $vendor_id ? $vModel->find($vendor_id) : null;
-        $data['vendors']  = $vModel->findAll();
+        $data['vendor']   = $vModel->find($vendor_id);
+
+        if ($vendor_id && !$data['vendor']) {
+            return redirect()->to(base_url('purchases/select_vendor'))->with('error', 'Vendor not found.');
+        }
 
         return view('purchases/add', $data);
     }
@@ -246,8 +249,8 @@ class Purchases extends BaseController
                 'type' => 'PAYMENT',
                 'description' => "Payment Dispatched: " . ($pmt['notes'] ?? 'No notes'),
                 'debit' => 0,
-                'credit' => $pmt['amount'], // Amount we paid
-                'ref' => $pmt['id']
+                'credit' => $pmt['amount'] ?? 0, // Amount we paid
+                'ref' => $pmt['id'] ?? null
             ];
         }
 

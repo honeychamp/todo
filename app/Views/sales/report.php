@@ -5,8 +5,8 @@
         <div class="premium-list p-5 shadow-lg border-0 bg-white rounded-5">
             <div class="d-flex justify-content-between align-items-center mb-5 border-bottom pb-4">
                 <div>
-                    <h2 class="fw-900 m-0"><i class="fas fa-chart-pie me-2 text-primary"></i> Detailed Sales Report</h2>
-                    <p class="text-muted small m-0 mt-1">Audit transactions and track profitability performance.</p>
+                    <h2 class="fw-900 m-0"><i class="fas fa-chart-pie me-2 text-primary"></i> Sales Report</h2>
+                    <p class="text-muted small m-0 mt-1">See your sales and profit records.</p>
                 </div>
                 <div class="text-end">
                     <form action="<?= base_url('sales/report') ?>" method="GET" class="d-flex gap-3 align-items-center bg-light p-3 rounded-4 shadow-sm">
@@ -24,28 +24,28 @@
             <div class="row g-4 mb-5">
                 <div class="col-md-3">
                     <div class="p-4 rounded-4 text-center h-100 d-flex flex-column justify-content-center" style="background: rgba(99,102,241,0.05); border: 2.5px dashed rgba(99,102,241,0.2);">
-                        <div class="text-muted small fw-bold text-uppercase mb-2">Total Sales Revenue</div>
+                        <div class="text-muted small fw-bold text-uppercase mb-2">Total Sales</div>
                         <?php $rev = array_sum(array_map(function($s){ return $s['qty'] * $s['sale_price']; }, $sales)); ?>
                         <div class="fw-900 h2 m-0 text-primary">Rs. <?= number_format($rev, 2) ?></div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="p-4 rounded-4 text-center h-100 d-flex flex-column justify-content-center" style="background: rgba(16,185,129,0.05); border: 2.5px dashed rgba(16,185,129,0.2);">
-                        <div class="text-muted small fw-bold text-uppercase mb-2">Total Profit Earned</div>
+                        <div class="text-muted small fw-bold text-uppercase mb-2">Total Profit</div>
                         <?php $prof = array_sum(array_map(function($s){ return ($s['sale_price'] - $s['purchase_cost']) * $s['qty']; }, $sales)); ?>
                         <div class="fw-900 h2 m-0 text-success">Rs. <?= number_format($prof, 2) ?></div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="p-4 rounded-4 text-center h-100 d-flex flex-column justify-content-center" style="background: rgba(245,158,11,0.05); border: 2.5px dashed rgba(245,158,11,0.2);">
-                        <div class="text-muted small fw-bold text-uppercase mb-2">Units Sold Total</div>
+                        <div class="text-muted small fw-bold text-uppercase mb-2">Quantity Sold</div>
                         <?php $qtyS = array_sum(array_column($sales, 'qty')); ?>
                         <div class="fw-900 h2 m-0 text-warning"><?= number_format($qtyS) ?></div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="p-4 rounded-4 text-center h-100 d-flex flex-column justify-content-center" style="background: rgba(15,23,42,0.05); border: 2.5px dashed rgba(15,23,42,0.2);">
-                        <div class="text-muted small fw-bold text-uppercase mb-2">Total Transactions</div>
+                        <div class="text-muted small fw-bold text-uppercase mb-2">Total Orders</div>
                         <div class="fw-900 h2 m-0 text-dark"><?= count($sales) ?></div>
                     </div>
                 </div>
@@ -55,12 +55,12 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr class="text-muted small text-uppercase">
-                            <th class="border-0 px-4 py-3">Sale ID & Date</th>
-                            <th class="border-0 py-3">Product Description</th>
-                            <th class="border-0 py-3 text-center">Qty Sold</th>
-                            <th class="border-0 py-3 text-end">Sale Revenue</th>
+                            <th class="border-0 px-4 py-3">Order ID & Date</th>
+                            <th class="border-0 py-3">Product Name</th>
+                            <th class="border-0 py-3 text-center">Qty</th>
+                            <th class="border-0 py-3 text-end">Amount</th>
                             <th class="border-0 py-3 text-end">Total Profit</th>
-                            <th class="border-0 py-3 text-end px-5">Profit Card</th>
+                            <th class="border-0 py-3 text-end px-5">Status</th>
                         </tr>
                     </thead>
                     <tbody>

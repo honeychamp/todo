@@ -52,10 +52,10 @@
     <div class="col-xl-3 col-md-6">
         <div class="stat-card card-purple shadow-lg">
             <i class="fas fa-pills icon-bg"></i>
-            <span class="action-badge">Inventory</span>
+            <span class="action-badge">Stock</span>
             <div>
                 <div class="stat-value"><?= number_format($total_items_in_stock) ?></div>
-                <div class="stat-label">Units Available</div>
+                <div class="stat-label">Total Units</div>
             </div>
         </div>
     </div>
@@ -82,7 +82,7 @@
     <div class="col-xl-3 col-md-6">
         <div class="stat-card card-rose shadow-lg">
             <i class="fas fa-exclamation-triangle icon-bg"></i>
-            <span class="action-badge">Shortfall</span>
+            <span class="action-badge">Badges</span>
             <div>
                 <div class="stat-value"><?= count($low_stock) + count($expiring_soon) ?></div>
                 <div class="stat-label">Active Alerts</div>
@@ -106,10 +106,10 @@
     <div class="col-xl-3 col-md-6">
         <div class="stat-card card-emerald shadow-lg">
             <i class="fas fa-chart-line icon-bg"></i>
-            <span class="action-badge">Gross Profit</span>
+            <span class="action-badge">Current Profit</span>
             <div>
                 <div class="stat-value" style="font-size: 1.6rem;">Rs. <?= number_format($today_profit, 2) ?></div>
-                <div class="stat-label">Profit Today (Before Exp)</div>
+                <div class="stat-label">Total Profit Today</div>
             </div>
         </div>
     </div>
@@ -126,10 +126,10 @@
     <div class="col-xl-3 col-md-6">
         <div class="stat-card card-purple shadow-lg" style="background: linear-gradient(135deg, #8b5cf6, #d946ef);">
             <i class="fas fa-sack-dollar icon-bg"></i>
-            <span class="action-badge">Net Profit</span>
+            <span class="action-badge">Final Gain</span>
             <div>
                 <div class="stat-value" style="font-size: 1.6rem;">Rs. <?= number_format($today_net_profit, 2) ?></div>
-                <div class="stat-label">Actual Gain Today</div>
+                <div class="stat-label">Net Profit Today</div>
             </div>
         </div>
     </div>
@@ -141,8 +141,8 @@
         <div class="premium-list p-4 bg-light border-0 shadow-sm" style="border-radius: 20px;">
             <div class="row align-items-center">
                 <div class="col-md-3">
-                    <h6 class="text-muted small fw-bold text-uppercase mb-1">Lifetime Business Health</h6>
-                    <p class="small m-0">Overall statistics since project start.</p>
+                    <h6 class="text-muted small fw-bold text-uppercase mb-1">Lifetime Performance</h6>
+                    <p class="small m-0">Overall statistics of your shop.</p>
                 </div>
                 <div class="col-md-3 text-center border-start">
                     <div class="text-muted small">Total Sales Volume</div>

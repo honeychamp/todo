@@ -52,27 +52,27 @@
 </style>
 
 <div class="animate-wow">
-    <!-- Supply Network Header -->
+    <!-- Vendors Header -->
     <div class="row g-4 mb-5">
         <div class="col-lg-7">
             <div class="network-summary-card h-100 d-flex flex-column justify-content-center">
-                <h2 class="fw-900 m-0">Supply Network</h2>
-                <p class="text-muted m-0 mt-2">Managing relationships and debts with all medical wholesalers.</p>
+                <h2 class="fw-900 m-0">Vendor List</h2>
+                <p class="text-muted m-0 mt-2">Manage your suppliers and their payments.</p>
                 <div class="mt-4 d-flex gap-4">
                     <div>
-                        <div class="text-muted extra-small fw-900 text-uppercase tracking-widest">Total Active Dues</div>
+                        <div class="text-muted extra-small fw-900 text-uppercase tracking-widest">Total Payable</div>
                         <div class="h2 fw-900 text-danger m-0">Rs. <?= number_format($total_dues, 0) ?></div>
                     </div>
                     <div class="border-start ps-4">
-                        <div class="text-muted extra-small fw-900 text-uppercase tracking-widest">Linked Suppliers</div>
-                        <div class="h2 fw-900 text-primary m-0"><?= count($vendors) ?> Entities</div>
+                        <div class="text-muted extra-small fw-900 text-uppercase tracking-widest">Total Vendors</div>
+                        <div class="h2 fw-900 text-primary m-0"><?= count($vendors) ?> Vendors</div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-lg-5">
             <div class="network-summary-card h-100">
-                <h6 class="fw-900 mb-3"><i class="fas fa-triangle-exclamation text-warning me-2"></i> High Priority Creditors</h6>
+                <h6 class="fw-900 mb-3"><i class="fas fa-triangle-exclamation text-warning me-2"></i> Payment Reminders</h6>
                 <div class="d-flex flex-column gap-2">
                     <?php if(empty($top_creditors)): ?>
                         <div class="p-3 bg-light rounded-4 text-center text-muted small fw-bold">No outstanding dues. Cash flow is clean!</div>
@@ -89,12 +89,12 @@
         </div>
     </div>
 
-    <!-- Management Controls -->
+    <!-- List Controls -->
     <div class="d-flex justify-content-between align-items-center mb-4 px-2">
-        <h4 class="fw-900 m-0">All Suppliers</h4>
+        <h4 class="fw-900 m-0">Vendors</h4>
         <button class="btn btn-primary rounded-pill px-5 py-3 fw-900 shadow-lg" data-bs-toggle="modal" data-bs-target="#addVendorModal">
-            <i class="fas fa-plus-circle me-2"></i> REGISTER NEW SUPPLIER
-        </a>
+            <i class="fas fa-plus-circle me-2"></i> ADD NEW VENDOR
+        </button>
     </div>
 
     <!-- Vendor Grid v2 -->
@@ -108,10 +108,10 @@
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-light rounded-circle" data-bs-toggle="dropdown" style="width:35px;height:35px;"><i class="fas fa-ellipsis-v"></i></button>
                                 <ul class="dropdown-menu dropdown-menu-end rounded-4 border-0 shadow-lg p-2">
-                                    <li><a class="dropdown-item rounded-3 fw-bold py-2" href="#" onclick="openEditVendor(<?= $vendor['id'] ?>, '<?= esc($vendor['name'], 'js') ?>', '<?= esc($vendor['phone'], 'js') ?>', '<?= esc($vendor['email'], 'js') ?>', '<?= esc($vendor['address'], 'js') ?>')" data-bs-toggle="modal" data-bs-target="#editVendorModal"><i class="fas fa-edit me-2 text-warning"></i> Edit Details</a></li>
+                                    <li><a class="dropdown-item rounded-3 fw-bold py-2" href="#" onclick="openEditVendor(<?= $vendor['id'] ?>, '<?= esc($vendor['name'], 'js') ?>', '<?= esc($vendor['phone'], 'js') ?>', '<?= esc($vendor['email'], 'js') ?>', '<?= esc($vendor['address'], 'js') ?>')" data-bs-target="#editVendorModal" data-bs-toggle="modal"><i class="fas fa-edit me-2 text-warning"></i> Edit Vendor</a></li>
                                     <li><a class="dropdown-item rounded-3 fw-bold py-2" href="<?= base_url('purchases/vendor/'.$vendor['id']) ?>"><i class="fas fa-history me-2 text-primary"></i> Trade History</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item rounded-3 fw-bold py-2 text-danger" href="<?= base_url('vendors/delete/'.$vendor['id']) ?>" onclick="return confirm('Archive this supplier?')"><i class="fas fa-trash-alt me-2"></i> Remove Record</a></li>
+                                    <li><a class="dropdown-item rounded-3 fw-bold py-2 text-danger" href="<?= base_url('vendors/delete/'.$vendor['id']) ?>" onclick="return confirm('Are you sure you want to delete this vendor?')"><i class="fas fa-trash-alt me-2"></i> Delete Vendor</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -131,7 +131,7 @@
                         </div>
                     </div>
                     <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                        <div class="fw-900 small text-muted">ACCOUNT STANDING</div>
+                        <div class="fw-900 small text-muted">BALANCE STATUS</div>
                         <?php if($vendor['balance'] > 0): ?>
                             <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill fw-900">Rs. <?= number_format($vendor['balance'], 0) ?> Due</span>
                         <?php else: ?>
@@ -149,13 +149,13 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-2xl overflow-hidden" style="border-radius: 40px;">
             <div class="modal-header bg-dark text-white border-0 p-5 pb-4">
-                <h4 class="modal-title fw-900">Register Supplier</h4>
+                <h4 class="modal-title fw-900">Add New Vendor</h4>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="<?= base_url('vendors/create') ?>" method="POST">
                 <div class="modal-body p-5">
                     <div class="mb-4">
-                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Business Name</label>
+                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Vendor Name</label>
                         <input type="text" name="name" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill" placeholder="e.g. Pfizer Dist." required>
                     </div>
                     <div class="row g-4 mb-4">
@@ -174,7 +174,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-5 pt-0">
-                    <button type="submit" class="btn btn-dark w-100 py-3 rounded-pill fw-900 shadow-lg">CONFIRM REGISTRATION</button>
+                    <button type="submit" class="btn btn-dark w-100 py-3 rounded-pill fw-900 shadow-lg">ADD VENDOR</button>
                 </div>
             </form>
         </div>
@@ -186,14 +186,14 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-2xl overflow-hidden" style="border-radius: 40px;">
             <div class="modal-header bg-dark text-white border-0 p-5 pb-4">
-                <h4 class="modal-title fw-900">Update Supplier Info</h4>
+                <h4 class="modal-title fw-900">Edit Vendor</h4>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="<?= base_url('vendors/update') ?>" method="POST">
                 <input type="hidden" name="id" id="edit_vendor_id">
                 <div class="modal-body p-5">
                     <div class="mb-4">
-                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Business Name</label>
+                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Vendor Name</label>
                         <input type="text" name="name" id="edit_vendor_name" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill" required>
                     </div>
                     <div class="row g-4 mb-4">
@@ -212,7 +212,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-5 pt-0">
-                    <button type="submit" class="btn btn-dark w-100 py-3 rounded-pill fw-900 shadow-lg">SAVE ALTERATIONS</button>
+                    <button type="submit" class="btn btn-dark w-100 py-3 rounded-pill fw-900 shadow-lg">UPDATE VENDOR</button>
                 </div>
             </form>
         </div>
