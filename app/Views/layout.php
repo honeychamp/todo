@@ -24,6 +24,8 @@
             --neon-shadow: 0 0 20px rgba(14, 165, 233, 0.2);
         }
 
+        .text-orange { color: #f97316; }
+
         /* Animations */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
@@ -33,7 +35,7 @@
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
-        .animate-wow { animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-wow { animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
         .animate-up { animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         body {
@@ -71,7 +73,36 @@
             z-index: 1000;
             transition: all 0.4s;
             box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
         }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #sidebar:hover .sidebar-content {
+            overflow-y: auto;
+        }
+
+        /* Custom slim scrollbar for sidebar content */
+        .sidebar-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+        }
+        .sidebar-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
 
         .sidebar-header {
             padding: 40px 30px;
@@ -236,6 +267,9 @@
             padding: 24px;
         }
 
+        .transition-all { transition: all 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-5px); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.1) !important; }
+
         .premium-card::after, .premium-list::after {
             content: '';
             position: absolute;
@@ -292,14 +326,7 @@
             border-bottom: 1px solid #f1f5f9;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
 
-        .animate-wow {
-            animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-        }
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -431,134 +458,136 @@
             <h3><?= esc(get_setting('pharmacy_name', 'Galaxy Pharmacy')) ?></h3>
         </div>
 
-        <ul class="list-unstyled components">
-            <li class="<?= url_is('analytics') ? 'active' : '' ?>">
-                <a href="<?= base_url('analytics') ?>"><i class="fas fa-chart-pie"></i> Business Intelligence</a>
-            </li>
-            <li class="<?= url_is('/') ? 'active' : '' ?>">
-                <a href="<?= base_url('/') ?>"><i class="fas fa-house"></i> Dashboard</a>
-            </li>
-            <li class="<?= url_is('products*') ? 'active' : '' ?>">
-                <a href="#productsSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= url_is('products*') ? '' : 'collapsed' ?>">
-                    <i class="fas fa-capsules"></i> Products
-                </a>
-                <ul class="collapse list-unstyled sub-menu <?= url_is('products*') ? 'show' : '' ?>" id="productsSubmenu">
-                    <li>
-                        <a href="<?= base_url('products') ?>" class="<?= url_is('products') ? 'text-white fw-bold' : '' ?>">
-                            <i class="fas fa-list small me-2"></i> All Products
-                        </a>
-                    </li>
-                    <li>
-                        <a href="<?= base_url('products/add') ?>" class="<?= url_is('products/add') ? 'text-white fw-bold' : '' ?>">
-                            <i class="fas fa-plus small me-2"></i> Add Product
-                        </a>
-                    </li>
-                    <li>
-                        <a href="<?= base_url('products/shortage') ?>" class="<?= url_is('products/shortage') ? 'text-white fw-bold' : '' ?>">
-                            <i class="fas fa-exclamation-circle small me-2 text-warning"></i> Shortage List
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li class="<?= url_is('categories') ? 'active' : '' ?>">
-                <a href="<?= base_url('categories') ?>"><i class="fas fa-shapes"></i> Categories</a>
-            </li>
-            <li class="<?= url_is('vendors') ? 'active' : '' ?>">
-                <a href="<?= base_url('vendors') ?>"><i class="fas fa-truck"></i> Vendors</a>
-            </li>
-            <!-- Purchases Module -->
-            <li class="<?= url_is('purchases*') ? 'active' : '' ?>">
-                <a href="#purchaseSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= url_is('purchases*') ? '' : 'collapsed' ?>">
-                    <i class="fas fa-cart-shopping"></i> Purchases
-                </a>
-                <ul class="collapse list-unstyled sub-menu <?= url_is('purchases*') ? 'show' : '' ?>" id="purchaseSubmenu">
-                    <li>
-                        <a href="<?= base_url('purchases/select_vendor') ?>" class="<?= url_is('purchases/select_vendor') ? 'text-white fw-bold' : '' ?>">
-                            <i class="fas fa-plus small me-2"></i> Record Purchase
-                        </a>
-                    </li>
-                    <li>
-                        <a href="<?= base_url('purchases') ?>" class="<?= url_is('purchases') ? 'text-white fw-bold' : '' ?>">
-                            <i class="fas fa-history small me-2"></i> Purchase Log
-                        </a>
-                    </li>
-                    <li>
-                        <a href="<?= base_url('purchases/dues') ?>" class="<?= url_is('purchases/dues') ? 'text-white fw-bold' : '' ?>">
-                            <i class="fas fa-hand-holding-dollar small me-2"></i> Vendor Dues
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            <!-- Sales Module -->
-            <li class="<?= url_is('sales*') ? 'active' : '' ?>">
-                <a href="#salesSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= url_is('sales*') ? '' : 'collapsed' ?>">
-                    <i class="fas fa-shopping-bag"></i> Sales & Stock
-                </a>
-                <ul class="collapse list-unstyled sub-menu <?= url_is('sales*') ? 'show' : '' ?>" id="salesSubmenu">
-                    <li>
-                        <a href="<?= base_url('sales') ?>" class="<?= url_is('sales') ? 'text-white fw-bold' : '' ?>">
-                            <i class="fas fa-cash-register small me-2"></i> Sales Terminal
-                        </a>
-                    </li>
-                    <li>
-                        <a href="<?= base_url('sales/inventory') ?>" class="<?= url_is('sales/inventory') ? 'text-white fw-bold' : '' ?>">
-                            <i class="fas fa-boxes small me-2"></i> Available Stock
-                        </a>
-                    </li>
-                    <li>
-                        <a href="<?= base_url('sales/report') ?>" class="<?= url_is('sales/report') ? 'text-white fw-bold' : '' ?>">
-                            <i class="fas fa-chart-pie small me-2"></i> Sales Report
-                        </a>
-                    </li>
-                    <li>
-                        <a href="<?= base_url('sales/history') ?>" class="<?= url_is('sales/history') ? 'text-white fw-bold' : '' ?>">
-                            <i class="fas fa-history small me-2"></i> Sales History
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="<?= url_is('doctors*') ? 'active' : '' ?>">
-                <a href="#doctorSubmenu" data-bs-toggle="collapse" class="<?= !url_is('doctors*') ? 'collapsed' : '' ?> dropdown-toggle">
-                    <i class="fas fa-user-md"></i> Doctor Hub
-                </a>
-                <ul class="collapse list-unstyled <?= url_is('doctors*') ? 'show' : '' ?>" id="doctorSubmenu">
-                    <li>
-                        <a href="<?= base_url('doctors') ?>" class="<?= url_is('doctors') ? 'text-white fw-bold' : '' ?>">
-                            <i class="fas fa-list small me-2"></i> Doctor Network
-                        </a>
-                    </li>
-                    <li>
-                        <a href="<?= base_url('doctors/payments') ?>" class="<?= url_is('doctors/payments') ? 'text-white fw-bold' : '' ?>">
-                            <i class="fas fa-receipt small me-2"></i> Payment Logs
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="<?= url_is('expenses') ? 'active' : '' ?>">
-                <a href="<?= base_url('expenses') ?>"><i class="fas fa-wallet"></i> Expenses</a>
-            </li>
-            
-            <div style="margin-top: 50px; padding: 0 10px;">
-                <li class="<?= url_is('settings') ? 'active' : '' ?>">
-                    <a href="<?= base_url('settings') ?>" style="background: rgba(99, 102, 241, 0.1); color: var(--indigo); margin-bottom: 8px;">
-                        <i class="fas fa-cog"></i> System Settings
-                    </a>
+        <div class="sidebar-content">
+            <ul class="list-unstyled components">
+                <li class="<?= url_is('analytics') ? 'active' : '' ?>">
+                    <a href="<?= base_url('analytics') ?>"><i class="fas fa-chart-pie"></i> Business Intelligence</a>
                 </li>
-                <li class="<?= url_is('auth/profile') ? 'active' : '' ?>">
-                    <a href="<?= base_url('auth/profile') ?>" style="background: rgba(99, 102, 241, 0.1); color: var(--indigo); margin-bottom: 8px;">
-                        <i class="fas fa-user-cog"></i> Profile Settings
-                    </a>
+                <li class="<?= url_is('/') ? 'active' : '' ?>">
+                    <a href="<?= base_url('/') ?>"><i class="fas fa-house"></i> Dashboard</a>
                 </li>
-                <li>
-                    <a href="<?= base_url('auth/logout') ?>" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">
-                        <i class="fas fa-power-off"></i> Logout
+                <li class="<?= url_is('products*') ? 'active' : '' ?>">
+                    <a href="#productsSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= url_is('products*') ? '' : 'collapsed' ?>">
+                        <i class="fas fa-capsules"></i> Products
                     </a>
+                    <ul class="collapse list-unstyled sub-menu <?= url_is('products*') ? 'show' : '' ?>" id="productsSubmenu">
+                        <li>
+                            <a href="<?= base_url('products') ?>" class="<?= url_is('products') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-list small me-2"></i> All Products
+                            </a>
+                        </li>
+                        <li>
+                            <a href="<?= base_url('products/add') ?>" class="<?= url_is('products/add') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-plus small me-2"></i> Add Product
+                            </a>
+                        </li>
+                        <li>
+                            <a href="<?= base_url('products/shortage') ?>" class="<?= url_is('products/shortage') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-exclamation-circle small me-2 text-warning"></i> Shortage List
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-            </div>
-        </ul>
+                <li class="<?= url_is('categories') ? 'active' : '' ?>">
+                    <a href="<?= base_url('categories') ?>"><i class="fas fa-shapes"></i> Categories</a>
+                </li>
+                <li class="<?= url_is('vendors') ? 'active' : '' ?>">
+                    <a href="<?= base_url('vendors') ?>"><i class="fas fa-truck"></i> Vendors</a>
+                </li>
+                <!-- Purchases Module -->
+                <li class="<?= url_is('purchases*') ? 'active' : '' ?>">
+                    <a href="#purchaseSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= url_is('purchases*') ? '' : 'collapsed' ?>">
+                        <i class="fas fa-cart-shopping"></i> Purchases
+                    </a>
+                    <ul class="collapse list-unstyled sub-menu <?= url_is('purchases*') ? 'show' : '' ?>" id="purchaseSubmenu">
+                        <li>
+                            <a href="<?= base_url('purchases/select_vendor') ?>" class="<?= url_is('purchases/select_vendor') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-plus small me-2"></i> Record Purchase
+                            </a>
+                        </li>
+                        <li>
+                            <a href="<?= base_url('purchases') ?>" class="<?= url_is('purchases') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-history small me-2"></i> Purchase Log
+                            </a>
+                        </li>
+                        <li>
+                            <a href="<?= base_url('purchases/dues') ?>" class="<?= url_is('purchases/dues') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-hand-holding-dollar small me-2"></i> Vendor Dues
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Sales Module -->
+                <li class="<?= url_is('sales*') ? 'active' : '' ?>">
+                    <a href="#salesSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= url_is('sales*') ? '' : 'collapsed' ?>">
+                        <i class="fas fa-shopping-bag"></i> Sales & Stock
+                    </a>
+                    <ul class="collapse list-unstyled sub-menu <?= url_is('sales*') ? 'show' : '' ?>" id="salesSubmenu">
+                        <li>
+                            <a href="<?= base_url('sales') ?>" class="<?= url_is('sales') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-cash-register small me-2"></i> Sales Terminal
+                            </a>
+                        </li>
+                        <li>
+                            <a href="<?= base_url('sales/inventory') ?>" class="<?= url_is('sales/inventory') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-boxes small me-2"></i> Available Stock
+                            </a>
+                        </li>
+                        <li>
+                            <a href="<?= base_url('sales/report') ?>" class="<?= url_is('sales/report') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-chart-pie small me-2"></i> Sales Report
+                            </a>
+                        </li>
+                        <li>
+                            <a href="<?= base_url('sales/history') ?>" class="<?= url_is('sales/history') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-history small me-2"></i> Sales History
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="<?= url_is('doctors*') ? 'active' : '' ?>">
+                    <a href="#doctorSubmenu" data-bs-toggle="collapse" class="<?= !url_is('doctors*') ? 'collapsed' : '' ?> dropdown-toggle">
+                        <i class="fas fa-user-md"></i> Doctor Hub
+                    </a>
+                    <ul class="collapse list-unstyled <?= url_is('doctors*') ? 'show' : '' ?>" id="doctorSubmenu">
+                        <li>
+                            <a href="<?= base_url('doctors') ?>" class="<?= url_is('doctors') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-list small me-2"></i> Doctor Network
+                            </a>
+                        </li>
+                        <li>
+                            <a href="<?= base_url('doctors/payments') ?>" class="<?= url_is('doctors/payments') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-receipt small me-2"></i> Payment Logs
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="<?= url_is('expenses') ? 'active' : '' ?>">
+                    <a href="<?= base_url('expenses') ?>"><i class="fas fa-wallet"></i> Expenses</a>
+                </li>
+                
+                <div style="margin-top: 30px; padding: 0 10px; margin-bottom: 20px;">
+                    <li class="<?= url_is('settings') ? 'active' : '' ?>">
+                        <a href="<?= base_url('settings') ?>" style="background: rgba(99, 102, 241, 0.1); color: var(--indigo); margin-bottom: 8px;">
+                            <i class="fas fa-cog"></i> System Settings
+                        </a>
+                    </li>
+                    <li class="<?= url_is('auth/profile') ? 'active' : '' ?>">
+                        <a href="<?= base_url('auth/profile') ?>" style="background: rgba(99, 102, 241, 0.1); color: var(--indigo); margin-bottom: 8px;">
+                            <i class="fas fa-user-cog"></i> Profile Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= base_url('auth/logout') ?>" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">
+                            <i class="fas fa-power-off"></i> Logout
+                        </a>
+                    </li>
+                </div>
+            </ul>
+        </div>
     </nav>
 
     <div id="content">
@@ -581,9 +610,11 @@
                     <i class="fas fa-moon text-muted" id="darkModeToggle" style="cursor:pointer;" title="Toggle Dark Mode"></i>
                     <div class="vr mx-1" style="height: 15px;"></div>
                     <?php
-                        // Count expiring soon items (within 60 days)
+                        // Count expiring soon items (within 60 days) - Using dynamic stock check
                         $db_temp = \Config\Database::connect();
-                        $expiring_count = $db_temp->query("SELECT COUNT(*) as cnt FROM stock_purchase WHERE qty > 0 AND expiry_date <= DATE_ADD(NOW(), INTERVAL 60 DAY)")->getRow()->cnt ?? 0;
+                        $expiring_count = $db_temp->query("SELECT COUNT(*) as cnt FROM stock_purchase 
+                                                         WHERE (initial_qty - (SELECT COALESCE(SUM(qty), 0) FROM sales WHERE stock_id = stock_purchase.id)) > 0 
+                                                         AND expiry_date <= DATE_ADD(NOW(), INTERVAL 60 DAY)")->getRow()->cnt ?? 0;
                     ?>
                     <i class="fas fa-bell text-muted position-relative" style="cursor:pointer;" title="<?= $expiring_count ?> medicines expiring soon">
                         <?php if($expiring_count > 0): ?>
@@ -596,10 +627,16 @@
 
         <div class="container-fluid p-0">
             <?php
-            // Expiry warning banner (medicines expiring in 30 days)
+            // Expiry warning banner (medicines expiring in 30 days) - Using dynamic stock check
             $db_exp = \Config\Database::connect();
-            $soon_expiring = $db_exp->query("SELECT COUNT(*) as cnt FROM stock_purchase WHERE qty > 0 AND expiry_date <= DATE_ADD(NOW(), INTERVAL 30 DAY) AND expiry_date >= NOW()")->getRow()->cnt ?? 0;
-            $already_expired = $db_exp->query("SELECT COUNT(*) as cnt FROM stock_purchase WHERE qty > 0 AND expiry_date < NOW()")->getRow()->cnt ?? 0;
+            $soon_expiring = $db_exp->query("SELECT COUNT(*) as cnt FROM stock_purchase 
+                                            WHERE (initial_qty - (SELECT COALESCE(SUM(qty), 0) FROM sales WHERE stock_id = stock_purchase.id)) > 0 
+                                            AND expiry_date <= DATE_ADD(NOW(), INTERVAL 30 DAY) 
+                                            AND expiry_date >= NOW()")->getRow()->cnt ?? 0;
+                                            
+            $already_expired = $db_exp->query("SELECT COUNT(*) as cnt FROM stock_purchase 
+                                             WHERE (initial_qty - (SELECT COALESCE(SUM(qty), 0) FROM sales WHERE stock_id = stock_purchase.id)) > 0 
+                                             AND expiry_date < NOW()")->getRow()->cnt ?? 0;
         ?>
         <?php if($already_expired > 0): ?>
             <div class="expiry-alert-bar">
@@ -608,7 +645,7 @@
                     <strong>EXPIRED STOCK ALERT!</strong>
                     You have <span class="badge-count"><?= $already_expired ?> batch(es)</span> that have already <strong>expired</strong> but still have stock. Remove them immediately!
                 </div>
-                <a href="<?= base_url('stocks/inventory') ?>" class="btn btn-sm btn-light rounded-pill ms-auto px-3">View Stock</a>
+                <a href="<?= base_url('sales/inventory') ?>" class="btn btn-sm btn-light rounded-pill ms-auto px-3">View Stock</a>
                 <button class="btn btn-sm btn-outline-light rounded-pill" onclick="this.parentElement.style.display='none'"><i class="fas fa-times"></i></button>
             </div>
         <?php endif; ?>
@@ -619,7 +656,7 @@
                     <strong>Expiry Warning!</strong>
                     <span class="badge-count"><?= $soon_expiring ?> batch(es)</span> will expire within <strong>30 days</strong>. Sell or return them soon.
                 </div>
-                <a href="<?= base_url('stocks/inventory') ?>" class="btn btn-sm btn-light rounded-pill ms-auto px-3">View Stock</a>
+                <a href="<?= base_url('sales/inventory') ?>" class="btn btn-sm btn-light rounded-pill ms-auto px-3">View Stock</a>
                 <button class="btn btn-sm btn-outline-light rounded-pill" onclick="this.parentElement.style.display='none'"><i class="fas fa-times"></i></button>
             </div>
         <?php endif; ?>
@@ -668,6 +705,18 @@
             this.classList.toggle('fa-sun', isDark);
         });
     }
+
+    // Phone Number Input Restriction (11 Digits, Numeric only)
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('phone-input') || e.target.name === 'phone' || e.target.name === 'customer_phone' || e.target.name === 'pharmacy_phone') {
+            // Remove non-numeric characters
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            // Limit to 11 digits
+            if (e.target.value.length > 11) {
+                e.target.value = e.target.value.slice(0, 11);
+            }
+        }
+    });
 </script>
 </body>
 </html>

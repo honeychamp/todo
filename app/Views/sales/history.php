@@ -50,7 +50,15 @@
                                             <?php endif; ?>
                                         </td>
                                         <td class="text-center fw-bold fs-5"><?= number_format($sale['qty']) ?></td>
-                                        <td class="text-end fw-bold">Rs. <?= number_format($sale['qty'] * $sale['sale_price'], 2) ?></td>
+                                        <td class="text-end fw-bold">
+                                            <?php 
+                                                $net_total = ($sale['qty'] * $sale['sale_price']) - $sale['discount'];
+                                            ?>
+                                            <div class="text-dark">Rs. <?= number_format($net_total, 2) ?></div>
+                                            <?php if($sale['discount'] > 0): ?>
+                                                <div class="text-danger extra-small" style="font-size: 0.7rem;">-Rs. <?= number_format($sale['discount'], 2) ?> Disc</div>
+                                            <?php endif; ?>
+                                        </td>
                                         <td class="text-end px-4">
                                             <a href="<?= base_url('sales/invoice/'.$sale['id']) ?>" target="_blank" class="btn btn-sm btn-outline-primary border-0 rounded-pill px-3">
                                                 <i class="fas fa-print"></i>

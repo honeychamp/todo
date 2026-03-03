@@ -172,22 +172,30 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold small text-muted text-uppercase">Manual Phone</label>
-                            <input type="text" class="form-control form-control-lg bg-light border-0 py-3 rounded-4" name="customer_phone" placeholder="03XXXXXXXXX">
+                            <input type="tel" class="form-control form-control-lg bg-light border-0 py-3 rounded-4 phone-input" name="customer_phone" maxlength="11" placeholder="03XXXXXXXXX">
                         </div>
                     </div>
 
                     <div class="row align-items-center mb-5">
-                        <div class="col-4">
+                        <div class="col-md-3 col-6">
                             <label class="form-label fw-bold small text-muted text-uppercase">Quantity</label>
                             <input type="number" class="form-control form-control-lg fs-3 fw-900 bg-white border-bottom border-primary border-4 rounded-0 shadow-none py-2" name="qty" id="sale_qty" min="1" required oninput="calcTotal()" value="1">
                         </div>
-                        <div class="col-4">
-                            <label class="form-label fw-bold small text-muted text-uppercase">Discount (Rs.)</label>
-                            <input type="number" step="0.01" class="form-control form-control-lg fs-3 fw-900 bg-white border-bottom border-danger border-4 rounded-0 shadow-none py-2" name="discount" id="sale_discount" min="0" oninput="calcTotal()" value="0">
+                        <div class="col-md-3 col-6">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Disc. Mode</label>
+                            <select id="discount_mode" class="form-select form-control-lg fs-6 fw-bold bg-white border-bottom border-danger border-4 rounded-0 shadow-none py-2" onchange="calcTotal()">
+                                <option value="flat">Fixed Rs.</option>
+                                <option value="percent">Percent %</option>
+                            </select>
                         </div>
-                        <div class="col-4">
+                        <div class="col-md-3 col-6">
+                            <label class="form-label fw-bold small text-muted text-uppercase" id="discount_label">Value (Rs.)</label>
+                            <input type="number" step="0.01" class="form-control form-control-lg fs-3 fw-900 bg-white border-bottom border-danger border-4 rounded-0 shadow-none py-2" id="discount_input" min="0" oninput="calcTotal()" value="0">
+                            <input type="hidden" name="discount" id="sale_discount_hidden" value="0">
+                        </div>
+                        <div class="col-md-3 col-6">
                             <div class="text-center p-2 rounded-4 bg-light border">
-                                <span class="text-muted extra-small d-block fw-bold">MAX STOCK</span>
+                                <span class="text-muted extra-small d-block fw-bold">STOCK LEFT</span>
                                 <span class="fw-900 h5 m-0" id="modal_max_qty">0</span>
                             </div>
                         </div>
@@ -197,6 +205,10 @@
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="text-muted fw-bold">SUB-TOTAL</span>
                             <span class="fw-bold fs-5" id="sub_total_disp">Rs. 0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2" id="discount_summary_row" style="display: none !important;">
+                             <span class="text-danger fw-bold small text-uppercase">Calculated Discount</span>
+                             <span class="text-danger fw-bold" id="calculated_discount_disp">- Rs. 0.00</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center border-top border-dark border-opacity-10 pt-3">
                             <span class="fw-900 h5 m-0 text-dark">GRAND TOTAL</span>
@@ -225,16 +237,23 @@
         document.getElementById('modal_max_qty').innerText = max;
         document.getElementById('sale_qty').max = max;
         document.getElementById('sale_qty').value = 1;
+        document.getElementById('discount_input').value = 0;
         currentPrice = price;
         calcTotal();
     }
 
     function calcTotal() {
         const qtyBox = document.getElementById('sale_qty');
-        const discBox = document.getElementById('sale_discount');
+        const discMode = document.getElementById('discount_mode');
+        const discInput = document.getElementById('discount_input');
+        const discLabel = document.getElementById('discount_label');
+        const discHidden = document.getElementById('sale_discount_hidden');
+        const discRow = document.getElementById('discount_summary_row');
+        const discDisp = document.getElementById('calculated_discount_disp');
+
         const max = parseInt(qtyBox.max);
         let qty = parseInt(qtyBox.value) || 0;
-        let discount = parseFloat(discBox.value) || 0;
+        let dInput = parseFloat(discInput.value) || 0;
         
         if(qty > max) {
             qty = max;
@@ -242,7 +261,31 @@
         }
         
         const subtotal = qty * currentPrice;
-        const total = subtotal - discount;
+        let finalDiscount = 0;
+
+        if (discMode.value === 'percent') {
+            discLabel.innerText = 'Value (%)';
+            finalDiscount = (subtotal * dInput) / 100;
+        } else {
+            discLabel.innerText = 'Value (Rs.)';
+            finalDiscount = dInput;
+        }
+
+        // Clip discount to subtotal
+        if (finalDiscount > subtotal) finalDiscount = subtotal;
+        
+        discHidden.value = finalDiscount.toFixed(2);
+        
+        // Show discount row if there's a discount
+        if (finalDiscount > 0) {
+            discRow.classList.remove('d-none');
+            discRow.style.setProperty('display', 'flex', 'important');
+            discDisp.innerText = '- Rs. ' + finalDiscount.toLocaleString(undefined, {minimumFractionDigits: 2});
+        } else {
+            discRow.style.setProperty('display', 'none', 'important');
+        }
+
+        const total = subtotal - finalDiscount;
         
         document.getElementById('modal_total_amount').innerText = 'Rs. ' + (total > 0 ? total : 0).toLocaleString(undefined, {minimumFractionDigits: 2});
         document.getElementById('sub_total_disp').innerText = 'Rs. ' + subtotal.toLocaleString(undefined, {minimumFractionDigits: 2});

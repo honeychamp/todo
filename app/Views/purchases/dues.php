@@ -72,8 +72,8 @@
                                     </td>
                                     <td class="text-end px-5">
                                         <div class="d-flex gap-2 justify-content-end">
-                                            <a href="<?= base_url('purchases/vendor/'.$v['id']) ?>" class="btn btn-sm btn-outline-dark rounded-pill px-3 border-0 bg-light hover-lift">
-                                                <i class="fas fa-file-invoice me-1"></i> View History
+                                            <a href="<?= base_url('purchases/vendor/'.$v['id']) ?>" class="btn btn-sm btn-light border rounded-pill px-3 fw-bold text-dark hover-lift">
+                                                <i class="fas fa-file-invoice me-1 text-primary"></i> View History
                                             </a>
                                             <button class="btn btn-vibrant rounded-pill px-4 btn-sm shadow-sm" 
                                                     data-bs-toggle="modal" 
@@ -143,8 +143,7 @@ function settlePayment(id, name, balance) {
     document.getElementById('modalVendorId').value = id;
     document.getElementById('modalVendorName').innerText = name;
     document.getElementById('modalBalance').innerText = 'Rs. ' + balance.toLocaleString(undefined, {minimumFractionDigits: 2});
-    document.getElementById('pay_amount').value = balance;
-    document.getElementById('pay_amount').max = balance;
+    document.getElementById('pay_amount').value = '';
 }
 </script>
 

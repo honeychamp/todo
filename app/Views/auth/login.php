@@ -152,9 +152,7 @@
         <button type="submit" class="btn-login">Sign In</button>
     </form>
     
-    <div class="footer-links">
-        <p>Don't have an account? <a href="<?= base_url('auth/register') ?>">Register here</a></p>
-    </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

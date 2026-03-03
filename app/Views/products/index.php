@@ -133,6 +133,7 @@
                                             <div class="fw-900 text-dark"><?= esc($product['name']) ?></div>
                                             <div class="text-muted small fw-bold">
                                                 <?= esc($product['unit_value']) ?><?= esc($product['unit']) ?> · Cost: Rs. <?= number_format($product['cost'], 0) ?>
+                                                <div class="extra-small opacity-75 mt-1">ENTRY: <?= date('d M, Y', strtotime($product['created_at'])) ?></div>
                                             </div>
                                         </div>
                                     </div>

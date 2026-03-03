@@ -119,6 +119,9 @@
                         <div class="text-muted small fw-bold mb-3 d-flex align-items-center gap-2">
                             <i class="fas fa-envelope text-primary"></i> <?= esc($vendor['email'] ?: 'No primary email') ?>
                         </div>
+                        <div class="extra-small text-muted fw-bold mb-3">
+                            <i class="fas fa-calendar-check me-1"></i> REGISTERED: <?= date('d M, Y', strtotime($vendor['created_at'])) ?>
+                        </div>
                         <div class="p-3 bg-light rounded-4 mb-4">
                             <div class="d-flex align-items-center gap-3 mb-2">
                                 <i class="fas fa-phone-volume text-success"></i>
@@ -156,12 +159,12 @@
                 <div class="modal-body p-5">
                     <div class="mb-4">
                         <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Vendor Name</label>
-                        <input type="text" name="name" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill" placeholder="e.g. Pfizer Dist." required>
+                        <input type="text" name="name" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill" placeholder="e.g. Pharmacy Name" required>
                     </div>
                     <div class="row g-4 mb-4">
                         <div class="col-6">
                             <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Phone / WhatsApp</label>
-                            <input type="text" name="phone" class="form-control bg-light border-0 px-4 py-3 rounded-pill" required>
+                            <input type="tel" name="phone" class="form-control bg-light border-0 px-4 py-3 rounded-pill phone-input" maxlength="11" placeholder="03XXXXXXXXX" required>
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Primary Email</label>
@@ -199,7 +202,7 @@
                     <div class="row g-4 mb-4">
                         <div class="col-6">
                             <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Phone</label>
-                            <input type="text" name="phone" id="edit_vendor_phone" class="form-control bg-light border-0 px-4 py-3 rounded-pill" required>
+                            <input type="tel" name="phone" id="edit_vendor_phone" class="form-control bg-light border-0 px-4 py-3 rounded-pill phone-input" maxlength="11" required>
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Email</label>

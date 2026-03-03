@@ -23,7 +23,7 @@
                         <label class="form-label fw-bold text-dark small">Contact Phone Number</label>
                         <div class="input-group">
                             <span class="input-group-text border-0 bg-light px-4"><i class="fas fa-phone text-primary"></i></span>
-                            <input type="text" name="pharmacy_phone" class="form-control bg-light border-0 py-3" value="<?= esc($settings['pharmacy_phone'] ?? '') ?>">
+                            <input type="tel" name="pharmacy_phone" class="form-control bg-light border-0 py-3 phone-input" maxlength="11" value="<?= esc($settings['pharmacy_phone'] ?? '') ?>" placeholder="03XXXXXXXXX">
                         </div>
                     </div>
 

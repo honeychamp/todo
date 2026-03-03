@@ -135,6 +135,18 @@ class Products extends BaseController
                                         JOIN products p ON p.id = s.product_id 
                                         HAVING current_qty < 10 AND current_qty > 0 LIMIT 3")->getResultArray();
 
+    // 4. NEW: Top 5 Selling Products (Last 30 Days)
+    $data['top_products'] = $db->query("SELECT p.name, SUM(s.qty) as total_units, SUM(s.qty * s.sale_price - s.discount) as total_revenue
+                                        FROM sales s
+                                        JOIN products p ON p.id = s.product_id
+                                        WHERE s.sale_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                                        GROUP BY s.product_id
+                                        ORDER BY total_units DESC
+                                        LIMIT 5")->getResultArray();
+
+    // 5. NEW: Today's Profit Margin Calculation
+    $data['today_profit_margin'] = ($todayRevenue > 0) ? ($todayProfit / $todayRevenue) * 100 : 0;
+
 
         return view('products/dashboard', $data);
     }

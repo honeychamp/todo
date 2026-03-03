@@ -136,7 +136,10 @@
     <div class="col-xl-3 col-md-6">
         <div class="stat-card card-emerald shadow-lg">
             <i class="fas fa-chart-line icon-bg"></i>
-            <span class="action-badge">Current Profit</span>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="action-badge mb-0">Current Profit</span>
+                <div class="badge bg-white bg-opacity-20 text-white rounded-pill px-2" style="font-size: 0.6rem;"><?= number_format($today_profit_margin, 1) ?>% MARGIN</div>
+            </div>
             <div>
                 <div class="stat-value" style="font-size: 1.6rem;">Rs. <?= number_format($today_profit, 2) ?></div>
                 <div class="stat-label">Total Profit Today</div>
@@ -186,6 +189,41 @@
                     <div class="text-muted small">Cumulative Net Profit</div>
                     <div class="fw-800 text-success fs-5">Rs. <?= number_format($lifetime_net_profit, 2) ?></div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NEW Row: Top Moving Items -->
+<div class="row g-4 mb-4 animate-wow" style="animation-delay: 0.18s;">
+    <div class="col-12">
+        <div class="premium-list p-4 bg-white border-0 shadow-sm" style="border-radius: 24px;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                     <h6 class="text-dark fw-900 m-0"><i class="fas fa-fire-flame-simple text-orange me-2"></i>TOP MOVING ITEMS</h6>
+                     <p class="text-muted extra-small m-0 mt-1">Products with highest sales volume in last 30 days</p>
+                </div>
+                <a href="<?= base_url('analytics') ?>" class="btn btn-sm btn-light rounded-pill px-3 fw-bold border" style="font-size: 0.65rem;">FULL AUDIT</a>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-5 g-3">
+                <?php if(empty($top_products)): ?>
+                    <div class="col-12 text-center py-3 text-muted small">No recent sales data available.</div>
+                <?php else: ?>
+                    <?php foreach($top_products as $tp): ?>
+                        <div class="col">
+                            <div class="bg-light p-3 rounded-4 border-0 h-100 transition-all hover-lift">
+                                <div class="fw-bold text-dark small mb-2 text-truncate" title="<?= esc($tp['name']) ?>"><?= esc($tp['name']) ?></div>
+                                <div class="d-flex justify-content-between align-items-end">
+                                    <div>
+                                        <div class="text-muted extra-small fw-bold"><?= number_format($tp['total_units']) ?> SOLD</div>
+                                        <div class="text-primary fw-900 small">Rs. <?= number_format($tp['total_revenue'], 0) ?></div>
+                                    </div>
+                                    <div class="badge bg-white text-dark shadow-sm rounded-pill p-1 px-2 border" style="font-size: 0.6rem;">HOT</div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>

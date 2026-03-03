@@ -70,9 +70,9 @@ $routes->get('settings', 'Settings::index');
 $routes->post('settings/update', 'Settings::update');
 
 $routes->get('auth/login', 'Auth::login');
-$routes->get('auth/register', 'Auth::register');
+
 $routes->post('auth/loginProcess', 'Auth::process_login');
-$routes->post('auth/registerProcess', 'Auth::process_register');
+
 $routes->get('auth/logout', 'Auth::logout');
 $routes->get('auth/profile', 'Auth::profile');
 $routes->post('auth/updatePassword', 'Auth::updatePassword');

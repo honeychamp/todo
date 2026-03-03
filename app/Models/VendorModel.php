@@ -18,7 +18,7 @@ class VendorModel extends Model
 
     protected $validationRules = [
         'name'  => 'required|min_length[3]|is_unique[vendors.name]',
-        'phone' => 'required|min_length[10]'
+        'phone' => 'required|exact_length[11]|numeric'
     ];
 
     protected $validationMessages = [

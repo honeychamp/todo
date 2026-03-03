@@ -13,38 +13,7 @@ class Auth extends BaseController
         return view('auth/login'); 
     }
 
-    // Just show the registration page
-    public function register() 
-    { 
-        return view('auth/register'); 
-    }
-    
-    // This part handles the registration form
-    public function process_register()
-    {
-        // Rules for form validation
-        $rules = [
-            'username' => 'required|min_length[3]|is_unique[users.username]',
-            'email'    => 'required|valid_email|is_unique[users.email]',
-            'password' => 'required|min_length[6]',
-            'confpassword' => 'matches[password]'
-        ];
 
-        // If validation fails, go back with errors
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        // Save New User to Database
-        $userModel = new UserModel();
-        $userModel->save([
-            'username' => $this->request->getPost('username'),
-            'email'    => $this->request->getPost('email'),
-            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT)
-        ]);
-        
-        return redirect()->to(base_url('auth/login'))->with('success', 'Registration Done! You can login now.');
-    }
 
     // This part handles the login form
     public function process_login()

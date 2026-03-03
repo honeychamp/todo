@@ -88,7 +88,7 @@
                                 <div class="category-token"><?= substr($category['name'], 0, 1) ?></div>
                                 <div>
                                     <div class="fw-900 text-dark"><?= esc($category['name']) ?></div>
-                                    <div class="text-muted extra-small fw-bold">REGISTERED: <?= date('d M, Y') ?></div>
+                                    <div class="text-muted extra-small fw-bold">REGISTERED: <?= date('d M, Y', strtotime($category['created_at'])) ?></div>
                                 </div>
                             </div>
                             <div class="d-flex gap-2">

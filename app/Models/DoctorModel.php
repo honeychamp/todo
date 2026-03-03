@@ -12,4 +12,9 @@ class DoctorModel extends Model
     protected $returnType       = 'array';
     protected $allowedFields    = ['name', 'phone', 'address', 'created_at', 'updated_at'];
     protected $useTimestamps    = true;
+
+    protected $validationRules = [
+        'name'  => 'required|min_length[3]',
+        'phone' => 'required|exact_length[11]|numeric'
+    ];
 }

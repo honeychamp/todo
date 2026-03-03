@@ -17,7 +17,7 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label extra-small fw-900 text-uppercase text-muted">Phone Number</label>
-                    <input type="text" name="phone" class="form-control form-control-lg bg-light border-0 py-3 rounded-4" placeholder="0300 0000000" required>
+                    <input type="tel" name="phone" class="form-control form-control-lg bg-light border-0 py-3 rounded-4 phone-input" maxlength="11" placeholder="03XXXXXXXXX" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label extra-small fw-900 text-uppercase text-muted">Specialization / Clinic Address</label>
@@ -62,6 +62,7 @@
                                     <td class="px-5">
                                         <div class="fw-900 text-dark fs-6"><?= esc($d['name']) ?></div>
                                         <div class="extra-small text-muted fw-bold"><?= esc($d['address'] ?: 'No address specified') ?></div>
+                                        <div class="text-muted extra-small fw-bold mt-1">REGISTERED: <?= date('d M, Y', strtotime($d['created_at'])) ?></div>
                                     </td>
                                     <td>
                                         <div class="badge bg-light text-dark fw-bold border px-3"><?= esc($d['phone']) ?></div>
