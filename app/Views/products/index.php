@@ -166,6 +166,14 @@
                                     </div>
                                 </td>
                                 <td class="text-end">
+                                    <a href="<?= base_url('products/view/'.$product['id']) ?>" 
+                                       class="btn btn-sm action-btn action-view shadow-sm border me-1 bg-light text-primary" title="View details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="<?= base_url('purchases/select_vendor?product_id='.$product['id']) ?>" 
+                                       class="btn btn-sm action-btn action-edit shadow-sm border me-1" title="Restock this item">
+                                        <i class="fas fa-cart-plus text-primary"></i>
+                                    </a>
                                     <button onclick="openEditProduct(<?= $product['id'] ?>, '<?= esc($product['name'], 'js') ?>', <?= $product['category_id'] ?>, '<?= esc($product['unit_value'], 'js') ?>', '<?= esc($product['unit'], 'js') ?>', <?= $product['cost'] ?>, '<?= esc($product['form_6'], 'js') ?>', '<?= esc($product['form_7'], 'js') ?>')"
                                             data-bs-toggle="modal" data-bs-target="#editProductModal"
                                             class="action-btn action-edit me-2 shadow-sm">

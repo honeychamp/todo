@@ -14,7 +14,7 @@
                 </div>
                 <div class="text-end">
                     <h4 class="fw-800 text-dark mb-0">SALES RECEIPT</h4>
-                    <p class="text-muted small m-0">#S-<?= str_pad($sale['id'], 5, '0', STR_PAD_LEFT) ?></p>
+                    <p class="text-muted small m-0">#<?= esc($sale['invoice_no'] ?: 'S-'.str_pad($sale['id'], 5, '0', STR_PAD_LEFT)) ?></p>
                     <p class="text-muted small m-0"><?= date('d M, Y h:i A', strtotime($sale['sale_date'])) ?></p>
                 </div>
             </div>
@@ -24,10 +24,11 @@
                     <h6 class="text-muted text-uppercase fw-bold small">Payer Information</h6>
                     <?php if(!empty($sale['doctor_name'])): ?>
                         <div class="fw-900 text-primary fs-5"><i class="fas fa-user-md me-1"></i> <?= esc($sale['doctor_name']) ?></div>
+                        <div class="text-muted small fw-bold mb-1"><?= esc($sale['doctor_phone'] ?: 'No Contact Provided') ?></div>
                         <div class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 extra-small">RECORDED TO DOCTOR LEDGER</div>
                     <?php else: ?>
-                        <div class="fw-800 text-dark"><?= esc($sale['customer_name'] ?: 'Retail Customer') ?></div>
-                        <div class="text-muted small"><?= esc($sale['customer_phone'] ?: 'Walk-in Cash Sale') ?></div>
+                        <div class="fw-800 text-dark"><i class="fas fa-user-md me-1 text-secondary"></i><?= esc($sale['customer_name'] ?: 'Unregistered Doctor') ?></div>
+                        <div class="text-muted small"><?= esc($sale['customer_phone'] ?: 'No Contact Provided') ?></div>
                     <?php endif; ?>
                 </div>
                 <div class="col-md-6 text-end">
@@ -52,31 +53,33 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <?php foreach($items as $item): ?>
                         <tr>
                             <td>
-                                <div class="fw-800 text-dark"><?= esc($sale['product_name']) ?></div>
-                                <div class="text-muted small"><?= esc($sale['product_unit_value']) ?> <?= esc($sale['product_unit']) ?> Strength</div>
+                                <div class="fw-800 text-dark"><?= esc($item['product_name']) ?></div>
+                                <div class="text-muted small"><?= esc($item['unit_value']) ?> <?= esc($item['unit']) ?> Strength</div>
                             </td>
-                            <td><code class="text-primary"><?= esc($sale['batch_id']) ?></code></td>
-                            <td class="text-center fw-bold fs-5"><?= number_format($sale['qty']) ?></td>
-                            <td class="text-end">Rs. <?= number_format($sale['sale_price'], 2) ?></td>
-                            <td class="text-end fw-900 fs-5">Rs. <?= number_format($sale['qty'] * $sale['sale_price'], 2) ?></td>
+                            <td><code class="text-primary"><?= esc($item['batch_id']) ?></code></td>
+                            <td class="text-center fw-bold fs-5"><?= number_format($item['qty']) ?></td>
+                            <td class="text-end">Rs. <?= number_format($item['sale_price'], 2) ?></td>
+                            <td class="text-end fw-900 fs-5">Rs. <?= number_format($item['qty'] * $item['sale_price'], 2) ?></td>
                         </tr>
+                        <?php endforeach; ?>
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="4" class="text-end border-0 pt-4 fw-800 text-muted">Sub-Total:</td>
-                            <td class="text-end border-0 pt-4 fw-800 text-dark">Rs. <?= number_format($sale['qty'] * $sale['sale_price'], 2) ?></td>
+                            <td colspan="4" class="text-end border-0 pt-4 fw-800 text-muted">Gross Total:</td>
+                            <td class="text-end border-0 pt-4 fw-800 text-dark">Rs. <?= number_format($sale['total_amount'] + ($sale['total_discount'] ?? 0), 2) ?></td>
                         </tr>
-                        <?php if($sale['discount'] > 0): ?>
+                        <?php if($sale['total_discount'] > 0): ?>
                         <tr>
                             <td colspan="4" class="text-end border-0 pt-1 fw-800 text-danger">Discount Given (-):</td>
-                            <td class="text-end border-0 pt-1 fw-800 text-danger">Rs. <?= number_format($sale['discount'], 2) ?></td>
+                            <td class="text-end border-0 pt-1 fw-800 text-danger">Rs. <?= number_format($sale['total_discount'], 2) ?></td>
                         </tr>
                         <?php endif; ?>
                         <tr>
-                            <td colspan="4" class="text-end border-0 pt-3 fw-900 h4 m-0">Net Amount:</td>
-                            <td class="text-end border-0 pt-3 fw-900 h2 m-0 text-primary">Rs. <?= number_format(($sale['qty'] * $sale['sale_price']) - ($sale['discount'] ?? 0), 2) ?></td>
+                            <td colspan="4" class="text-end border-0 pt-3 fw-900 h4 m-0">Net Payable:</td>
+                            <td class="text-end border-0 pt-3 fw-900 h2 m-0 text-primary">Rs. <?= number_format($sale['total_amount'], 2) ?></td>
                         </tr>
                     </tfoot>
                 </table>

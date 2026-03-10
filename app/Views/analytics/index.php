@@ -269,16 +269,20 @@
                 </div>
 
                 <div class="mt-5 pt-3 border-top">
-                     <h5 class="fw-900 m-0 mb-4 text-dark"><i class="fas fa-database text-info me-2"></i> Inventory Status Hub</h5>
-                     <div class="p-4 bg-light rounded-4 border-0">
-                         <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
-                             <div class="small fw-800 text-muted">Total Stock Value:</div>
-                             <div class="fw-900 text-dark">Rs. <?= number_format($lifetime['current_stock_valuation'], 0) ?></div>
-                         </div>
-                         <div class="d-flex justify-content-between mb-0">
-                             <div class="small fw-800 text-muted">Warehouse Net Worth:</div>
-                             <div class="fw-900 text-success">Rs. <?= number_format($lifetime['current_stock_valuation'] * 1.25, 0) ?> (Est.)</div>
-                         </div>
+                     <h5 class="fw-900 m-0 mb-4 text-dark"><i class="fas fa-truck-fast text-indigo me-2"></i> Strategic Procurement</h5>
+                     <div class="mt-4">
+                        <?php foreach($vendor_spending as $v): ?>
+                            <div class="product-row py-2">
+                                <div class="fw-bold text-dark small"><?= esc($v['name']) ?></div>
+                                <div class="fw-900 text-dark">Rs. <?= number_format($v['total']) ?></div>
+                            </div>
+                            <div class="progress" style="height: 6px; border-radius: 10px; margin-bottom: 12px; background: #f1f5f9;">
+                                <div class="progress-bar bg-indigo" style="width: <?= ($v['total'] / max(array_column($vendor_spending, 'total'), [1])[0]) * 100 ?>%; border-radius: 10px;"></div>
+                            </div>
+                        <?php endforeach; ?>
+                        <div class="mt-4 p-3 bg-light rounded-4 extra-small fw-bold text-muted lh-sm">
+                            <i class="fas fa-circle-info me-1"></i> This list identifies which vendors receive the highest capital investment from Galaxy Pharmacy.
+                        </div>
                      </div>
                 </div>
             </div>

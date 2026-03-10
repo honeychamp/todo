@@ -124,8 +124,11 @@
 
     <!-- Vendor Grid -->
     <div class="vendor-grid" id="vendorGrid">
-        <?php foreach($vendors as $vendor): ?>
-            <a href="<?= base_url('purchases/add/'.$vendor['id']) ?>" class="vendor-tile animate-up" data-name="<?= strtolower($vendor['name'] . ' ' . $vendor['phone']) ?>">
+        <?php foreach($vendors as $vendor): 
+            $addUrl = base_url('purchases/add/'.$vendor['id']);
+            if($product_id) $addUrl .= '?product_id=' . $product_id;
+        ?>
+            <a href="<?= $addUrl ?>" class="vendor-tile animate-up" data-name="<?= strtolower($vendor['name'] . ' ' . $vendor['phone']) ?>">
                 <div class="vendor-avatar">
                     <?= substr($vendor['name'], 0, 1) ?>
                 </div>

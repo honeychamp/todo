@@ -8,8 +8,8 @@ class VendorPaymentModel extends Model
 {
     protected $table         = 'vendor_payments';
     protected $primaryKey    = 'id';
-    protected $allowedFields = ['vendor_id', 'amount', 'notes', 'payment_date', 'created_at', 'updated_at'];
-    protected $useTimestamps = false;
+    protected $allowedFields = ['vendor_id', 'purchase_id', 'amount', 'notes', 'payment_date', 'created_at', 'updated_at'];
+    protected $useTimestamps = true;
 
     // Total amount paid to a vendor
     public function totalPaid($vendor_id)

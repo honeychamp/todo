@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Models\StockModel;
+use App\Models\PurchaseDetailModel;
 use App\Models\ProductModel;
 use App\Models\SaleModel;
 
@@ -14,24 +14,28 @@ class Sales extends BaseController
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
 
-        $model = new StockModel();
-        // We select batches and calculate sold quantity for each
         $db = \Config\Database::connect();
-        $builder = $db->table('stock_purchase s');
-        $builder->select('s.*, p.name as product_name, p.unit as product_unit, p.unit_value as product_unit_value, v.name as vendor_name, 
-                         (SELECT COALESCE(SUM(qty), 0) FROM sales WHERE stock_id = s.id) as total_sold');
-        $builder->join('products p', 'p.id = s.product_id');
-        $builder->join('vendors v', 'v.id = s.vendor_id', 'left');
-        $builder->orderBy('s.expiry_date', 'ASC');
+        
+        // We select purchase_details and calculate sold quantity for each
+        $builder = $db->table('purchase_details s');
+        $builder->select('s.*, s.exp_date as expiry_date, s.mfg_date as manufacture_date, s.qty as initial_qty, 
+                         p.name as product_name, pdt.unit as product_unit, pdt.unit_value as product_unit_value, v.name as vendor_name, 
+                         (SELECT COALESCE(SUM(qty), 0) FROM sale_details WHERE sale_details.stock_id = s.id) as total_sold');
+        $builder->join('products p', 'p.id = s.product_id')
+        ->join('product_details pdt', 'pdt.id = s.product_detail_id')
+        ->join('purchases pr', 'pr.id = s.purchase_id');
+        $builder->whereIn('pr.status', ['received', 'partial_paid', 'paid']);
+        $builder->join('vendors v', 'v.id = pr.vendor_id', 'left');
+        $builder->orderBy('s.exp_date', 'ASC');
         
         $results = $builder->get()->getResultArray();
         
-        // Filter those where initial_qty - total_sold > 0
+        // Filter those where qty - total_sold > 0
         $available = [];
         foreach ($results as $item) {
             $item['available_qty'] = $item['initial_qty'] - $item['total_sold'];
             if ($item['available_qty'] > 0) {
-                // Update legacy qty in memory for current views (they expect 'qty')
+                // Update legacy qty in memory for current views (they expect 'qty' for shelf current qty)
                 $item['qty'] = $item['available_qty'];
                 $available[] = $item;
             }
@@ -46,14 +50,16 @@ class Sales extends BaseController
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
 
-        $sModel = new StockModel();
-        // Only show batches with stock available
         $db = \Config\Database::connect();
-        $builder = $db->table('stock_purchase s');
-        $builder->select('s.*, p.name as product_name, p.unit_value as product_unit_value, p.unit, v.name as vendor_name, 
-                         (SELECT COALESCE(SUM(qty), 0) FROM sales WHERE stock_id = s.id) as total_sold');
-        $builder->join('products p', 'p.id = s.product_id');
-        $builder->join('vendors v', 'v.id = s.vendor_id', 'left');
+        $builder = $db->table('purchase_details s');
+        $builder->select('s.*, s.exp_date as expiry_date, s.mfg_date as manufacture_date, s.qty as initial_qty, 
+                         p.name as product_name, pdt.unit_value as product_unit_value, pdt.unit, v.name as vendor_name, 
+                         (SELECT COALESCE(SUM(qty), 0) FROM sale_details WHERE sale_details.stock_id = s.id) as total_sold');
+        $builder->join('products p', 'p.id = s.product_id')
+        ->join('product_details pdt', 'pdt.id = s.product_detail_id')
+        ->join('purchases pr', 'pr.id = s.purchase_id');
+        $builder->whereIn('pr.status', ['received', 'partial_paid', 'paid']);
+        $builder->join('vendors v', 'v.id = pr.vendor_id', 'left');
         $builder->orderBy('p.name', 'ASC');
         
         $results = $builder->get()->getResultArray();
@@ -62,7 +68,7 @@ class Sales extends BaseController
             $left = $item['initial_qty'] - $item['total_sold'];
             if ($left > 0) {
                 $item['available_qty'] = $left;
-                $item['qty'] = $left; // Legacy support
+                $item['qty'] = $left; // shelf qty
                 $available[] = $item;
             }
         }
@@ -78,41 +84,79 @@ class Sales extends BaseController
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
         
-        $stockId   = $this->request->getPost('stock_id');
-        $qtyToSell = $this->request->getPost('qty');
-        $doctorId  = $this->request->getPost('doctor_id');
+        $stockIds   = $this->request->getPost('stock_id');
+        $qtys       = $this->request->getPost('qty');
+        $discounts  = $this->request->getPost('discount');
+        $doctorId   = $this->request->getPost('doctor_id');
 
-        $stockModel = new StockModel();
-        $stock = $stockModel->find($stockId);
+        if (empty($stockIds)) return redirect()->back()->with('error', 'No items selected.');
 
-        if (!$stock) {
-            return redirect()->back()->with('error', 'Batch not found.');
-        }
+        $db = \Config\Database::connect();
+        $db->transStart();
 
-        // Calculate actual available stock
         $saleModel = new SaleModel();
-        $sold = $saleModel->where('stock_id', $stockId)->selectSum('qty')->get()->getRow()->qty ?? 0;
-        $available = $stock['initial_qty'] - $sold;
+        $detailModel = new \App\Models\SaleDetailModel();
+        $PurchaseDetailModel = new PurchaseDetailModel();
 
-        if ($available >= $qtyToSell) {
-            $discount = $this->request->getPost('discount') ?: 0;
-            $saleId = $saleModel->insert([
-                'stock_id'       => $stockId,
-                'product_id'     => $stock['product_id'],
-                'doctor_id'      => !empty($doctorId) ? $doctorId : null,
-                'qty'            => $qtyToSell,
-                'sale_price'     => $stock['price'],
-                'discount'       => $discount,
-                'customer_name'  => $this->request->getPost('customer_name'),
-                'customer_phone' => $this->request->getPost('customer_phone'),
-                'sale_date'      => date('Y-m-d H:i:s')
+        // Create Sale Header
+        $saleData = [
+            'invoice_no'       => 'INV-' . strtoupper(substr(uniqid(), -6)),
+            'doctor_id'        => $this->request->getPost('doctor_id') ?: null,
+            'manual_dr_name'   => $this->request->getPost('manual_dr_name'),
+            'manual_dr_phone'  => $this->request->getPost('manual_dr_phone'),
+            'sale_date'        => date('Y-m-d H:i:s'),
+            'total_amount'     => 0,
+            'total_discount'   => 0
+        ];
+        $saleId = $saleModel->insert($saleData);
+
+        $totalVal = 0;
+        $totalDisc = 0;
+
+        foreach ($stockIds as $idx => $sid) {
+            $qty = (int)$qtys[$idx];
+            $disc = (float)($discounts[$idx] ?? 0);
+            $stock = $PurchaseDetailModel->find($sid);
+
+            if (!$stock || $qty <= 0) continue;
+
+            // Check stock
+            $sold = $detailModel->where('sale_details.stock_id', $sid)->selectSum('qty')->get()->getRow()->qty ?? 0;
+            $available = $stock['qty'] - $sold;
+
+            if ($available < $qty) {
+                $db->transRollback();
+                return redirect()->back()->with('error', 'Not enough stock for one of the items.');
+            }
+
+            $detailModel->insert([
+                'sale_id'           => $saleId,
+                'stock_id'          => $sid,
+                'product_id'        => $stock['product_id'],
+                'product_detail_id' => $stock['product_detail_id'],
+                'qty'               => $qty,
+                'sale_price'        => $stock['price'],
+                'discount'          => $disc
             ]);
 
-            return redirect()->to(base_url('sales'))->with('success', 'Sale processed successfully!')
-                                                  ->with('last_sale_id', $saleId);
+            $totalVal += ($qty * $stock['price']) - $disc;
+            $totalDisc += $disc;
         }
 
-        return redirect()->back()->with('error', 'Not enough stock available.');
+        // Update Header
+        $saleModel->update($saleId, [
+            'total_amount'   => $totalVal,
+            'total_discount' => $totalDisc
+        ]);
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Failed to process sale.');
+        }
+
+        return redirect()->to(base_url('sales'))->with('success', 'Sale processed successfully!')
+                                              ->with('last_sale_id', $saleId);
     }
 
     public function history()
@@ -120,9 +164,7 @@ class Sales extends BaseController
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
 
         $saleModel = new SaleModel();
-        $data['sales'] = $saleModel->select('sales.*, products.name as product_name, products.unit as product_unit, products.unit_value as product_unit_value, stock_purchase.batch_id, doctors.name as doctor_name')
-                                   ->join('products', 'products.id = sales.product_id')
-                                   ->join('stock_purchase', 'stock_purchase.id = sales.stock_id')
+        $data['sales'] = $saleModel->select('sales.*, sales.manual_dr_name as customer_name, sales.manual_dr_phone as customer_phone, doctors.name as doctor_name, doctors.phone as doctor_phone')
                                    ->join('doctors', 'doctors.id = sales.doctor_id', 'left')
                                    ->orderBy('sales.sale_date', 'DESC')
                                    ->findAll();
@@ -138,11 +180,13 @@ class Sales extends BaseController
         $end_date   = $this->request->getGet('end_date')   ?: date('Y-m-d');
 
         $db = \Config\Database::connect();
-        $builder = $db->table('sales s');
-        $builder->select('s.*, p.name as product_name, st.batch_id, st.cost as purchase_cost, d.name as doctor_name');
-        $builder->join('products p', 'p.id = s.product_id');
-        $builder->join('stock_purchase st', 'st.id = s.stock_id');
-        $builder->join('doctors d', 'd.id = s.doctor_id', 'left');
+        $builder = $db->table('sale_details sd');
+        $builder->select('sd.*, s.sale_date, s.manual_dr_name as customer_name, s.manual_dr_phone as customer_phone, s.invoice_no, p.name as product_name, pdt.unit, pdt.unit_value, st.batch_id, st.cost as purchase_cost, d.name as doctor_name, d.phone as doctor_phone');
+        $builder->join('sales s', 's.id = sd.sale_id')
+        ->join('products p', 'p.id = sd.product_id')
+        ->join('product_details pdt', 'pdt.id = sd.product_detail_id')
+        ->join('purchase_details st', 'st.id = sd.stock_id')
+        ->join('doctors d', 'd.id = s.doctor_id', 'left');
         $builder->where('DATE(s.sale_date) >=', $start_date);
         $builder->where('DATE(s.sale_date) <=', $end_date);
         $builder->orderBy('s.sale_date', 'DESC');
@@ -158,42 +202,68 @@ class Sales extends BaseController
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
         $saleModel = new SaleModel();
-        $data['sale'] = $saleModel->select('sales.*, products.name as product_name, products.unit as product_unit, products.unit_value as product_unit_value, stock_purchase.batch_id, doctors.name as doctor_name')
-                                 ->join('products', 'products.id = sales.product_id')
-                                 ->join('stock_purchase', 'stock_purchase.id = sales.stock_id')
+        $data['sale'] = $saleModel->select('sales.*, sales.manual_dr_name as customer_name, sales.manual_dr_phone as customer_phone, doctors.name as doctor_name, doctors.phone as doctor_phone')
                                  ->join('doctors', 'doctors.id = sales.doctor_id', 'left')
                                  ->find($id);
+        
+        $db = \Config\Database::connect();
+        $data['items'] = $db->table('sale_details sd')
+                           ->select('sd.*, p.name as product_name, pdt.unit, pdt.unit_value, pd.batch_id')
+                           ->join('products p', 'p.id = sd.product_id')
+                           ->join('product_details pdt', 'pdt.id = sd.product_detail_id')
+                           ->join('purchase_details pd', 'pd.id = sd.stock_id')
+                           ->where('sd.sale_id', $id)
+                           ->get()->getResultArray();
+
         return view('sales/invoice', $data);
     }
 
     public function void($id)
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
-        $saleModel = new SaleModel();
-        $saleModel->delete($id);
-        // We don't need to add back to stock as it's calculated dynamically now
+        
+        $db = \Config\Database::connect();
+        $db->transStart();
+        
+        // Delete details first
+        $db->table('sale_details')->where('sale_id', $id)->delete();
+        
+        // Delete master
+        $db->table('sales')->where('id', $id)->delete();
+        
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Failed to cancel sale.');
+        }
+
         return redirect()->back()->with('success', 'Sale voided successfully.');
     }
+
     public function export()
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
 
-        $saleModel = new SaleModel();
-        
+        $db = \Config\Database::connect();
         $start_date = $this->request->getGet('start_date');
         $end_date   = $this->request->getGet('end_date');
 
-        $query = $saleModel->select('sales.*, products.name as product_name, stock_purchase.batch_id, stock_purchase.cost as cost_price, vendors.name as vendor_name')
-                          ->join('products', 'products.id = sales.product_id')
-                          ->join('stock_purchase', 'stock_purchase.id = sales.stock_id')
-                          ->join('vendors', 'vendors.id = stock_purchase.vendor_id', 'left');
+        $builder = $db->table('sale_details sd');
+        $builder->select('sd.*, s.sale_date, s.manual_dr_name as customer_name, s.manual_dr_phone as customer_phone, p.name as product_name, pdt.unit, pdt.unit_value, pd.batch_id, pd.cost as cost_price, vs.name as vendor_name, d.name as doctor_name')
+                  ->join('sales s', 's.id = sd.sale_id')
+                  ->join('products p', 'p.id = sd.product_id')
+                  ->join('product_details pdt', 'pdt.id = sd.product_detail_id')
+                  ->join('purchase_details pd', 'pd.id = sd.stock_id', 'left')
+                  ->join('purchases ps', 'ps.id = pd.purchase_id', 'left')
+                  ->join('vendors vs', 'vs.id = ps.vendor_id', 'left')
+                  ->join('doctors d', 'd.id = s.doctor_id', 'left');
 
         if ($start_date && $end_date) {
-            $query->where('DATE(sale_date) >=', $start_date)
-                  ->where('DATE(sale_date) <=', $end_date);
+            $builder->where('DATE(s.sale_date) >=', $start_date)
+                    ->where('DATE(s.sale_date) <=', $end_date);
         }
 
-        $sales = $query->orderBy('sale_date', 'DESC')->findAll();
+        $sales = $builder->orderBy('s.sale_date', 'DESC')->get()->getResultArray();
 
         $filename = 'sales_report_'.date('Ymd').'.csv';
         header("Content-Description: File Transfer");
@@ -213,7 +283,7 @@ class Sales extends BaseController
                 $s['id'],
                 $s['sale_date'],
                 $s['product_name'],
-                $s['doctor_name'] ?: ($s['customer_name'] ?: 'Cash Customer'),
+                $s['doctor_name'] ?: ($s['customer_name'] ?: 'Unregistered Doctor'),
                 $s['qty'],
                 $s['sale_price'],
                 $s['cost_price'],

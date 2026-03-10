@@ -4,15 +4,18 @@
 
 <!-- Products data for JS -->
 <script>
-    const productsData = <?= json_encode(array_column($products, null, 'id')) ?>;
+    const productsData = <?= json_encode(array_column($products, null, 'detail_id')) ?>;
     const selectedVendorId = <?= $vendor['id'] ?? 0 ?>;
-    const productsOptions = `<?php foreach($products as $p): ?><option value="<?= $p['id'] ?>" data-cost="<?= $p['cost'] ?>"><?= esc($p['name']) ?> [<?= esc($p['unit_value'] ?? '') ?> <?= esc($p['unit'] ?? '') ?>]</option><?php endforeach; ?>`;
+    const productsOptions = `<?php foreach($products as $p): ?><option value="<?= $p['detail_id'] ?>" data-cost="<?= $p['cost'] ?>"><?= esc($p['product_name']) ?> [<?= esc($p['unit_value'] ?? '') ?> <?= esc($p['unit'] ?? '') ?>]</option><?php endforeach; ?>`;
 </script>
 
 <form action="<?= base_url('purchases/process_add') ?>" method="POST" id="bulkStockForm">
-<input type="hidden" name="redirect_vendor_id" value="<?= $vendor['id'] ?? 0 ?>">
 
 <div class="row g-4 animate-wow">
+
+    <!-- ============================================================
+         HEADER BANNER
+    ============================================================ -->
     <div class="col-12">
         <div class="premium-list p-5 text-white border-0 shadow-lg mb-2" style="background: #0f172a; border-radius: 40px;">
             <div class="row align-items-center">
@@ -22,7 +25,7 @@
                             <i class="fas fa-truck-ramp-box fa-2x"></i>
                         </div>
                         <div>
-                            <h2 class="fw-900 m-0">ADD NEW STOCK</h2>
+                            <h2 class="fw-900 m-0">ADD NEW PURCHASE</h2>
                             <p class="text-white-50 m-0 mt-1">Vendor: <span class="text-white fw-bold"><?= esc($vendor['name'] ?? 'Unknown') ?></span></p>
                         </div>
                     </div>
@@ -37,20 +40,59 @@
         </div>
     </div>
 
+    <!-- ============================================================
+         PURCHASE META: date, status, note
+    ============================================================ -->
+    <div class="col-12">
+        <div class="premium-list p-4 px-5 shadow border-0 bg-white">
+            <h6 class="fw-900 text-dark mb-3"><i class="fas fa-info-circle me-2 text-primary"></i>Purchase Information</h6>
+            <div class="row g-3">
+                <!-- Hidden vendor -->
+                <input type="hidden" name="vendor_id" value="<?= $vendor['id'] ?? '' ?>">
+
+                <!-- Date -->
+                <div class="col-md-3">
+                    <label class="form-label fw-bold text-muted small text-uppercase">Purchase Date</label>
+                    <input type="date" name="date" class="input-field" value="<?= date('Y-m-d') ?>" required>
+                </div>
+
+                <!-- Status -->
+                <div class="col-md-3">
+                    <label class="form-label fw-bold text-muted small text-uppercase">Status</label>
+                    <select name="status" class="input-field" required>
+                        <option value="ordered">📦 Ordered</option>
+                        <option value="received" selected>✅ Received</option>
+                        <option value="partial_paid">💸 Partial Paid</option>
+                        <option value="paid">✔️ Paid</option>
+                    </select>
+                </div>
+
+                <!-- Note -->
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-muted small text-uppercase">Note (Optional)</label>
+                    <input type="text" name="note" class="input-field" placeholder="E.g. Monthly restock, urgent order...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         LINE ITEMS TABLE
+    ============================================================ -->
     <div class="col-12">
         <div class="premium-list p-0 shadow-lg border-0 bg-white overflow-hidden">
             <div class="p-4 px-5 border-bottom d-flex justify-content-between align-items-center bg-light bg-opacity-30">
                 <div>
                     <h5 class="fw-900 m-0 text-dark">Add Items</h5>
-                    <p class="text-muted small m-0 mt-1">Add details of the items you bought.</p>
+                    <p class="text-muted small m-0 mt-1">Add details of all products in this purchase.</p>
                 </div>
-                <button type="button" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm" onclick="addStockRow()">
+                <button type="button" class="btn btn-dark rounded-pill px-4 fw-bold shadow-sm" onclick="addRow()">
                     <i class="fas fa-plus-circle me-2"></i> Add Item
                 </button>
             </div>
 
             <div class="table-responsive p-0">
-                <table class="table align-middle mb-0" id="stockTable">
+                <table class="table align-middle mb-0" id="itemsTable">
                     <thead class="bg-light">
                         <tr class="text-muted extra-small text-uppercase fw-900">
                             <th class="px-5 py-4 border-0" style="width: 50px;">#</th>
@@ -63,7 +105,7 @@
                             <th class="py-4 border-0 text-end px-5">Subtotal</th>
                         </tr>
                     </thead>
-                    <tbody id="stockBody">
+                    <tbody id="itemsBody">
                         <!-- rows injected by JS -->
                     </tbody>
                 </table>
@@ -81,7 +123,7 @@
                         <div class="h3 fw-900 m-0 text-dark" id="grand_total_footer">Rs. 0.00</div>
                     </div>
                     <button type="submit" class="btn btn-vibrant rounded-pill px-5 py-3 fw-900 shadow-xl fs-5">
-                        <i class="fas fa-check-circle me-2"></i> SAVE STOCK
+                        <i class="fas fa-check-circle me-2"></i> SAVE PURCHASE
                     </button>
                 </div>
             </div>
@@ -109,54 +151,44 @@
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
     }
     .input-field::placeholder { color: #94a3b8; font-weight: 500; }
-    
-    #stockTable tbody tr {
+
+    #itemsTable tbody tr {
         transition: all 0.2s;
         border-bottom: 1px solid #f1f5f9;
         position: relative;
     }
-    #stockTable tbody tr:hover { background-color: rgba(59, 130, 246, 0.02); }
-    
+    #itemsTable tbody tr:hover { background-color: rgba(59, 130, 246, 0.02); }
+
     .remove-row-btn {
         position: absolute;
-        left: 5px;
-        top: 50%;
+        left: 5px; top: 50%;
         transform: translateY(-50%);
         width: 30px; height: 30px;
         border-radius: 50%;
-        background: #fee2e2;
-        color: #ef4444;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        border: none;
-        cursor: pointer;
-        z-index: 10;
+        background: #fee2e2; color: #ef4444;
+        display: none; align-items: center; justify-content: center;
+        border: none; cursor: pointer; z-index: 10;
         transition: all 0.2s;
     }
-    #stockTable tbody tr:hover .remove-row-btn { display: flex; }
+    #itemsTable tbody tr:hover .remove-row-btn { display: flex; }
     .remove-row-btn:hover { background: #ef4444; color: white; }
-    
+
     .idx-circle {
         width: 32px; height: 32px;
-        background: #f1f5f9;
-        color: #64748b;
+        background: #f1f5f9; color: #64748b;
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 900;
-        font-size: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 900; font-size: 12px;
     }
 </style>
 
 <script>
 let rowIndex = 0;
 
-function addStockRow() {
+function addRow() {
     rowIndex++;
-    const tbody = document.getElementById('stockBody');
-    const tr = document.createElement('tr');
+    const tbody = document.getElementById('itemsBody');
+    const tr    = document.createElement('tr');
     tr.id = 'row_' + rowIndex;
     tr.innerHTML = `
         <td class="px-5">
@@ -164,7 +196,6 @@ function addStockRow() {
             <div class="idx-circle">${rowIndex}</div>
         </td>
         <td>
-            <input type="hidden" name="vendor_id[]" value="${selectedVendorId}">
             <input type="text" name="batch_id[]" class="input-field" placeholder="E.g. BAT-001" required>
         </td>
         <td>
@@ -175,62 +206,70 @@ function addStockRow() {
         </td>
         <td>
             <div class="d-flex gap-2">
-                <input type="date" name="manufacture_date[]" class="input-field" required title="MFG Date">
-                <input type="date" name="expiry_date[]" class="input-field text-danger" required title="EXP Date">
+                <input type="date" name="mfg_date[]" class="input-field" required title="MFG Date">
+                <input type="date" name="exp_date[]" class="input-field text-danger" required title="EXP Date">
             </div>
         </td>
-        <td><input type="number" name="qty[]" class="input-field text-center" placeholder="0" min="1" required oninput="calculateSubtotal(${rowIndex})"></td>
-        <td><input type="number" step="0.01" name="cost[]" class="input-field" id="cost_${rowIndex}" placeholder="0.00" required oninput="calculateSubtotal(${rowIndex})"></td>
+        <td><input type="number" name="qty[]" class="input-field text-center" placeholder="0" min="1" required oninput="calcSubtotal(${rowIndex})"></td>
+        <td><input type="number" step="0.01" name="cost[]" class="input-field" id="cost_${rowIndex}" placeholder="0.00" required oninput="calcSubtotal(${rowIndex})"></td>
         <td><input type="number" step="0.01" name="price[]" class="input-field" placeholder="0.00" required></td>
         <td class="text-end px-5">
             <div class="fw-900 text-dark fs-5" id="subtotal_${rowIndex}">Rs. 0.00</div>
         </td>
     `;
     tbody.appendChild(tr);
-    calculateGrandTotal();
+    calcGrandTotal();
 }
 
 function removeRow(id) {
     const row = document.getElementById('row_' + id);
     if (row) row.remove();
-    calculateGrandTotal();
+    calcGrandTotal();
 }
 
 function autoCost(select, idx) {
-    const opt = select.options[select.selectedIndex];
+    const opt  = select.options[select.selectedIndex];
     const cost = opt.getAttribute('data-cost');
     if (cost) {
         const costInput = document.getElementById('cost_' + idx);
-        if (costInput) {
-            costInput.value = cost;
-            calculateSubtotal(idx);
+        if (costInput) { costInput.value = cost; calcSubtotal(idx); }
+    }
+}
+
+function calcSubtotal(idx) {
+    const tr     = document.getElementById('row_' + idx);
+    const qty    = tr.querySelector('input[name="qty[]"]').value || 0;
+    const cost   = tr.querySelector('input[name="cost[]"]').value || 0;
+    const sub    = qty * cost;
+    document.getElementById('subtotal_' + idx).innerText = 'Rs. ' + sub.toLocaleString(undefined, {minimumFractionDigits: 2});
+    calcGrandTotal();
+}
+
+function calcGrandTotal() {
+    const costs = document.getElementsByName('cost[]');
+    const qtys  = document.getElementsByName('qty[]');
+    let total   = 0;
+    for (let i = 0; i < costs.length; i++) {
+        total += (parseFloat(costs[i].value) || 0) * (parseFloat(qtys[i].value) || 0);
+    }
+    const fmt = 'Rs. ' + total.toLocaleString(undefined, {minimumFractionDigits: 2});
+    document.getElementById('grand_total_disp').innerText   = fmt;
+    document.getElementById('grand_total_footer').innerText = fmt;
+}
+
+document.addEventListener('DOMContentLoaded', function () { 
+    addRow(); 
+    const preId = <?= $preSelectId ?: 'null' ?>;
+    if (preId) {
+        const firstRowSelect = document.querySelector('select[name="product_id[]"]');
+        if (firstRowSelect) {
+            firstRowSelect.value = preId;
+            autoCost(firstRowSelect, 1);
+            // Focus on quantity for easier working
+            const qtyInput = document.querySelector('input[name="qty[]"]');
+            if (qtyInput) qtyInput.focus();
         }
     }
-}
-
-function calculateSubtotal(idx) {
-    const tr = document.getElementById('row_' + idx);
-    const qty = tr.querySelector('input[name="qty[]"]').value || 0;
-    const cost = tr.querySelector('input[name="cost[]"]').value || 0;
-    const subtotal = qty * cost;
-    document.getElementById('subtotal_' + idx).innerText = 'Rs. ' + subtotal.toLocaleString(undefined, {minimumFractionDigits: 2});
-    calculateGrandTotal();
-}
-
-function calculateGrandTotal() {
-    const costs = document.getElementsByName('cost[]');
-    const qtys = document.getElementsByName('qty[]');
-    let grandTotal = 0;
-    for(let i=0; i<costs.length; i++) {
-        grandTotal += (parseFloat(costs[i].value) || 0) * (parseFloat(qtys[i].value) || 0);
-    }
-    const formatted = 'Rs. ' + grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
-    document.getElementById('grand_total_disp').innerText = formatted;
-    document.getElementById('grand_total_footer').innerText = formatted;
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    addStockRow();
 });
 </script>
 

@@ -548,13 +548,18 @@
                 </li>
 
                 <li class="<?= url_is('doctors*') ? 'active' : '' ?>">
-                    <a href="#doctorSubmenu" data-bs-toggle="collapse" class="<?= !url_is('doctors*') ? 'collapsed' : '' ?> dropdown-toggle">
+                    <a href="#doctorSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= url_is('doctors*') ? '' : 'collapsed' ?>">
                         <i class="fas fa-user-md"></i> Doctor Hub
                     </a>
-                    <ul class="collapse list-unstyled <?= url_is('doctors*') ? 'show' : '' ?>" id="doctorSubmenu">
+                    <ul class="collapse list-unstyled sub-menu <?= url_is('doctors*') ? 'show' : '' ?>" id="doctorSubmenu">
+                        <li>
+                            <a href="<?= base_url('doctors/add') ?>" class="<?= url_is('doctors/add') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-plus small me-2"></i> Add New Doctor
+                            </a>
+                        </li>
                         <li>
                             <a href="<?= base_url('doctors') ?>" class="<?= url_is('doctors') ? 'text-white fw-bold' : '' ?>">
-                                <i class="fas fa-list small me-2"></i> Doctor Network
+                                <i class="fas fa-users small me-2"></i> Doctor Network
                             </a>
                         </li>
                         <li>
@@ -612,9 +617,9 @@
                     <?php
                         // Count expiring soon items (within 60 days) - Using dynamic stock check
                         $db_temp = \Config\Database::connect();
-                        $expiring_count = $db_temp->query("SELECT COUNT(*) as cnt FROM stock_purchase 
-                                                         WHERE (initial_qty - (SELECT COALESCE(SUM(qty), 0) FROM sales WHERE stock_id = stock_purchase.id)) > 0 
-                                                         AND expiry_date <= DATE_ADD(NOW(), INTERVAL 60 DAY)")->getRow()->cnt ?? 0;
+                        $expiring_count = $db_temp->query("SELECT COUNT(*) as cnt FROM purchase_details 
+                                                         WHERE (qty - (SELECT COALESCE(SUM(qty), 0) FROM sale_details WHERE sale_details.stock_id = purchase_details.id)) > 0 
+                                                         AND exp_date <= DATE_ADD(NOW(), INTERVAL 60 DAY)")->getRow()->cnt ?? 0;
                     ?>
                     <i class="fas fa-bell text-muted position-relative" style="cursor:pointer;" title="<?= $expiring_count ?> medicines expiring soon">
                         <?php if($expiring_count > 0): ?>
@@ -629,14 +634,14 @@
             <?php
             // Expiry warning banner (medicines expiring in 30 days) - Using dynamic stock check
             $db_exp = \Config\Database::connect();
-            $soon_expiring = $db_exp->query("SELECT COUNT(*) as cnt FROM stock_purchase 
-                                            WHERE (initial_qty - (SELECT COALESCE(SUM(qty), 0) FROM sales WHERE stock_id = stock_purchase.id)) > 0 
-                                            AND expiry_date <= DATE_ADD(NOW(), INTERVAL 30 DAY) 
-                                            AND expiry_date >= NOW()")->getRow()->cnt ?? 0;
+            $soon_expiring = $db_exp->query("SELECT COUNT(*) as cnt FROM purchase_details 
+                                            WHERE (qty - (SELECT COALESCE(SUM(qty), 0) FROM sale_details WHERE sale_details.stock_id = purchase_details.id)) > 0 
+                                            AND exp_date <= DATE_ADD(NOW(), INTERVAL 30 DAY) 
+                                            AND exp_date >= NOW()")->getRow()->cnt ?? 0;
                                             
-            $already_expired = $db_exp->query("SELECT COUNT(*) as cnt FROM stock_purchase 
-                                             WHERE (initial_qty - (SELECT COALESCE(SUM(qty), 0) FROM sales WHERE stock_id = stock_purchase.id)) > 0 
-                                             AND expiry_date < NOW()")->getRow()->cnt ?? 0;
+            $already_expired = $db_exp->query("SELECT COUNT(*) as cnt FROM purchase_details 
+                                             WHERE (qty - (SELECT COALESCE(SUM(qty), 0) FROM sale_details WHERE sale_details.stock_id = purchase_details.id)) > 0 
+                                             AND exp_date < NOW()")->getRow()->cnt ?? 0;
         ?>
         <?php if($already_expired > 0): ?>
             <div class="expiry-alert-bar">

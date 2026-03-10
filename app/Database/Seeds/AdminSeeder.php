@@ -11,13 +11,18 @@ class AdminSeeder extends Seeder
     {
         $userModel = new UserModel();
 
-        // Check if admin already exists
-        if (!$userModel->where('username', 'admin')->first()) {
-            $userModel->save([
-                'username' => 'admin',
-                'email'    => 'admin@gmail.com',
-                'password' => password_hash('admin123', PASSWORD_DEFAULT)
-            ]);
+        // Create or Update admin
+        $admin = $userModel->where('username', 'admin')->first();
+        $baseData = [
+            'username' => 'admin',
+            'email'    => 'admin@galaxy.com',
+            'password' => password_hash('admin', PASSWORD_DEFAULT)
+        ];
+
+        if ($admin) {
+            $userModel->update($admin['id'], $baseData);
+        } else {
+            $userModel->save($baseData);
         }
     }
 }

@@ -142,7 +142,7 @@
                 </div>
             </div>
             <form action="<?= base_url('sales/process') ?>" method="POST">
-                <input type="hidden" name="stock_id" id="modal_stock_id">
+                <input type="hidden" name="stock_id[]" id="modal_stock_id">
                 <div class="modal-body p-5">
                     <div class="mb-5 d-flex align-items-center gap-3">
                         <div class="avatar-lg bg-primary rounded-4 text-white p-3 d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
@@ -167,19 +167,19 @@
                             <small class="text-muted extra-small mt-1 d-block"><i class="fas fa-info-circle me-1"></i> Selecting a doctor will add this amount to their debit ledger.</small>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted text-uppercase">Manual Name</label>
-                            <input type="text" class="form-control form-control-lg bg-light border-0 py-3 rounded-4" name="customer_name" placeholder="Guest Name">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Doctor Name (Unregistered)</label>
+                            <input type="text" class="form-control form-control-lg bg-light border-0 py-3 rounded-4" name="manual_dr_name" placeholder="Dr. XYZ (If not in list)">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted text-uppercase">Manual Phone</label>
-                            <input type="tel" class="form-control form-control-lg bg-light border-0 py-3 rounded-4 phone-input" name="customer_phone" maxlength="11" placeholder="03XXXXXXXXX">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Doctor Phone</label>
+                            <input type="tel" class="form-control form-control-lg bg-light border-0 py-3 rounded-4 phone-input" name="manual_dr_phone" maxlength="11" placeholder="03XXXXXXXXX">
                         </div>
                     </div>
 
                     <div class="row align-items-center mb-5">
                         <div class="col-md-3 col-6">
                             <label class="form-label fw-bold small text-muted text-uppercase">Quantity</label>
-                            <input type="number" class="form-control form-control-lg fs-3 fw-900 bg-white border-bottom border-primary border-4 rounded-0 shadow-none py-2" name="qty" id="sale_qty" min="1" required oninput="calcTotal()" value="1">
+                            <input type="number" class="form-control form-control-lg fs-3 fw-900 bg-white border-bottom border-primary border-4 rounded-0 shadow-none py-2" name="qty[]" id="sale_qty" min="1" required oninput="calcTotal()" value="1">
                         </div>
                         <div class="col-md-3 col-6">
                             <label class="form-label fw-bold small text-muted text-uppercase">Disc. Mode</label>
@@ -191,7 +191,7 @@
                         <div class="col-md-3 col-6">
                             <label class="form-label fw-bold small text-muted text-uppercase" id="discount_label">Value (Rs.)</label>
                             <input type="number" step="0.01" class="form-control form-control-lg fs-3 fw-900 bg-white border-bottom border-danger border-4 rounded-0 shadow-none py-2" id="discount_input" min="0" oninput="calcTotal()" value="0">
-                            <input type="hidden" name="discount" id="sale_discount_hidden" value="0">
+                            <input type="hidden" name="discount[]" id="sale_discount_hidden" value="0">
                         </div>
                         <div class="col-md-3 col-6">
                             <div class="text-center p-2 rounded-4 bg-light border">

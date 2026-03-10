@@ -27,41 +27,42 @@
                     <div class="text-muted small"><?= esc($purchase['vendor_phone'] ?: 'No Phone Provided') ?></div>
                     <div class="text-muted small"><?= esc($purchase['vendor_address'] ?: 'No Address Provided') ?></div>
                 </div>
-                <div class="col-md-6 text-end">
-                    <h6 class="text-muted text-uppercase fw-bold small">Batch Reference</h6>
-                    <div class="badge bg-primary rounded-pill px-3 py-2 fs-6 mb-2">BATCH: <?= esc($purchase['batch_id']) ?></div>
-                    <div class="text-muted small">Expiry: <span class="fw-bold text-dark"><?= date('M Y', strtotime($purchase['expiry_date'])) ?></span></div>
-                </div>
-            </div>
-
-            <div class="table-responsive mb-5">
+                <div class="table-responsive mb-5">
                 <table class="table table-hover align-middle">
                     <thead>
                         <tr class="text-muted small text-uppercase">
                             <th class="border-top-0 border-bottom">Particulars</th>
+                            <th class="border-top-0 border-bottom text-center">Batch</th>
                             <th class="border-top-0 border-bottom text-center">Unit Cost</th>
-                            <th class="border-top-0 border-bottom text-center">Qty Bought</th>
-                            <th class="border-top-0 border-bottom text-end">Total Line Cost</th>
+                            <th class="border-top-0 border-bottom text-center">Qty</th>
+                            <th class="border-top-0 border-bottom text-end">Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php 
-                            $total_amount = $purchase['initial_qty'] * $purchase['cost'];
+                            $grand_total = 0;
+                            foreach ($items as $item): 
+                                $line_total = $item['qty'] * $item['cost'];
+                                $grand_total += $line_total;
                         ?>
                         <tr>
                             <td>
-                                <div class="fw-800 text-dark"><?= esc($purchase['product_name']) ?></div>
-                                <div class="text-muted small">Registered Inventory Stock Entry</div>
+                                <div class="fw-800 text-dark"><?= esc($item['product_name']) ?></div>
+                                <div class="text-muted small"><?= esc($item['unit_value'] ?? '') ?> <?= esc($item['unit'] ?? '') ?></div>
                             </td>
-                            <td class="text-center">Rs. <?= number_format($purchase['cost'], 2) ?></td>
-                            <td class="text-center fw-bold fs-5"><?= number_format($purchase['initial_qty']) ?> Units</td>
-                            <td class="text-end fw-900 fs-5">Rs. <?= number_format($total_amount, 2) ?></td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark border"><?= esc($item['batch_id']) ?></span>
+                            </td>
+                            <td class="text-center">Rs. <?= number_format($item['cost'], 2) ?></td>
+                            <td class="text-center fw-bold text-dark"><?= number_format($item['qty']) ?> Units</td>
+                            <td class="text-end fw-800 text-dark">Rs. <?= number_format($line_total, 2) ?></td>
                         </tr>
+                        <?php endforeach; ?>
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="3" class="text-end border-0 pt-4 fw-800 h4 m-0 text-muted">Voucher Net Total:</td>
-                            <td class="text-end border-0 pt-4 fw-900 h3 m-0 text-primary">Rs. <?= number_format($total_amount, 2) ?></td>
+                            <td colspan="4" class="text-end border-0 pt-4 fw-800 h4 m-0 text-muted">Voucher Net Total:</td>
+                            <td class="text-end border-0 pt-4 fw-900 h3 m-0 text-primary">Rs. <?= number_format($grand_total, 2) ?></td>
                         </tr>
                     </tfoot>
                 </table>

@@ -17,13 +17,12 @@ class Vendors extends BaseController
         // Latest ones at the top
         $vendors = $model->orderBy('id', 'DESC')->findAll();
         
-        // Calculate total dues and top creditors for the professional summary
+        // Calculate total dues and top creditors
         $total_dues = 0;
         foreach($vendors as &$v) {
-            $purchase_total = $db->table('stock_purchase')
+            $purchase_total = $db->table('purchases')
                                 ->where('vendor_id', $v['id'])
-                                ->select('SUM(initial_qty * cost) as total')
-                                ->get()->getRow()->total ?? 0;
+                                ->selectSum('total_amount')->get()->getRow()->total_amount ?? 0;
             $payment_total = $db->table('vendor_payments')
                                ->where('vendor_id', $v['id'])
                                ->selectSum('amount')->get()->getRow()->amount ?? 0;
@@ -54,7 +53,6 @@ class Vendors extends BaseController
             'address' => $this->request->getPost('address'),
         ];
 
-        // Trying to save the new vendor
         if ($model->save($data)) {
             return redirect()->to(base_url('vendors'))->with('success', 'Vendor added to the list.');
         }
@@ -62,11 +60,10 @@ class Vendors extends BaseController
         return redirect()->back()->with('errors', $model->errors());
     }
 
-    // Delete vendor if we don't need them anymore
     public function update()
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
-        $model = new \App\Models\VendorModel();
+        $model = new VendorModel();
         $id = $this->request->getPost('id');
         $model->update($id, [
             'name' => $this->request->getPost('name'),

@@ -2,70 +2,53 @@
 <?= $this->section('content') ?>
 
 <div class="row g-4 animate-wow">
-    <div class="col-xl-4 col-md-6">
-        <div class="premium-list p-5 bg-white border-0 shadow-sm animate-up">
-            <div class="mb-4">
-                <i class="fas fa-user-doctor text-primary fa-4x mb-3 opacity-25"></i>
-                <h3 class="fw-900 m-0">Create Doctor Node</h3>
-                <p class="text-muted small">Register a new client for bulk transactions.</p>
-            </div>
-
-            <form action="<?= base_url('doctors/create') ?>" method="POST">
-                <div class="mb-3">
-                    <label class="form-label extra-small fw-900 text-uppercase text-muted">Full Name</label>
-                    <input type="text" name="name" class="form-control form-control-lg bg-light border-0 py-3 rounded-4" placeholder="Dr. Kashif..." required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label extra-small fw-900 text-uppercase text-muted">Phone Number</label>
-                    <input type="tel" name="phone" class="form-control form-control-lg bg-light border-0 py-3 rounded-4 phone-input" maxlength="11" placeholder="03XXXXXXXXX" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label extra-small fw-900 text-uppercase text-muted">Specialization / Clinic Address</label>
-                    <textarea name="address" class="form-control bg-light border-0 py-3 rounded-4" rows="2" placeholder="Civil Hospital Road..."></textarea>
-                </div>
-                <button type="submit" class="btn btn-dark w-100 py-3 rounded-pill fw-900 shadow-lg text-uppercase tracking-widest mt-3">
-                    <i class="fas fa-plus-circle me-2"></i> AUTHORIZE DOCTOR
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <div class="col-xl-8 col-md-12">
+    <div class="col-12">
         <div class="premium-list p-0 shadow-lg border-0 bg-white overflow-hidden animate-up">
             <div class="p-5 border-bottom d-flex justify-content-between align-items-center bg-light bg-opacity-30">
                 <div>
-                    <h4 class="fw-900 m-0 text-dark">Active Doctor Network</h4>
+                    <h2 class="fw-900 m-0 text-dark"><i class="fas fa-user-doctor me-2 text-primary"></i> Doctor Network</h2>
                     <p class="text-muted small m-0 mt-1">Manage bulk purchasers and their financial standing.</p>
                 </div>
-                <span class="badge bg-primary bg-opacity-10 text-primary px-4 py-2 rounded-pill fw-900">
-                    NETWORK SIZE: <?= count($doctors) ?>
-                </span>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-4 py-2 rounded-pill fw-900">
+                        NETWORK SIZE: <?= count($doctors) ?>
+                    </span>
+                    <a href="<?= base_url('doctors/add') ?>" class="btn btn-vibrant rounded-pill px-4 fw-900">
+                        <i class="fas fa-plus me-2"></i> ADD NEW DOCTOR
+                    </a>
+                </div>
             </div>
             
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr class="text-muted extra-small text-uppercase">
-                            <th class="border-0 px-5 py-4">Identity & Address</th>
+                            <th class="border-0 px-5 py-4">Doctor identity</th>
                             <th class="border-0 py-4">Phone No.</th>
+                            <th class="border-0 py-4">Address / Clinic</th>
                             <th class="border-0 py-4 text-end">Financial Balance</th>
                             <th class="border-0 py-4 text-end px-5">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if(empty($doctors)): ?>
-                            <tr><td colspan="4" class="text-center py-5 text-muted h6">No doctors registered.</td></tr>
+                            <tr><td colspan="5" class="text-center py-5 text-muted h6">No doctors registered.</td></tr>
                         <?php else: ?>
                             <?php foreach($doctors as $d): ?>
                                 <?php $balance = $d['total_purchased'] - $d['total_paid']; ?>
                                 <tr>
                                     <td class="px-5">
-                                        <div class="fw-900 text-dark fs-6"><?= esc($d['name']) ?></div>
-                                        <div class="extra-small text-muted fw-bold"><?= esc($d['address'] ?: 'No address specified') ?></div>
-                                        <div class="text-muted extra-small fw-bold mt-1">REGISTERED: <?= date('d M, Y', strtotime($d['created_at'])) ?></div>
+                                        <div class="fw-900 text-primary fs-5 mb-1">
+                                            <i class="fas fa-user-md me-2 opacity-75"></i><?= esc($d['name']) ?>
+                                        </div>
+                                        <div class="text-muted extra-small fw-bold">ID: #DR-<?= str_pad($d['id'], 3, '0', STR_PAD_LEFT) ?></div>
+                                        <div class="text-muted extra-small fw-bold">REG: <?= date('d M, Y', strtotime($d['created_at'])) ?></div>
                                     </td>
                                     <td>
                                         <div class="badge bg-light text-dark fw-bold border px-3"><?= esc($d['phone']) ?></div>
+                                    </td>
+                                    <td>
+                                        <div class="extra-small text-muted fw-bold" style="max-width: 200px;"><?= esc($d['address'] ?: 'Not Specified') ?></div>
                                     </td>
                                     <td class="text-end">
                                         <div class="fw-900 <?= $balance > 0 ? 'text-danger' : 'text-success' ?>">

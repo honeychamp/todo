@@ -77,14 +77,17 @@
                                 ?>
                                 <tr>
                                     <td class="px-4">
-                                        <div class="fw-800 text-dark">S-<?= str_pad($sale['id'], 5, '0', STR_PAD_LEFT) ?></div>
+                                        <div class="fw-800 text-dark"><?= esc($sale['invoice_no'] ?: 'S-'.str_pad($sale['id'], 5, '0', STR_PAD_LEFT)) ?></div>
                                         <div class="text-muted small" style="font-size: 0.7rem;"><?= date('d M, Y', strtotime($sale['sale_date'])) ?></div>
                                     </td>
                                     <td>
                                         <div class="fw-900 text-primary small">
-                                            <i class="fas <?= !empty($sale['doctor_name']) ? 'fa-user-md' : 'fa-user' ?> me-1"></i>
-                                            <?= esc($sale['doctor_name'] ?: ($sale['customer_name'] ?: 'Cash Guest')) ?>
+                                            <i class="fas fa-user-md me-1"></i>
+                                            <?= esc($sale['doctor_name'] ?: ($sale['customer_name'] ?: 'Unregistered Doctor')) ?>
                                         </div>
+                                        <?php if(!empty($sale['doctor_phone']) || !empty($sale['customer_phone'])): ?>
+                                            <div class="text-muted extra-small fw-bold"><?= esc($sale['doctor_phone'] ?: $sale['customer_phone']) ?></div>
+                                        <?php endif; ?>
                                         <div class="fw-bold text-dark fs-6"><?= esc($sale['product_name']) ?></div>
                                         <div class="text-muted extra-small">Batch: <?= esc($sale['batch_id']) ?></div>
                                     </td>

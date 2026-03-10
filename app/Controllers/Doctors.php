@@ -13,19 +13,21 @@ class Doctors extends BaseController
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
 
-        $model = new DoctorModel();
-        
-        // We need to calculate balance for each doctor
-        // Balance = Sum(Sales) - Sum(Payments)
         $db = \Config\Database::connect();
         $builder = $db->table('doctors d');
         $builder->select('d.*, 
-                         (SELECT COALESCE(SUM(qty * sale_price), 0) FROM sales WHERE doctor_id = d.id) as total_purchased,
+                         (SELECT COALESCE(SUM(total_amount), 0) FROM sales WHERE doctor_id = d.id) as total_purchased,
                          (SELECT COALESCE(SUM(amount), 0) FROM doctor_payments WHERE doctor_id = d.id) as total_paid');
         $builder->orderBy('d.name', 'ASC');
         
         $data['doctors'] = $builder->get()->getResultArray();
         return view('doctors/index', $data);
+    }
+
+    public function add()
+    {
+        if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
+        return view('doctors/add');
     }
 
     public function create()
@@ -52,32 +54,33 @@ class Doctors extends BaseController
 
         $db = \Config\Database::connect();
         
-        // 1. Get all sales for this doctor
+        // Get all sales for this doctor, grouped by sale header (invoice)
         $sBuilder = $db->table('sales s');
-        $sBuilder->select('s.*, p.name as product_name, st.batch_id');
-        $sBuilder->join('products p', 'p.id = s.product_id');
-        $sBuilder->join('stock_purchase st', 'st.id = s.stock_id');
+        $sBuilder->select('s.*, GROUP_CONCAT(p.name SEPARATOR ", ") as products_summary');
+        $sBuilder->join('sale_details sd', 'sd.sale_id = s.id');
+        $sBuilder->join('products p', 'p.id = sd.product_id');
         $sBuilder->where('s.doctor_id', $id);
+        $sBuilder->groupBy('s.id');
         $sBuilder->orderBy('s.sale_date', 'ASC');
         $sales = $sBuilder->get()->getResultArray();
 
-        // 2. Get all payments for this doctor
+        // Get all payments for this doctor
         $pBuilder = $db->table('doctor_payments');
         $pBuilder->where('doctor_id', $id);
         $pBuilder->orderBy('payment_date', 'ASC');
         $payments = $pBuilder->get()->getResultArray();
 
-        // 3. Prepare Ledger: Combine and Sort
+        // Combine and Sort for Ledger
         $ledger = [];
         $total_purchased = 0;
         foreach($sales as $s) {
-            $amount = ($s['qty'] * $s['sale_price']) - $s['discount'];
+            $amount = $s['total_amount'];
             $total_purchased += $amount;
             $ledger[] = [
                 'date' => $s['sale_date'],
                 'type' => 'SALE',
-                'description' => "Sold " . $s['product_name'] . " (" . $s['batch_id'] . ") x " . $s['qty'] . ($s['discount'] > 0 ? " (Discount: " . $s['discount'] . ")" : ""),
-                'debit' => $amount, // Amount they owe me
+                'description' => "Invoice #" . ($s['invoice_no'] ?: $s['id']) . " (" . $s['products_summary'] . ")",
+                'debit' => $amount,
                 'credit' => 0,
                 'ref' => $s['id']
             ];
@@ -91,24 +94,22 @@ class Doctors extends BaseController
                 'type' => 'PAYMENT',
                 'description' => "Payment Received: " . ($pmt['notes'] ?: 'No notes'),
                 'debit' => 0,
-                'credit' => $pmt['amount'], // Amount they paid me
+                'credit' => $pmt['amount'],
                 'ref' => $pmt['id']
             ];
         }
 
-        // Sort ledger by date
         usort($ledger, function($a, $b) {
             return strtotime($a['date']) - strtotime($b['date']);
         });
 
-        // Add running balance
         $running = 0;
         foreach($ledger as &$entry) {
             $running += ($entry['debit'] - $entry['credit']);
             $entry['balance'] = $running;
         }
 
-        $data['ledger'] = array_reverse($ledger); // Latest on top for view
+        $data['ledger'] = array_reverse($ledger);
         $data['doctor'] = $doctor;
         $data['summary'] = [
             'total_purchased' => $total_purchased,
@@ -153,7 +154,6 @@ class Doctors extends BaseController
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
 
         $model = new DoctorModel();
-        // Check if doctor has sales
         $sModel = new SaleModel();
         if ($sModel->where('doctor_id', $id)->countAllResults() > 0) {
             return redirect()->back()->with('error', 'Cannot delete doctor with existing sales records.');
