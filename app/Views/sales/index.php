@@ -99,7 +99,7 @@
                 <div class="p-4 border-bottom bg-light bg-opacity-10">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h6 class="text-premium m-0 fw-900 fs-5"><i class="fas fa-boxes-stacked me-2 text-primary"></i>Stock</h6>
-                        <span class="badge bg-primary bg-opacity-10 text-primary border-primary extra-small text-uppercase fw-bold rounded-pill">F1 Search</span>
+                        <span class="badge bg-primary bg-opacity-10 text-primary border-primary extra-small text-uppercase fw-bold rounded-pill">Search</span>
                     </div>
                     <div class="sidebar-search-container">
                         <span class="input-group-text"><i class="fas fa-search text-muted"></i></span>
@@ -196,7 +196,7 @@
                         </div>
                         <div class="col-md-3">
                             <label class="total-labels">Phone</label>
-                            <input type="text" name="manual_dr_phone" class="form-control border-0 bg-light py-3 rounded-4 fw-bold" placeholder="11 Digits Phone" maxlength="11" pattern="\d{11}" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');">
+                            <input type="text" name="manual_dr_phone" class="form-control border-0 bg-light py-3 rounded-4 fw-bold" placeholder="03XXXXXXXXX" maxlength="11" pattern="\d{11}" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');">
                         </div>
                     </div>
                 </div>
@@ -211,7 +211,7 @@
                                 <th class="border-0 py-4 text-center" style="width: 15%;">Unit Price</th>
                                 <th class="border-0 py-4 text-center" style="width: 10%;">Qty</th>
                                 <th class="border-0 py-4 text-center" style="width: 20%;">Discount</th>
-                                <th class="border-0 py-4 text-end px-4" style="width: 10%;">Total</th>
+                                <th class="border-0 py-4 text-end px-4" style="width: 10%;">Action</th>
                             </tr>
                         </thead>
                         <tbody id="cartBody">
@@ -221,7 +221,7 @@
                             <tr>
                                 <td colspan="6" class="px-4 py-3 border-0 bg-light bg-opacity-50">
                                     <button type="button" onclick="addEmptyRow()" class="btn btn-primary rounded-pill px-4 fw-800 shadow-sm btn-sm">
-                                        <i class="fas fa-plus-circle me-1"></i> ADD NEW ITEM [F4]
+                                        <i class="fas fa-plus-circle me-1"></i> ADD NEW ITEM
                                     </button>
                                     <small class="text-muted ms-3">You can also select products from the sidebar</small>
                                 </td>
@@ -259,7 +259,7 @@
                                     <div class="h1 fw-900 text-dark m-0" id="sumGrandTotal">Rs. 0</div>
                                 </div>
                                 <button type="submit" class="btn btn-premium-confirm px-5 py-3">
-                                    CONFIRM [F2]
+                                    CONFIRM 
                                 </button>
                             </div>
                         </div>
