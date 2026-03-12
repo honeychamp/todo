@@ -15,9 +15,10 @@
                         <thead class="bg-light">
                             <tr>
                                 <th class="border-0 px-5 py-4">Invoice & Date</th>
-                                <th class="border-0 py-4">Customer / Doctor</th>
+                                <th class="border-0 py-4">Reference Name</th>
                                 <th class="border-0 py-4 text-end">Total Amount</th>
                                 <th class="border-0 py-4 text-end">Total Discount</th>
+                                <th class="border-0 py-4 text-end">Final Amount</th>
                                 <th class="border-0 py-4 text-end px-5">Action</th>
                             </tr>
                         </thead>
@@ -41,11 +42,14 @@
                                                 <div class="text-muted extra-small fw-bold"><?= esc($sale['customer_phone'] ?: 'CASH SALE / NO PHONE') ?></div>
                                             <?php endif; ?>
                                         </td>
-                                        <td class="text-end fw-900 text-dark fs-5">
-                                            Rs. <?= number_format($sale['total_amount'], 2) ?>
+                                        <td class="text-end fw-bold text-dark">
+                                            Rs. <?= number_format($sale['gross_amount'], 2) ?>
                                         </td>
                                         <td class="text-end fw-bold text-danger">
                                             Rs. <?= number_format($sale['total_discount'] ?? 0, 2) ?>
+                                        </td>
+                                        <td class="text-end fw-900 text-primary fs-5">
+                                            Rs. <?= number_format($sale['total_amount'], 2) ?>
                                         </td>
                                         <td class="text-end px-4">
                                             <a href="<?= base_url('sales/invoice/'.$sale['id']) ?>" target="_blank" class="btn btn-sm btn-outline-primary border-0 rounded-pill px-3">

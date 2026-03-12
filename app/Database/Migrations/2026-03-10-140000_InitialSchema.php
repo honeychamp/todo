@@ -126,6 +126,7 @@ class InitialSchema extends Migration
               `id` int unsigned NOT NULL AUTO_INCREMENT,
               `invoice_no` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
               `doctor_id` int unsigned DEFAULT NULL,
+              `gross_amount` decimal(15,2) DEFAULT '0.00',
               `total_amount` decimal(15,2) DEFAULT '0.00',
               `total_discount` decimal(15,2) DEFAULT '0.00',
               `manual_dr_name` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,

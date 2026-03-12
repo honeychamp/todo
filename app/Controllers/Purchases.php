@@ -647,8 +647,9 @@ class Purchases extends BaseController
             ->get()->getRowArray();
 
         $items = $db->table('purchase_details pd')
-            ->select('pd.*, pr.name as product_name, pr.unit, pr.unit_value')
+            ->select('pd.*, pr.name as product_name, pdt.unit, pdt.unit_value')
             ->join('products pr', 'pr.id = pd.product_id')
+            ->join('product_details pdt', 'pdt.id = pd.product_detail_id')
             ->where('pd.purchase_id', $id)
             ->get()->getResultArray();
 

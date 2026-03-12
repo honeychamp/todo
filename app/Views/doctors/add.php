@@ -15,11 +15,11 @@
             <form action="<?= base_url('doctors/create') ?>" method="POST" class="px-3">
                 <div class="mb-4">
                     <label class="form-label extra-small fw-900 text-uppercase text-muted px-2">Doctor's Full Name</label>
-                    <input type="text" name="name" class="form-control form-control-lg bg-light border-0 py-3 rounded-4 fw-bold" placeholder="e.g. Dr. Muhammad Ali" required>
+                    <input type="text" name="name" class="form-control form-control-lg bg-light border-0 py-3 rounded-4 fw-bold" placeholder="e.g. Dr. Waleed" required>
                 </div>
                 
                 <div class="mb-4">
-                    <label class="form-label extra-small fw-900 text-uppercase text-muted px-2">Primary Phone Number</label>
+                    <label class="form-label extra-small fw-900 text-uppercase text-muted px-2">Phone Number</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-0 rounded-start-4 px-3 text-muted"><i class="fas fa-phone-alt"></i></span>
                         <input type="tel" name="phone" class="form-control form-control-lg bg-light border-0 py-3 rounded-end-4 phone-input fw-bold" maxlength="11" placeholder="03XXXXXXXXX" required>
@@ -36,7 +36,7 @@
                         CANCEL
                     </a>
                     <button type="submit" class="btn btn-vibrant w-50 py-3 rounded-pill fw-900 shadow-lg text-uppercase tracking-widest">
-                        <i class="fas fa-save me-2"></i> AUTHORIZE
+                        <i class="fas fa-save me-2"></i> ADD DOCTOR
                     </button>
                 </div>
             </form>

@@ -536,12 +536,7 @@
                         </li>
                         <li>
                             <a href="<?= base_url('sales/report') ?>" class="<?= url_is('sales/report') ? 'text-white fw-bold' : '' ?>">
-                                <i class="fas fa-chart-pie small me-2"></i> Sales Report
-                            </a>
-                        </li>
-                        <li>
-                            <a href="<?= base_url('sales/history') ?>" class="<?= url_is('sales/history') ? 'text-white fw-bold' : '' ?>">
-                                <i class="fas fa-history small me-2"></i> Sales History
+                                <i class="fas fa-file-invoice small me-2"></i> Report & History
                             </a>
                         </li>
                     </ul>

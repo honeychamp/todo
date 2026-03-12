@@ -74,8 +74,20 @@ class Sales extends BaseController
         }
 
         $dModel = new \App\Models\DoctorModel();
-        $data['doctors'] = $dModel->orderBy('name', 'ASC')->findAll();
-        $data['stocks'] = $available;
+        
+        // Fetch all products for the in-cart manual search/select
+        $db = \Config\Database::connect();
+        $allProducts = $db->table('products p')
+            ->select('p.id as product_id, p.name as product_name, pdt.id as product_detail_id, pdt.unit, pdt.unit_value, 
+                      (SELECT price FROM purchase_details pd WHERE pd.product_id = p.id ORDER BY pd.id DESC LIMIT 1) as last_price,
+                      (SELECT id FROM purchase_details pd WHERE pd.product_id = p.id ORDER BY pd.id DESC LIMIT 1) as stock_id')
+            ->join('product_details pdt', 'pdt.product_id = p.id', 'left')
+            ->get()->getResultArray();
+
+        $data['doctors']      = $dModel->orderBy('name', 'ASC')->findAll();
+        $data['stocks']       = $available;
+        $data['all_products'] = $allProducts;
+        
         return view('sales/index', $data);
     }
 
@@ -87,6 +99,8 @@ class Sales extends BaseController
         $stockIds   = $this->request->getPost('stock_id');
         $qtys       = $this->request->getPost('qty');
         $discounts  = $this->request->getPost('discount');
+        $prices     = $this->request->getPost('price');
+        $strengths  = $this->request->getPost('strength'); // Custom strengths from POS
         $doctorId   = $this->request->getPost('doctor_id');
 
         if (empty($stockIds)) return redirect()->back()->with('error', 'No items selected.');
@@ -97,66 +111,109 @@ class Sales extends BaseController
         $saleModel = new SaleModel();
         $detailModel = new \App\Models\SaleDetailModel();
         $PurchaseDetailModel = new PurchaseDetailModel();
+        $doctorModel = new \App\Models\DoctorModel();
+
+        $manualName  = trim($this->request->getPost('manual_dr_name'));
+        $manualPhone = trim($this->request->getPost('manual_dr_phone'));
+
+        if (empty($doctorId) && !empty($manualName)) {
+            // Check if doctor exists by phone (if phone provided) or name
+            if (!empty($manualPhone)) {
+                $existingDoctor = $doctorModel->where('phone', $manualPhone)->first();
+            } else {
+                $existingDoctor = $doctorModel->where('name', $manualName)->first();
+            }
+
+            if ($existingDoctor) {
+                $doctorId = $existingDoctor['id'];
+                $manualName = '';
+                $manualPhone = '';
+            } else {
+                $doctorId = $doctorModel->insert([
+                    'name'  => $manualName,
+                    'phone' => $manualPhone,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+                $manualName = '';
+                $manualPhone = '';
+            }
+        }
 
         // Create Sale Header
         $saleData = [
             'invoice_no'       => 'INV-' . strtoupper(substr(uniqid(), -6)),
-            'doctor_id'        => $this->request->getPost('doctor_id') ?: null,
-            'manual_dr_name'   => $this->request->getPost('manual_dr_name'),
-            'manual_dr_phone'  => $this->request->getPost('manual_dr_phone'),
+            'doctor_id'        => $doctorId ?: null,
+            'manual_dr_name'   => $manualName ?: null,
+            'manual_dr_phone'  => $manualPhone ?: null,
             'sale_date'        => date('Y-m-d H:i:s'),
             'total_amount'     => 0,
             'total_discount'   => 0
         ];
         $saleId = $saleModel->insert($saleData);
 
-        $totalVal = 0;
+        $totalGross = 0;
         $totalDisc = 0;
 
         foreach ($stockIds as $idx => $sid) {
             $qty = (int)$qtys[$idx];
             $disc = (float)($discounts[$idx] ?? 0);
+            $price = (float)($prices[$idx] ?? 0);
+            $strength = $strengths[$idx] ?? ''; 
+            
+            if ($qty <= 0) continue;
+
             $stock = $PurchaseDetailModel->find($sid);
 
-            if (!$stock || $qty <= 0) continue;
-
-            // Check stock
-            $sold = $detailModel->where('sale_details.stock_id', $sid)->selectSum('qty')->get()->getRow()->qty ?? 0;
-            $available = $stock['qty'] - $sold;
-
-            if ($available < $qty) {
-                $db->transRollback();
-                return redirect()->back()->with('error', 'Not enough stock for one of the items.');
+            // Robust check for IDs (Manual or Stocked)
+            $pid = 0;
+            $pdid = 0;
+            
+            if ($stock) {
+                $pid = $stock['product_id'];
+                $pdid = $stock['product_detail_id'];
             }
 
             $detailModel->insert([
                 'sale_id'           => $saleId,
                 'stock_id'          => $sid,
-                'product_id'        => $stock['product_id'],
-                'product_detail_id' => $stock['product_detail_id'],
+                'product_id'        => $pid,
+                'product_detail_id' => $pdid,
+                'strength'          => $strength,
                 'qty'               => $qty,
-                'sale_price'        => $stock['price'],
+                'sale_price'        => $price,
                 'discount'          => $disc
             ]);
 
-            $totalVal += ($qty * $stock['price']) - $disc;
+            // Gross = Qty * Price
+            $totalGross += ($qty * $price);
             $totalDisc += $disc;
         }
 
-        // Update Header
+        // Net = Gross - Discount
+        $totalNet = $totalGross - $totalDisc;
+        
+        // Final sanity check: Total amount cannot be negative
+        if ($totalNet < 0) $totalNet = 0;
+
+        // Update Header with exact totals
         $saleModel->update($saleId, [
-            'total_amount'   => $totalVal,
+            'gross_amount'   => $totalGross,
+            'total_amount'   => $totalNet,
             'total_discount' => $totalDisc
         ]);
 
         $db->transComplete();
 
         if ($db->transStatus() === false) {
-            return redirect()->back()->with('error', 'Failed to process sale.');
+            $db->transRollback();
+            return redirect()->back()->with('error', 'Sale failed due to a database error.');
+        } else {
+            $db->transCommit();
+            session()->setFlashdata('last_sale_id', $saleId);
+            session()->setFlashdata('last_sale_invoice', $saleData['invoice_no']);
+            return redirect()->to(base_url('sales'))->with('success', 'Sale completed successfully!');
         }
-
-        return redirect()->to(base_url('sales'))->with('success', 'Sale processed successfully!')
-                                              ->with('last_sale_id', $saleId);
     }
 
     public function history()
@@ -214,6 +271,30 @@ class Sales extends BaseController
                            ->join('purchase_details pd', 'pd.id = sd.stock_id')
                            ->where('sd.sale_id', $id)
                            ->get()->getResultArray();
+
+        // Professional Ledger Summary for Doctor
+        if (!empty($data['sale']['doctor_id'])) {
+            $docId = $data['sale']['doctor_id'];
+            
+            // Getting total purchased from ALL sales up to this one (we can just use all sales since ledger covers all)
+            $totalPurchased = clone $db;
+            $docPurchased = $totalPurchased->table('sales')->where('doctor_id', $docId)->selectSum('total_amount')->get()->getRow()->total_amount ?? 0;
+            
+            $totalPaid = clone $db;
+            $docPaid = $totalPaid->table('doctor_payments')->where('doctor_id', $docId)->selectSum('amount')->get()->getRow()->amount ?? 0;
+            
+            $currentBill = $data['sale']['total_amount'];
+            $totalOutstanding = $docPurchased - $docPaid;
+            $previousBalance = $totalOutstanding - $currentBill; // Because current bill is included in totalPurchased
+            
+            $data['previous_balance'] = $previousBalance;
+            $data['current_bill'] = $currentBill;
+            $data['doctor_balance'] = $totalOutstanding;
+        } else {
+            $data['previous_balance'] = 0;
+            $data['current_bill'] = $data['sale']['total_amount'] ?? 0;
+            $data['doctor_balance'] = 0;
+        }
 
         return view('sales/invoice', $data);
     }

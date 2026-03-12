@@ -24,21 +24,21 @@
             <div class="row g-4 mb-5">
                 <div class="col-md-3">
                     <div class="p-4 rounded-4 text-center h-100 d-flex flex-column justify-content-center" style="background: rgba(99,102,241,0.05); border: 2.5px dashed rgba(99,102,241,0.2);">
-                        <div class="text-muted small fw-bold text-uppercase mb-2">Net Sales Revenue</div>
+                        <div class="text-muted small fw-bold text-uppercase mb-2">Total Amount</div>
                         <?php $rev = array_sum(array_map(function($s){ return ($s['qty'] * $s['sale_price']) - ($s['discount'] ?? 0); }, $sales)); ?>
                         <div class="fw-900 h2 m-0 text-primary">Rs. <?= number_format($rev, 2) ?></div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="p-4 rounded-4 text-center h-100 d-flex flex-column justify-content-center" style="background: rgba(16,185,129,0.05); border: 2.5px dashed rgba(16,185,129,0.2);">
-                        <div class="text-muted small fw-bold text-uppercase mb-2">Net Profit</div>
+                        <div class="text-muted small fw-bold text-uppercase mb-2">Final Profit</div>
                         <?php $prof = array_sum(array_map(function($s){ return (($s['qty'] * $s['sale_price']) - ($s['discount'] ?? 0)) - ($s['purchase_cost'] * $s['qty']); }, $sales)); ?>
                         <div class="fw-900 h2 m-0 text-success">Rs. <?= number_format($prof, 2) ?></div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="p-4 rounded-4 text-center h-100 d-flex flex-column justify-content-center" style="background: rgba(245,158,11,0.05); border: 2.5px dashed rgba(245,158,11,0.2);">
-                        <div class="text-muted small fw-bold text-uppercase mb-2">Discount Burden</div>
+                        <div class="text-muted small fw-bold text-uppercase mb-2">Total Discount</div>
                         <?php $discTotal = array_sum(array_column($sales, 'discount')); ?>
                         <div class="fw-900 h2 m-0 text-warning">Rs. <?= number_format($discTotal, 2) ?></div>
                     </div>
@@ -58,7 +58,7 @@
                             <th class="border-0 px-4 py-3">Order & Date</th>
                             <th class="border-0 py-3">Payer / Product</th>
                             <th class="border-0 py-3 text-center">Qty</th>
-                            <th class="border-0 py-3 text-end">Net Sale</th>
+                            <th class="border-0 py-3 text-end">Total</th>
                             <th class="border-0 py-3 text-end">Profit Loss</th>
                             <th class="border-0 py-3 text-end px-5">Performance</th>
                         </tr>

@@ -86,7 +86,7 @@
                 <form action="<?= base_url('expenses/create') ?>" method="POST">
                     <div class="mb-4">
                         <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Description</label>
-                        <input type="text" name="title" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill" placeholder="e.g. Electricity Bill" required>
+                        <input type="text" name="title" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill" placeholder="e.g. Petrol" required>
                     </div>
                     <div class="mb-4">
                         <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Amount (Rs.)</label>
