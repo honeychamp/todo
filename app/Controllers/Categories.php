@@ -25,20 +25,34 @@ class Categories extends BaseController
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
         
+        $rules = [
+            'name' => 'required'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->with('error', 'Category naming is required.');
+        }
+
         $model = new CategoryModel();
         $name = $this->request->getPost('name');
         
-        if (!empty($name)) {
-            $model->insert(['name' => $name]);
-            return redirect()->to(base_url('categories'))->with('success', 'Nice! Category added.');
-        }
-        return redirect()->back()->with('error', 'Please give a name to the category.');
+        $model->insert(['name' => $name]);
+        return redirect()->to(base_url('categories'))->with('success', 'Nice! Category added.');
     }
 
     // Remove a category
     public function update()
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
+        
+        $rules = [
+            'name' => 'required'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->with('error', 'Category naming is required.');
+        }
+
         $model = new CategoryModel();
         $id = $this->request->getPost('id');
         $model->update($id, [

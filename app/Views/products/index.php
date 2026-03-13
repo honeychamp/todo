@@ -39,26 +39,12 @@
     .premium-data-card {
         background: white;
         border-radius: 40px;
-        overflow: hidden;
+        overflow: visible;
         border: 1px solid rgba(0,0,0,0.03);
         box-shadow: 0 10px 40px rgba(0,0,0,0.02);
     }
 
-    .table thead th {
-        background: #f8fafc;
-        padding: 22px 30px;
-        font-size: 0.75rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #64748b;
-        border-bottom: 1px solid #f1f5f9;
-    }
-    .table tbody td {
-        padding: 22px 30px;
-        border-bottom: 1px solid #f8fafc;
-        vertical-align: middle;
-    }
+
 
     .status-chip {
         padding: 8px 18px;
@@ -106,7 +92,7 @@
 
     <!-- Data Table -->
     <div class="premium-data-card animate-up">
-        <div class="table-responsive">
+        <div class="table-responsive" style="overflow: visible;">
             <table class="table table-hover mb-0" id="productsTable">
                 <thead>
                     <tr>
@@ -123,7 +109,7 @@
                         <tr><td colspan="6" class="text-center py-5 text-muted fw-bold">No products registered yet.</td></tr>
                     <?php else: ?>
                         <?php foreach($products as $product): ?>
-                            <tr>
+                            <tr style="position: relative;">
                                 <td>
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="rounded-4 bg-primary bg-opacity-10 d-flex align-items-center justify-content-center text-primary fw-900" style="width: 50px; height: 50px;">

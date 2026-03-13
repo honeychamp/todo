@@ -41,5 +41,18 @@ abstract class BaseController extends Controller
 
         // Preload any models, libraries, etc, here.
         // $this->session = service('session');
+
+        // Validate user session against database to handle database resets/deleted users
+        if (session()->get('logged_in') && session()->get('user_id')) {
+            try {
+                $userModel = new \App\Models\UserModel();
+                if (!$userModel->find(session()->get('user_id'))) {
+                    session()->remove(['logged_in', 'user_id', 'username']);
+                }
+            } catch (\Exception $e) {
+                // If the table doesn't exist at all (e.g. migrate:refresh)
+                session()->remove(['logged_in', 'user_id', 'username']);
+            }
+        }
     }
 }

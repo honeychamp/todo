@@ -292,7 +292,7 @@
                             </div>
                             <div>
                                 <div class="fw-bold small text-warning">Upcoming Expiration</div>
-                                <div class="text-white-50" style="font-size: 0.75rem;"><?= esc($exp['product_name']) ?> (<?= date('d M, Y', strtotime($exp['expiry_date'])) ?>)</div>
+                                <div class="text-white-50" style="font-size: 0.75rem;"><?= esc($exp['product_name']) ?> (<?= date('d M, Y', strtotime($exp['exp_date'])) ?>)</div>
                             </div>
                         </div>
                     <?php endforeach; ?>

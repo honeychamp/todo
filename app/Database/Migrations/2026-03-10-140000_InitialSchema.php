@@ -119,6 +119,7 @@ class InitialSchema extends Migration
               `qty` int NOT NULL,
               `sale_price` decimal(15,2) NOT NULL,
               `discount` decimal(15,2) NOT NULL DEFAULT '0.00',
+              `strength` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
               PRIMARY KEY (`id`)
             ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci",
 

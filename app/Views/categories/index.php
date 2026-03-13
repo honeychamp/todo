@@ -27,13 +27,7 @@
         font-weight: 900;
         color: #3b82f6;
     }
-    .category-row {
-        padding: 20px 30px;
-        border-bottom: 1px solid #f8fafc;
-        transition: all 0.2s;
-    }
-    .category-row:hover { background: #fcfdfe; }
-    .category-row:last-child { border-bottom: none; }
+
 </style>
 
 <div class="row g-5 animate-wow">
@@ -51,7 +45,7 @@
             <form action="<?= base_url('categories/create') ?>" method="POST">
                 <div class="mb-4">
                     <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Category Name</label>
-                    <input type="text" name="name" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill" placeholder="e.g. Antibiotics" required>
+                    <input type="text" name="name" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill" placeholder="e.g. tablet" required>
                 </div>
                 <button type="submit" class="btn btn-dark w-100 py-3 rounded-pill fw-900 shadow-lg">
                     <i class="fas fa-plus-circle me-2"></i> ADD CATEGORY

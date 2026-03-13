@@ -40,38 +40,115 @@ class Vendors extends BaseController
         return view('vendors/index', $data);
     }
 
+    // Show the add vendor form page
+    public function add()
+    {
+        if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
+        return view('vendors/add');
+    }
+
     // Add a new company we buy from
     public function create()
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
-        
-        $model = new VendorModel();
-        $data = [
-            'name'    => $this->request->getPost('name'),
-            'phone'   => $this->request->getPost('phone'),
-            'email'   => $this->request->getPost('email'),
-            'address' => $this->request->getPost('address'),
-        ];
 
-        if ($model->save($data)) {
-            return redirect()->to(base_url('vendors'))->with('success', 'Vendor added to the list.');
+        $name    = trim($this->request->getPost('name'));
+        $phone   = trim($this->request->getPost('phone'));
+        $email   = trim($this->request->getPost('email'));
+        $address = trim($this->request->getPost('address'));
+
+        // --- Step 1: Required field checks ---
+        if (empty($name)) {
+            return redirect()->back()->with('error', 'Vendor name is required.');
         }
-        
-        return redirect()->back()->with('errors', $model->errors());
+        if (strlen($name) < 3) {
+            return redirect()->back()->with('error', 'Vendor name must be at least 3 characters long.');
+        }
+        if (empty($phone)) {
+            return redirect()->back()->with('error', 'Phone number is required.');
+        }
+        if (!is_numeric($phone)) {
+            return redirect()->back()->with('error', 'Phone number must contain digits only.');
+        }
+        if (strlen($phone) !== 11) {
+            return redirect()->back()->with('error', 'Phone number must be exactly 11 digits (e.g. 03001234567). You entered ' . strlen($phone) . ' digit(s).');
+        }
+        if (empty($email)) {
+            return redirect()->back()->with('error', 'Email address is required.');
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return redirect()->back()->with('error', 'Please enter a valid email address (e.g. name@domain.com).');
+        }
+        if (empty($address)) {
+            return redirect()->back()->with('error', 'Office address is required.');
+        }
+
+        // --- Step 2: Duplicate check ---
+        $model = new VendorModel();
+        $existing = $model->where('name', $name)->first();
+        if ($existing) {
+            return redirect()->back()->with('error', 'A vendor with the name "' . esc($name) . '" already exists.');
+        }
+
+        // --- Step 3: Save (skip model-level validation since we did it manually) ---
+        $saved = $model->skipValidation(true)->insert([
+            'name'    => $name,
+            'phone'   => $phone,
+            'email'   => $email ?: null,
+            'address' => $address ?: null,
+        ]);
+
+        if ($saved) {
+            return redirect()->to(base_url('vendors'))->with('success', 'Vendor "' . esc($name) . '" added successfully!');
+        }
+
+        return redirect()->back()->with('error', 'Database error: Could not save vendor. Please try again.');
     }
 
     public function update()
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
+
+        $id      = (int) $this->request->getPost('id');
+        $name    = trim($this->request->getPost('name'));
+        $phone   = trim($this->request->getPost('phone'));
+        $email   = trim($this->request->getPost('email'));
+        $address = trim($this->request->getPost('address'));
+
+        // --- Validation ---
+        if (empty($name)) {
+            return redirect()->back()->with('error', 'Vendor name is required.');
+        }
+        if (strlen($name) < 3) {
+            return redirect()->back()->with('error', 'Vendor name must be at least 3 characters long.');
+        }
+        if (empty($phone)) {
+            return redirect()->back()->with('error', 'Phone number is required.');
+        }
+        if (!is_numeric($phone)) {
+            return redirect()->back()->with('error', 'Phone number must contain digits only.');
+        }
+        if (strlen($phone) !== 11) {
+            return redirect()->back()->with('error', 'Phone number must be exactly 11 digits (e.g. 03001234567). You entered ' . strlen($phone) . ' digit(s).');
+        }
+        if (empty($email)) {
+            return redirect()->back()->with('error', 'Email address is required.');
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return redirect()->back()->with('error', 'Please enter a valid email address (e.g. name@domain.com).');
+        }
+        if (empty($address)) {
+            return redirect()->back()->with('error', 'Office address is required.');
+        }
+
         $model = new VendorModel();
-        $id = $this->request->getPost('id');
-        $model->update($id, [
-            'name' => $this->request->getPost('name'),
-            'phone' => $this->request->getPost('phone'),
-            'email' => $this->request->getPost('email'),
-            'address' => $this->request->getPost('address'),
+        $model->skipValidation(true)->update($id, [
+            'name'    => $name,
+            'phone'   => $phone,
+            'email'   => $email ?: null,
+            'address' => $address ?: null,
         ]);
-        return redirect()->back()->with('success', 'Vendor updated successfully');
+        return redirect()->back()->with('success', 'Vendor "' . esc($name) . '" updated successfully!');
     }
 
     public function delete($id)

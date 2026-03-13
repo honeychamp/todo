@@ -50,14 +50,15 @@
     .bill-footer { padding: 30px; background: #fff; border-top: 2px solid #f1f5f9; border-radius: 0 0 24px 24px; }
 
     .cart-table-area { flex: 1; overflow-y: auto; padding: 0; }
-    .cart-item-row td { padding: 20px 15px !important; vertical-align: middle; border-bottom: 1px solid #f8fafc; }
+    .cart-item-row td { padding: 12px 10px !important; vertical-align: middle; border-bottom: 1px solid #f8fafc; }
     .cart-item-row { transition: all 0.3s ease; }
     .cart-item-row:hover { background-color: #fcfdfe; }
     
     .input-cart { 
-        width: 100%; border: 1.5px solid #eef2f6; border-radius: 12px; padding: 10px 12px; 
+        width: 100%; border: 1.5px solid #eef2f6; border-radius: 10px; padding: 8px 10px; 
         font-weight: 700; text-align: center; color: #1e293b; background: #f8fafc;
         transition: all 0.2s;
+        font-size: 0.9rem;
     }
     .input-cart:focus { border-color: #6366f1; outline: none; background: #fff; box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
     
@@ -206,11 +207,11 @@
                     <table class="table mb-0" id="cartTable">
                         <thead class="bg-light bg-opacity-30">
                             <tr class="extra-small text-uppercase text-muted">
-                                <th class="border-0 px-4 py-4" style="width: 30%;">Item Detail</th>
+                                <th class="border-0 px-4 py-4" style="width: 25%;">Item Detail</th>
                                 <th class="border-0 py-4 text-center" style="width: 15%;">Unit Value</th>
                                 <th class="border-0 py-4 text-center" style="width: 15%;">Unit Price</th>
-                                <th class="border-0 py-4 text-center" style="width: 10%;">Qty</th>
-                                <th class="border-0 py-4 text-center" style="width: 20%;">Discount</th>
+                                <th class="border-0 py-4 text-center" style="width: 12%;">Qty</th>
+                                <th class="border-0 py-4 text-center" style="width: 23%;">Discount</th>
                                 <th class="border-0 py-4 text-end px-4" style="width: 10%;">Action</th>
                             </tr>
                         </thead>

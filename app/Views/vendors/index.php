@@ -92,9 +92,9 @@
     <!-- List Controls -->
     <div class="d-flex justify-content-between align-items-center mb-4 px-2">
         <h4 class="fw-900 m-0">Vendors</h4>
-        <button class="btn btn-primary rounded-pill px-5 py-3 fw-900 shadow-lg" data-bs-toggle="modal" data-bs-target="#addVendorModal">
+        <a href="<?= base_url('vendors/add') ?>" class="btn btn-primary rounded-pill px-5 py-3 fw-900 shadow-lg">
             <i class="fas fa-plus-circle me-2"></i> ADD NEW VENDOR
-        </button>
+        </a>
     </div>
 
     <!-- Vendor Grid v2 -->
@@ -147,42 +147,7 @@
     </div>
 </div>
 
-<!-- Add Vendor Modal -->
-<div class="modal fade" id="addVendorModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-2xl overflow-hidden" style="border-radius: 40px;">
-            <div class="modal-header bg-dark text-white border-0 p-5 pb-4">
-                <h4 class="modal-title fw-900">Add New Vendor</h4>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="<?= base_url('vendors/create') ?>" method="POST">
-                <div class="modal-body p-5">
-                    <div class="mb-4">
-                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Vendor Name</label>
-                        <input type="text" name="name" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill" placeholder="e.g. Pharmacy Name" required>
-                    </div>
-                    <div class="row g-4 mb-4">
-                        <div class="col-6">
-                            <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Phone / WhatsApp</label>
-                            <input type="tel" name="phone" class="form-control bg-light border-0 px-4 py-3 rounded-pill phone-input" maxlength="11" placeholder="03XXXXXXXXX" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Primary Email</label>
-                            <input type="email" name="email" class="form-control bg-light border-0 px-4 py-3 rounded-pill">
-                        </div>
-                    </div>
-                    <div class="mb-0">
-                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Office Address</label>
-                        <textarea name="address" class="form-control bg-light border-0 px-4 py-3 rounded-4" rows="3"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 p-5 pt-0">
-                    <button type="submit" class="btn btn-dark w-100 py-3 rounded-pill fw-900 shadow-lg">ADD VENDOR</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+
 
 <!-- Edit Vendor Modal -->
 <div class="modal fade" id="editVendorModal" tabindex="-1">
@@ -192,30 +157,34 @@
                 <h4 class="modal-title fw-900">Edit Vendor</h4>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="<?= base_url('vendors/update') ?>" method="POST">
+            <form action="<?= base_url('vendors/update') ?>" method="POST" id="editVendorForm" novalidate>
                 <input type="hidden" name="id" id="edit_vendor_id">
                 <div class="modal-body p-5">
                     <div class="mb-4">
-                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Vendor Name</label>
-                        <input type="text" name="name" id="edit_vendor_name" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill" required>
+                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Vendor Name <span class="text-danger">*</span></label>
+                        <input type="text" name="name" id="edit_vendor_name" class="form-control form-control-lg bg-light border-0 px-4 py-3 rounded-pill">
+                        <div id="edit_name_err" style="display:none; color:#ef4444; font-size:0.78rem; margin-top:5px; font-weight:700;"></div>
                     </div>
                     <div class="row g-4 mb-4">
                         <div class="col-6">
-                            <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Phone</label>
-                            <input type="tel" name="phone" id="edit_vendor_phone" class="form-control bg-light border-0 px-4 py-3 rounded-pill phone-input" maxlength="11" required>
+                            <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Phone <span class="text-danger">*</span></label>
+                            <input type="tel" name="phone" id="edit_vendor_phone" class="form-control bg-light border-0 px-4 py-3 rounded-pill" maxlength="11">
+                            <div id="edit_phone_err" style="display:none; color:#ef4444; font-size:0.78rem; margin-top:5px; font-weight:700;"></div>
                         </div>
                         <div class="col-6">
-                            <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Email</label>
-                            <input type="email" name="email" id="edit_vendor_email" class="form-control bg-light border-0 px-4 py-3 rounded-pill">
+                            <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Email <span class="text-danger">*</span></label>
+                            <input type="text" name="email" id="edit_vendor_email" class="form-control bg-light border-0 px-4 py-3 rounded-pill">
+                            <div id="edit_email_err" style="display:none; color:#ef4444; font-size:0.78rem; margin-top:5px; font-weight:700;"></div>
                         </div>
                     </div>
                     <div class="mb-0">
-                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Address</label>
+                        <label class="form-label fw-900 small text-muted text-uppercase tracking-widest">Address <span class="text-danger">*</span></label>
                         <textarea name="address" id="edit_vendor_address" class="form-control bg-light border-0 px-4 py-3 rounded-4" rows="3"></textarea>
+                        <div id="edit_address_err" style="display:none; color:#ef4444; font-size:0.78rem; margin-top:5px; font-weight:700;"></div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-5 pt-0">
-                    <button type="submit" class="btn btn-dark w-100 py-3 rounded-pill fw-900 shadow-lg">UPDATE VENDOR</button>
+                    <button type="submit" id="editVendorBtn" class="btn btn-dark w-100 py-3 rounded-pill fw-900 shadow-lg">UPDATE VENDOR</button>
                 </div>
             </form>
         </div>
@@ -223,14 +192,80 @@
 </div>
 
 <script>
+function showErr(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = '⚠ ' + msg;
+    el.style.display = 'block';
+}
+function hideErr(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+}
+function markInvalid(input) {
+    if (input) { input.style.border = '2px solid #ef4444'; input.style.background = '#fff5f5'; }
+}
+function markValid(input) {
+    if (input) { input.style.border = '2px solid #10b981'; input.style.background = '#f0fdf4'; }
+}
+function markClear(input) {
+    if (input) { input.style.border = ''; input.style.background = ''; }
+}
+
+
+
+// ─── EDIT VENDOR: Validate on Submit ───
+const editForm = document.getElementById('editVendorForm');
+if (editForm) {
+    editForm.addEventListener('submit', function(e) {
+        let valid = true;
+
+        const name    = document.getElementById('edit_vendor_name');
+        const phone   = document.getElementById('edit_vendor_phone');
+        const email   = document.getElementById('edit_vendor_email');
+        const address = document.getElementById('edit_vendor_address');
+
+        if (!name.value.trim()) {
+            showErr('edit_name_err', 'Vendor name is required.'); markInvalid(name); valid = false;
+        } else if (name.value.trim().length < 3) {
+            showErr('edit_name_err', 'Name must be at least 3 characters.'); markInvalid(name); valid = false;
+        } else { hideErr('edit_name_err'); markValid(name); }
+
+        const phoneVal = phone.value.trim().replace(/[^0-9]/g, '');
+        phone.value = phoneVal;
+        if (!phoneVal) {
+            showErr('edit_phone_err', 'Phone number is required.'); markInvalid(phone); valid = false;
+        } else if (phoneVal.length !== 11) {
+            showErr('edit_phone_err', `Phone must be exactly 11 digits. You entered ${phoneVal.length}.`); markInvalid(phone); valid = false;
+        } else { hideErr('edit_phone_err'); markValid(phone); }
+
+        if (!email.value.trim()) {
+            showErr('edit_email_err', 'Email address is required.'); markInvalid(email); valid = false;
+        } else if (!/^[^@]+@[^@]+\.[^@]+$/.test(email.value.trim())) {
+            showErr('edit_email_err', 'Enter a valid email (e.g. name@domain.com).'); markInvalid(email); valid = false;
+        } else { hideErr('edit_email_err'); markValid(email); }
+
+        if (!address.value.trim()) {
+            showErr('edit_address_err', 'Address is required.'); markInvalid(address); valid = false;
+        } else { hideErr('edit_address_err'); markValid(address); }
+
+        if (!valid) e.preventDefault();
+    });
+}
+
+// ─── Open Edit Modal with data ───
 function openEditVendor(id, name, phone, email, address) {
-    document.getElementById('edit_vendor_id').value = id;
-    document.getElementById('edit_vendor_name').value = name;
-    document.getElementById('edit_vendor_phone').value = phone;
-    document.getElementById('edit_vendor_email').value = email;
+    document.getElementById('edit_vendor_id').value      = id;
+    document.getElementById('edit_vendor_name').value    = name;
+    document.getElementById('edit_vendor_phone').value   = phone;
+    document.getElementById('edit_vendor_email').value   = email;
     document.getElementById('edit_vendor_address').value = address;
+    // Clear error states
+    ['edit_vendor_name','edit_vendor_phone','edit_vendor_email','edit_vendor_address'].forEach(function(fid) {
+        markClear(document.getElementById(fid));
+    });
+    ['edit_name_err','edit_phone_err','edit_email_err','edit_address_err'].forEach(hideErr);
 }
 </script>
 
 <?= $this->endSection() ?>
-

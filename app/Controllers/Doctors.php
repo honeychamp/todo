@@ -34,14 +34,43 @@ class Doctors extends BaseController
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
 
+        $name    = trim($this->request->getPost('name'));
+        $phone   = trim($this->request->getPost('phone'));
+        $address = trim($this->request->getPost('address'));
+
+        // --- Step 1: Required field checks ---
+        if (empty($name)) {
+            return redirect()->back()->with('error', 'Doctor name is required.');
+        }
+        if (strlen($name) < 3) {
+            return redirect()->back()->with('error', 'Doctor name must be at least 3 characters long.');
+        }
+        if (empty($phone)) {
+            return redirect()->back()->with('error', 'Phone number is required.');
+        }
+        if (!is_numeric($phone)) {
+            return redirect()->back()->with('error', 'Phone number must contain digits only.');
+        }
+        if (strlen($phone) !== 11) {
+            return redirect()->back()->with('error', 'Phone number must be exactly 11 digits (e.g. 03001234567).');
+        }
+        if (empty($address)) {
+            return redirect()->back()->with('error', 'Clinic address / Specialization is required.');
+        }
+
+        // --- Step 2: Save ---
         $model = new DoctorModel();
-        $model->save([
-            'name'    => $this->request->getPost('name'),
-            'phone'   => $this->request->getPost('phone'),
-            'address' => $this->request->getPost('address'),
+        $saved = $model->skipValidation(true)->insert([
+            'name'    => $name,
+            'phone'   => $phone,
+            'address' => $address,
         ]);
 
-        return redirect()->to(base_url('doctors'))->with('success', 'Doctor added successfully!');
+        if ($saved) {
+            return redirect()->to(base_url('doctors'))->with('success', 'Doctor "' . esc($name) . '" registered successfully!');
+        }
+
+        return redirect()->back()->with('error', 'Failed to register doctor. Please try again.');
     }
 
     public function ledger($id)

@@ -205,6 +205,16 @@ class Products extends BaseController
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
         
+        $rules = [
+            'name'        => 'required',
+            'category_id' => 'required',
+            'cost'        => 'required|numeric'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->with('error', 'Product name, category, and cost are required.');
+        }
+
         $productModel = new ProductModel();
         $detailModel = new \App\Models\ProductDetailModel();
         
@@ -331,6 +341,16 @@ class Products extends BaseController
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
         
+        $rules = [
+            'name'        => 'required',
+            'category_id' => 'required',
+            'cost'        => 'required|numeric'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->with('error', 'Product name, category, and cost are required.');
+        }
+
         $productModel = new ProductModel();
         $detailModel = new \App\Models\ProductDetailModel();
         

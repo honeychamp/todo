@@ -74,7 +74,7 @@ $pendingAmt  = $global_stats['outstanding'] ?? 0;
 <!-- ======================== PURCHASE TABLE ======================== -->
 <div class="row g-4 animate-up">
     <div class="col-12">
-        <div class="premium-list p-0 shadow-lg border-0 bg-white overflow-hidden">
+        <div class="premium-list p-0 shadow-lg border-0 bg-white" style="overflow: visible;">
             <div class="p-5 border-bottom d-flex justify-content-between align-items-center bg-light bg-opacity-30">
                 <div>
                     <h5 class="m-0 fw-900 text-dark">Purchase Orders</h5>
@@ -113,7 +113,7 @@ $pendingAmt  = $global_stats['outstanding'] ?? 0;
                 </div>
             </div>
 
-            <div class="table-responsive">
+            <div class="table-responsive" style="overflow: visible;">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr class="text-muted extra-small text-uppercase fw-900">
@@ -136,7 +136,7 @@ $pendingAmt  = $global_stats['outstanding'] ?? 0;
                             $color = $statusColors[$st] ?? 'secondary';
                             $label = $statusLabels[$st] ?? ucfirst($st);
                         ?>
-                        <tr>
+                        <tr style="position: relative;">
                             <td class="px-5 py-3">
                                 <div class="fw-900 text-dark">#<?= str_pad($p['id'], 5, '0', STR_PAD_LEFT) ?></div>
                                 <div class="extra-small text-muted"><?= $p['created_at'] ? date('d M, Y', strtotime($p['created_at'])) : '—' ?></div>

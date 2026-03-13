@@ -15,6 +15,7 @@ $routes->post('categories/update', 'Categories::update');
 $routes->get('categories/delete/(:num)', 'Categories::delete/$1');
 
 $routes->get('vendors', 'Vendors::index');
+$routes->get('vendors/add', 'Vendors::add');
 $routes->post('vendors/create', 'Vendors::create');
 $routes->post('vendors/update', 'Vendors::update');
 $routes->get('vendors/delete/(:num)', 'Vendors::delete/$1');

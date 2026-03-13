@@ -36,6 +36,16 @@ class Expenses extends BaseController
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
 
+        $rules = [
+            'title'        => 'required',
+            'amount'       => 'required|numeric',
+            'expense_date' => 'required'
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->with('error', 'Please fill in all required fields (title, amount, date).');
+        }
+
         $model = new ExpenseModel();
         $data = [
             'title'        => $this->request->getPost('title'),

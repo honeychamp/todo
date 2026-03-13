@@ -305,10 +305,13 @@
 
         .table thead th {
             background: #f8fafc;
-            padding: 20px;
-            font-weight: 700;
-            color: #0f172a;
-            border-bottom: 2px solid #f1f5f9;
+            padding: 15px 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            border-bottom: 1px solid #f1f5f9;
         }
 
         .table tbody tr {
@@ -322,11 +325,10 @@
         }
 
         .table tbody td {
-            padding: 20px;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 15px 20px;
+            border-bottom: 1px solid #f8fafc;
+            vertical-align: middle;
         }
-
-
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -349,6 +351,11 @@
             background: linear-gradient(90deg, #0ea5e9, #6366f1);
         }
 
+        .category-row {
+            padding: 15px 25px;
+            border-bottom: 1px solid #f8fafc;
+            transition: all 0.2s;
+        }
         .card-header-premium {
             padding: 22px 28px;
             border-bottom: 1px solid #f1f5f9;
@@ -491,8 +498,22 @@
                 <li class="<?= url_is('categories') ? 'active' : '' ?>">
                     <a href="<?= base_url('categories') ?>"><i class="fas fa-shapes"></i> Categories</a>
                 </li>
-                <li class="<?= url_is('vendors') ? 'active' : '' ?>">
-                    <a href="<?= base_url('vendors') ?>"><i class="fas fa-truck"></i> Vendors</a>
+                <li class="<?= url_is('vendors*') ? 'active' : '' ?>">
+                    <a href="#vendorSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= url_is('vendors*') ? '' : 'collapsed' ?>">
+                        <i class="fas fa-truck"></i> Vendors
+                    </a>
+                    <ul class="collapse list-unstyled sub-menu <?= url_is('vendors*') ? 'show' : '' ?>" id="vendorSubmenu">
+                        <li>
+                            <a href="<?= base_url('vendors') ?>" class="<?= url_is('vendors') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-list small me-2"></i> All Vendors
+                            </a>
+                        </li>
+                        <li>
+                            <a href="<?= base_url('vendors/add') ?>" class="<?= url_is('vendors/add') ? 'text-white fw-bold' : '' ?>">
+                                <i class="fas fa-plus small me-2"></i> Add Vendor
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 <!-- Purchases Module -->
                 <li class="<?= url_is('purchases*') ? 'active' : '' ?>">

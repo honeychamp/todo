@@ -23,11 +23,14 @@ class VendorModel extends Model
 
     protected $validationMessages = [
         'name' => [
-            'required'  => 'Vendor name is required.',
-            'is_unique' => 'This vendor is already registered.'
+            'required'   => 'Vendor name is required.',
+            'min_length' => 'Vendor name must be at least 3 characters.',
+            'is_unique'  => 'This vendor name is already registered. Use a different name.'
         ],
         'phone' => [
-            'required' => 'Phone number is required.'
+            'required'      => 'Phone number is required.',
+            'exact_length'  => 'Phone number must be exactly 11 digits (e.g. 03001234567).',
+            'numeric'       => 'Phone number must contain digits only.'
         ]
     ];
 }

@@ -60,8 +60,9 @@
                 <div class="col-md-3">
                     <label class="form-label fw-bold text-muted small text-uppercase">Status</label>
                     <select name="status" class="input-field" required>
+                        <option value="" disabled selected>--- Select Status ---</option>
                         <option value="ordered">📦 Ordered</option>
-                        <option value="received" selected>✅ Received</option>
+                        <option value="received">✅ Received</option>
                         <option value="partial_paid">💸 Partial Paid</option>
                         <option value="paid">✔️ Paid</option>
                     </select>
@@ -95,14 +96,14 @@
                 <table class="table align-middle mb-0" id="itemsTable">
                     <thead class="bg-light">
                         <tr class="text-muted extra-small text-uppercase fw-900">
-                            <th class="px-5 py-4 border-0" style="width: 50px;">#</th>
-                            <th class="py-4 border-0">Batch No.</th>
+                            <th class="px-5 py-4 border-0" style="width: 80px;">#</th>
+                            <th class="py-4 border-0" style="width: 160px;">Batch No.</th>
                             <th class="py-4 border-0">Product Name</th>
-                            <th class="py-4 border-0">MFG / EXP Dates</th>
+                            <th class="py-4 border-0" style="width: 340px;">MFG / EXP Dates</th>
                             <th class="py-4 border-0 text-center" style="width: 100px;">Units</th>
-                            <th class="py-4 border-0" style="width: 130px;">Cost (Rs.)</th>
-                            <th class="py-4 border-0" style="width: 130px;">MRP (Rs.)</th>
-                            <th class="py-4 border-0 text-end px-5">Subtotal</th>
+                            <th class="py-4 border-0" style="width: 160px;">Cost (Rs.)</th>
+                            <th class="py-4 border-0" style="width: 160px;">MRP (Rs.)</th>
+                            <th class="py-4 border-0 text-end px-5" style="width: 180px;">Subtotal</th>
                         </tr>
                     </thead>
                     <tbody id="itemsBody">
@@ -136,8 +137,8 @@
     .input-field {
         border: 2px solid #f1f5f9;
         border-radius: 12px;
-        padding: 12px 15px;
-        font-size: 14px;
+        padding: 10px 8px;
+        font-size: 13px;
         font-weight: 700;
         background: #f8fafc;
         width: 100%;
