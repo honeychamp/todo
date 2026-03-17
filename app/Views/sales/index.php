@@ -117,7 +117,7 @@
                         <div style="flex: 1;">
                             <div class="fw-900 text-dark small"><?= esc($s['product_name']) ?></div>
                             <div class="text-muted extra-small fw-bold">
-                                <?= esc($s['product_unit_value']) ?> <?= esc($s['unit']) ?> | <span class="text-primary"><?= esc($s['batch_id']) ?></span>
+                                <?= esc($s['unit_value']) ?> <?= esc($s['unit']) ?>
                             </div>
                         </div>
                         <div class="text-end">

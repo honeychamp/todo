@@ -9,34 +9,31 @@ use App\Models\SaleModel;
 
 class Sales extends BaseController
 {
-    // Inventory view - what is available for sale
+    // Inventory view - what is available for sale (Grouped by Product)
     public function inventory()
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
 
         $db = \Config\Database::connect();
         
-        // We select purchase_details and calculate sold quantity for each
-        $builder = $db->table('purchase_details s');
-        $builder->select('s.*, s.exp_date as expiry_date, s.mfg_date as manufacture_date, s.qty as initial_qty, 
-                         p.name as product_name, pdt.unit as product_unit, pdt.unit_value as product_unit_value, v.name as vendor_name, 
-                         (SELECT COALESCE(SUM(qty), 0) FROM sale_details WHERE sale_details.stock_id = s.id) as total_sold');
-        $builder->join('products p', 'p.id = s.product_id')
-        ->join('product_details pdt', 'pdt.id = s.product_detail_id')
-        ->join('purchases pr', 'pr.id = s.purchase_id');
-        $builder->whereIn('pr.status', ['received', 'partial_paid', 'paid']);
-        $builder->join('vendors v', 'v.id = pr.vendor_id', 'left');
-        $builder->orderBy('s.exp_date', 'ASC');
+        // Summing up stock per product variation
+        $builder = $db->table('product_details pd');
+        $builder->select('pd.id, p.name as product_name, pd.unit, pd.unit_value, 
+                         (SELECT COALESCE(SUM(qty), 0) FROM purchase_details WHERE product_detail_id = pd.id) as total_purchased,
+                         (SELECT COALESCE(SUM(qty), 0) FROM sale_details WHERE product_detail_id = pd.id) as total_sold,
+                         (SELECT price FROM purchase_details WHERE product_detail_id = pd.id ORDER BY id DESC LIMIT 1) as last_price,
+                         (SELECT exp_date FROM purchase_details WHERE product_detail_id = pd.id AND (qty - (SELECT COALESCE(SUM(qty), 0) FROM sale_details WHERE stock_id = purchase_details.id)) > 0 ORDER BY exp_date ASC LIMIT 1) as nearest_expiry');
+        $builder->join('products p', 'p.id = pd.product_id');
+        $builder->orderBy('p.name', 'ASC');
         
         $results = $builder->get()->getResultArray();
         
-        // Filter those where qty - total_sold > 0
         $available = [];
         foreach ($results as $item) {
-            $item['available_qty'] = $item['initial_qty'] - $item['total_sold'];
+            $item['available_qty'] = $item['total_purchased'] - $item['total_sold'];
             if ($item['available_qty'] > 0) {
-                // Update legacy qty in memory for current views (they expect 'qty' for shelf current qty)
-                $item['qty'] = $item['available_qty'];
+                $item['price'] = $item['last_price'];
+                $item['expiry_date'] = $item['nearest_expiry'];
                 $available[] = $item;
             }
         }
@@ -45,42 +42,40 @@ class Sales extends BaseController
         return view('sales/inventory', $data);
     }
 
-    // Page for making a sale
+    // Page for making a sale (POS - Merged Stock View)
     public function index()
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
 
         $db = \Config\Database::connect();
-        $builder = $db->table('purchase_details s');
-        $builder->select('s.*, s.exp_date as expiry_date, s.mfg_date as manufacture_date, s.qty as initial_qty, 
-                         p.name as product_name, pdt.unit_value as product_unit_value, pdt.unit, v.name as vendor_name, 
-                         (SELECT COALESCE(SUM(qty), 0) FROM sale_details WHERE sale_details.stock_id = s.id) as total_sold');
-        $builder->join('products p', 'p.id = s.product_id')
-        ->join('product_details pdt', 'pdt.id = s.product_detail_id')
-        ->join('purchases pr', 'pr.id = s.purchase_id');
-        $builder->whereIn('pr.status', ['received', 'partial_paid', 'paid']);
-        $builder->join('vendors v', 'v.id = pr.vendor_id', 'left');
+        
+        // Fetch product variations with total available quantity
+        $builder = $db->table('product_details pd');
+        $builder->select('pd.id, p.name as product_name, pd.unit, pd.unit_value, 
+                         (SELECT COALESCE(SUM(qty), 0) FROM purchase_details WHERE product_detail_id = pd.id) as total_purchased,
+                         (SELECT COALESCE(SUM(qty), 0) FROM sale_details WHERE product_detail_id = pd.id) as total_sold,
+                         (SELECT price FROM purchase_details WHERE product_detail_id = pd.id ORDER BY id DESC LIMIT 1) as price,
+                         (SELECT batch_id FROM purchase_details WHERE product_detail_id = pd.id ORDER BY id DESC LIMIT 1) as batch_id');
+        $builder->join('products p', 'p.id = pd.product_id');
         $builder->orderBy('p.name', 'ASC');
         
         $results = $builder->get()->getResultArray();
         $available = [];
         foreach ($results as $item) {
-            $left = $item['initial_qty'] - $item['total_sold'];
+            $left = $item['total_purchased'] - $item['total_sold'];
             if ($left > 0) {
                 $item['available_qty'] = $left;
-                $item['qty'] = $left; // shelf qty
+                $item['qty'] = $left; 
                 $available[] = $item;
             }
         }
 
         $dModel = new \App\Models\DoctorModel();
         
-        // Fetch all products for the in-cart manual search/select
-        $db = \Config\Database::connect();
         $allProducts = $db->table('products p')
             ->select('p.id as product_id, p.name as product_name, pdt.id as product_detail_id, pdt.unit, pdt.unit_value, 
-                      (SELECT price FROM purchase_details pd WHERE pd.product_id = p.id ORDER BY pd.id DESC LIMIT 1) as last_price,
-                      (SELECT id FROM purchase_details pd WHERE pd.product_id = p.id ORDER BY pd.id DESC LIMIT 1) as stock_id')
+                      (SELECT price FROM purchase_details pd WHERE pd.product_detail_id = pdt.id ORDER BY pd.id DESC LIMIT 1) as last_price,
+                      pdt.id as stock_id') // We use detail_id as stock_id for grouped POS
             ->join('product_details pdt', 'pdt.product_id = p.id', 'left')
             ->get()->getResultArray();
 
@@ -91,33 +86,32 @@ class Sales extends BaseController
         return view('sales/index', $data);
     }
 
-    // Process the actual sale transaction
+    // Process the actual sale transaction (With FIFO Stock Deduction)
     public function process()
     {
         if (!session()->get('logged_in')) return redirect()->to(base_url('auth/login'));
         
-        $stockIds   = $this->request->getPost('stock_id');
+        $detailIds  = $this->request->getPost('stock_id'); // This now contains product_detail_id
         $qtys       = $this->request->getPost('qty');
         $discounts  = $this->request->getPost('discount');
         $prices     = $this->request->getPost('price');
-        $strengths  = $this->request->getPost('strength'); // Custom strengths from POS
+        $strengths  = $this->request->getPost('strength'); 
         $doctorId   = $this->request->getPost('doctor_id');
 
-        if (empty($stockIds)) return redirect()->back()->with('error', 'No items selected.');
+        if (empty($detailIds)) return redirect()->back()->with('error', 'No items selected.');
 
         $db = \Config\Database::connect();
         $db->transStart();
 
         $saleModel = new SaleModel();
-        $detailModel = new \App\Models\SaleDetailModel();
-        $PurchaseDetailModel = new PurchaseDetailModel();
+        $saleDetailModel = new \App\Models\SaleDetailModel();
+        $purchaseDetailModel = new PurchaseDetailModel();
         $doctorModel = new \App\Models\DoctorModel();
 
         $manualName  = trim($this->request->getPost('manual_dr_name'));
         $manualPhone = trim($this->request->getPost('manual_dr_phone'));
 
         if (empty($doctorId) && !empty($manualName)) {
-            // Check if doctor exists by phone (if phone provided) or name
             if (!empty($manualPhone)) {
                 $existingDoctor = $doctorModel->where('phone', $manualPhone)->first();
             } else {
@@ -126,18 +120,13 @@ class Sales extends BaseController
 
             if ($existingDoctor) {
                 $doctorId = $existingDoctor['id'];
-                $manualName = '';
-                $manualPhone = '';
             } else {
                 $doctorId = $doctorModel->insert([
                     'name'  => $manualName,
                     'phone' => $manualPhone,
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s')
                 ]);
-                $manualName = '';
-                $manualPhone = '';
             }
+            $manualName = ''; $manualPhone = '';
         }
 
         // Create Sale Header
@@ -147,56 +136,60 @@ class Sales extends BaseController
             'manual_dr_name'   => $manualName ?: null,
             'manual_dr_phone'  => $manualPhone ?: null,
             'sale_date'        => date('Y-m-d H:i:s'),
-            'total_amount'     => 0,
-            'total_discount'   => 0
         ];
         $saleId = $saleModel->insert($saleData);
 
         $totalGross = 0;
         $totalDisc = 0;
 
-        foreach ($stockIds as $idx => $sid) {
-            $qty = (int)$qtys[$idx];
-            $disc = (float)($discounts[$idx] ?? 0);
+        foreach ($detailIds as $idx => $pdid) {
+            $qtyToSell = (int)$qtys[$idx];
+            $discPerItem = (float)($discounts[$idx] ?? 0) / $qtyToSell; // Distribute discount across batch splits
             $price = (float)($prices[$idx] ?? 0);
             $strength = $strengths[$idx] ?? ''; 
             
-            if ($qty <= 0) continue;
+            if ($qtyToSell <= 0) continue;
 
-            $stock = $PurchaseDetailModel->find($sid);
+            // FIFO: Find all purchase batches for this product variation that have remaining stock
+            $batches = $db->table('purchase_details pd')
+                          ->select('pd.*, (pd.qty - COALESCE((SELECT SUM(qty) FROM sale_details WHERE stock_id = pd.id), 0)) as available')
+                          ->where('pd.product_detail_id', $pdid)
+                          ->having('available >', 0)
+                          ->orderBy('pd.id', 'ASC') // Earliest added batch first
+                          ->get()->getResultArray();
 
-            // Robust check for IDs (Manual or Stocked)
-            $pid = 0;
-            $pdid = 0;
-            
-            if ($stock) {
-                $pid = $stock['product_id'];
-                $pdid = $stock['product_detail_id'];
+            $remaining = $qtyToSell;
+            foreach ($batches as $batch) {
+                $canDeduct = min($remaining, $batch['available']);
+                
+                // Calculate proportional discount for this split
+                $currentDisc = $discPerItem * $canDeduct;
+
+                $saleDetailModel->insert([
+                    'sale_id'           => $saleId,
+                    'stock_id'          => $batch['id'],
+                    'product_id'        => $batch['product_id'],
+                    'product_detail_id' => $pdid,
+                    'strength'          => $strength,
+                    'qty'               => $canDeduct,
+                    'sale_price'        => $price,
+                    'discount'          => $currentDisc
+                ]);
+
+                $totalGross += ($canDeduct * $price);
+                $totalDisc  += $currentDisc;
+                $remaining  -= $canDeduct;
+
+                if ($remaining <= 0) break;
             }
-
-            $detailModel->insert([
-                'sale_id'           => $saleId,
-                'stock_id'          => $sid,
-                'product_id'        => $pid,
-                'product_detail_id' => $pdid,
-                'strength'          => $strength,
-                'qty'               => $qty,
-                'sale_price'        => $price,
-                'discount'          => $disc
-            ]);
-
-            // Gross = Qty * Price
-            $totalGross += ($qty * $price);
-            $totalDisc += $disc;
+            
+            // Note: If $remaining > 0, it means user sold more than available (over-sell).
+            // Logic can be added here to handle over-selling if desired.
         }
 
-        // Net = Gross - Discount
         $totalNet = $totalGross - $totalDisc;
-        
-        // Final sanity check: Total amount cannot be negative
         if ($totalNet < 0) $totalNet = 0;
 
-        // Update Header with exact totals
         $saleModel->update($saleId, [
             'gross_amount'   => $totalGross,
             'total_amount'   => $totalNet,
@@ -206,15 +199,14 @@ class Sales extends BaseController
         $db->transComplete();
 
         if ($db->transStatus() === false) {
-            $db->transRollback();
-            return redirect()->back()->with('error', 'Sale failed due to a database error.');
+            return redirect()->back()->with('error', 'Sale failed.');
         } else {
-            $db->transCommit();
             session()->setFlashdata('last_sale_id', $saleId);
             session()->setFlashdata('last_sale_invoice', $saleData['invoice_no']);
             return redirect()->to(base_url('sales'))->with('success', 'Sale completed successfully!');
         }
     }
+
 
     public function history()
     {

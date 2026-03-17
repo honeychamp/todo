@@ -25,9 +25,9 @@
     </div>
     <div class="col-md-4">
         <div class="premium-list p-4 text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-            <div class="text-white opacity-75 small fw-bold text-uppercase">Active Batches</div>
-            <h3 class="text-white fw-800 m-0 mt-1"><?= count($inventory) ?> Batches</h3>
-            <div class="text-white opacity-60 small mt-1">Different batches with available stock</div>
+            <div class="text-white opacity-75 small fw-bold text-uppercase">Active Products</div>
+            <h3 class="text-white fw-800 m-0 mt-1"><?= count($inventory) ?> Items</h3>
+            <div class="text-white opacity-60 small mt-1">Different products with available stock</div>
         </div>
     </div>
 </div>
@@ -37,8 +37,8 @@
         <div class="premium-list p-0">
             <div class="p-4 px-5 border-bottom d-flex justify-content-between align-items-center">
                 <div>
-                    <h5 class="m-0 fw-800">Current Stock</h5>
-                    <p class="text-muted small m-0 mt-1">Shows how much stock you have left.</p>
+                    <h5 class="m-0 fw-800">Current Stock (Grouped)</h5>
+                    <p class="text-muted small m-0 mt-1">Shows total units available for each product variation.</p>
                 </div>
                 <div class="d-flex gap-2">
                     <a href="<?= base_url('sales') ?>" class="btn btn-vibrant rounded-pill px-4">
@@ -52,40 +52,37 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
                             <tr>
-                                <th class="border-0 px-4 py-3">Batch Info</th>
-                                <th class="border-0 py-3">Product Name</th>
-                                <th class="border-0 py-3">Expiry</th>
-                                <th class="border-0 py-3 text-center">In Stock</th>
-                                <th class="border-0 py-3 text-end">Sale Price</th>
+                                <th class="border-0 px-5 py-3">Product Name</th>
+                                <th class="border-0 py-3">Nearest Expiry</th>
+                                <th class="border-0 py-3 text-center">Total In Stock</th>
+                                <th class="border-0 py-3 text-end">Last Purchase Price</th>
                                 <th class="border-0 py-3 text-end px-5">Total Value</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if(empty($inventory)): ?>
-                                <tr><td colspan="6" class="text-center py-5 text-muted">No stock available. <a href="<?= base_url('purchases/select_vendor') ?>">Add Stock</a> first.</td></tr>
+                                <tr><td colspan="5" class="text-center py-5 text-muted">No stock available. <a href="<?= base_url('purchases/select_vendor') ?>">Add Stock</a> first.</td></tr>
                             <?php else: ?>
                                 <?php foreach($inventory as $item): ?>
                                     <tr>
-                                        <td class="px-4">
-                                            <div class="fw-bold text-dark"><code><?= esc($item['batch_id']) ?></code></div>
-                                            <div class="text-muted small"><?= esc($item['vendor_name'] ?: 'N/A') ?></div>
-                                        </td>
-                                        <td>
-                                            <div class="fw-bold text-primary"><?= esc($item['product_name']) ?></div>
-                                            <div class="text-muted small"><?= esc($item['product_unit_value']) ?> <?= esc($item['product_unit']) ?></div>
+                                        <td class="px-5">
+                                            <div class="fw-bold text-primary fs-5"><?= esc($item['product_name']) ?></div>
+                                            <div class="text-muted small"><?= esc($item['unit_value']) ?> <?= esc($item['unit']) ?></div>
                                         </td>
                                         <td>
                                             <?php 
-                                                $daysToExpiry = (strtotime($item['expiry_date']) - time()) / (60 * 60 * 24);
-                                                $badgeClass = $daysToExpiry < 90 ? 'bg-danger' : ($daysToExpiry < 180 ? 'bg-warning' : 'bg-success');
+                                                if ($item['expiry_date']) {
+                                                    $daysToExpiry = (strtotime($item['expiry_date']) - time()) / (60 * 60 * 24);
+                                                    $badgeClass = $daysToExpiry < 90 ? 'bg-danger' : ($daysToExpiry < 180 ? 'bg-warning' : 'bg-success');
+                                                    echo '<span class="badge '.$badgeClass.' rounded-pill px-3">' . date('M Y', strtotime($item['expiry_date'])) . '</span>';
+                                                } else {
+                                                    echo '<span class="text-muted small">N/A</span>';
+                                                }
                                             ?>
-                                            <span class="badge <?= $badgeClass ?> rounded-pill px-3">
-                                                <?= date('M Y', strtotime($item['expiry_date'])) ?>
-                                            </span>
                                         </td>
                                         <td class="text-center">
-                                            <div class="fw-800 fs-5"><?= number_format($item['available_qty']) ?></div>
-                                            <div class="text-muted small">Units (<?= esc($item['initial_qty']) ?> Initial)</div>
+                                            <div class="fw-800 fs-4 text-dark"><?= number_format($item['available_qty']) ?></div>
+                                            <div class="text-muted small">Combined Units</div>
                                         </td>
                                         <td class="text-end fw-bold">Rs. <?= number_format($item['price'], 2) ?></td>
                                         <td class="text-end px-5">
