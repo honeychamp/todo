@@ -10,146 +10,209 @@ use App\Models\CategoryModel;
 
 class Products extends BaseController
 {
+    /**
+     * Professional Integrated Dashboard
+     * Merges Business Intelligence, Stock Monitoring, and Sales Performance into ONE view.
+     */
     public function dashboard()
     {
+        // 1. Auth Guard
         if (!session()->get('logged_in')) {
             return redirect()->to(base_url('auth/login'));
         }
 
-        $model = new ProductModel();
-        $catModel = new CategoryModel();
-        $PurchaseDetailModel = new \App\Models\PurchaseDetailModel();
-        $saleModel = new \App\Models\SaleModel();
-
-        // Basic Stats
-        $data['total_products']   = $model->countAllResults();
-        $data['total_categories'] = $catModel->countAllResults();
-
-        $vendorModel = new \App\Models\VendorModel();
-        $data['total_vendors'] = $vendorModel->countAllResults();
-
-        // Calculate total units (Sum of all Initial - Sum of all Sold)
-        // Calculate total value (Sum of currently held items * their cost)
-        // Calculate total investment (Sum of all Initial * their cost)
         $db = \Config\Database::connect();
-        $stockRow = $db->query("SELECT 
-                                (SELECT COALESCE(SUM(qty), 0) FROM purchase_details) - (SELECT COALESCE(SUM(qty), 0) FROM sale_details) as total_qty, 
-                                (SELECT SUM((sp.qty - COALESCE((SELECT SUM(qty) FROM sale_details WHERE sale_details.stock_id = sp.id), 0)) * sp.cost) FROM purchase_details sp) as stock_value, 
-                                (SELECT COALESCE(SUM(qty * cost), 0) FROM purchase_details) as total_investment 
-                            ")->getRow();
-
-        $data['total_items_in_stock'] = $stockRow->total_qty ?? 0;
-        $data['total_stock_value']    = $stockRow->stock_value ?? 0;
-        $data['total_investment']     = $stockRow->total_investment ?? 0;
-
         $today = date('Y-m-d');
-        $data['today_sales_count'] = $saleModel->where('DATE(sale_date)', $today)->countAllResults();
-
-        // Today's Revenue and Profit
-        $todaySalesData = $db->table('sale_details sd')
-                             ->select('sd.*, purchase_details.cost as cost_price')
-                             ->join('sales s', 's.id = sd.sale_id')
-                             ->join('purchase_details', 'purchase_details.id = sd.stock_id', 'left')
-                             ->where('DATE(s.sale_date)', $today)
-                             ->get()->getResultArray();
-
-        $todayRevenue = 0;
-        $todayProfit = 0;
-        foreach ($todaySalesData as $ts) {
-            $subtotal = $ts['sale_price'] * $ts['qty'];
-            $netSale = $subtotal - ($ts['discount'] ?? 0);
-            $todayRevenue += $netSale;
-            $cost = $ts['cost_price'] ?? 0;
-            $todayProfit += ($netSale - ($cost * $ts['qty']));
-        }
-        $data['today_revenue'] = $todayRevenue;
-        $data['today_profit'] = $todayProfit;
-
-        // Today's Expenses
-        $expenseModel = new \App\Models\ExpenseModel();
-        $expenseRow = $expenseModel->selectSum('amount')
-                                   ->where('DATE(expense_date)', $today)
-                                   ->get()->getRow();
-        $todayExpenses = $expenseRow->amount ?? 0;
-        $data['today_expenses'] = $todayExpenses;
-        $data['today_net_profit'] = $todayProfit - $todayExpenses;
-
-        // Lifetime Stats
-        $lifetimeData = $db->table('sale_details sd')
-                           ->select('SUM((sd.qty * sd.sale_price) - sd.discount) as total_rev, SUM(((sd.sale_price * sd.qty) - sd.discount) - (pd.cost * sd.qty)) as total_prof')
-                           ->join('purchase_details pd', 'pd.id = sd.stock_id', 'left')
-                           ->get()->getRow();
         
-        $data['lifetime_sales'] = $lifetimeData->total_rev ?? 0;
-        $totalLifeProfit        = $lifetimeData->total_prof ?? 0;
-        
-        $totalAllExpensesRow = $expenseModel->selectSum('amount')->get()->getRow();
-        $totalAllExpenses    = $totalAllExpensesRow->amount ?? 0;
-        $data['lifetime_net_profit'] = $totalLifeProfit - $totalAllExpenses;
+        // 2. LOAD COMPREHENSIVE DATA
+        $data = [];
 
-        // Doctor Stats
-        $doctorModel = new \App\Models\DoctorModel();
-        $data['total_doctors'] = $doctorModel->countAllResults();
+        // --- SECTION A: CORE BUSINESS AUDIT ---
+        // Basic Counts
+        $data['total_products']   = $db->table('product_details')->countAllResults();
+        $data['total_categories'] = $db->table('categories')->countAllResults();
+        $data['total_vendors']    = $db->table('vendors')->countAllResults();
+        $data['total_doctors']    = $db->table('doctors')->countAllResults();
+
+        // Stock Valuations
+        $stockRow = $db->query("SELECT 
+            (SELECT COALESCE(SUM(qty), 0) FROM purchase_details pd JOIN purchases pr ON pr.id = pd.purchase_id WHERE pr.status IN ('received','partial_paid','paid')) - (SELECT COALESCE(SUM(qty), 0) FROM sale_details) as total_qty, 
+            (SELECT SUM((pd.qty - COALESCE((SELECT SUM(qty) FROM sale_details WHERE sale_details.stock_id = pd.id), 0)) * pd.cost) FROM purchase_details pd JOIN purchases pr ON pr.id = pd.purchase_id WHERE pr.status IN ('received','partial_paid','paid')) as stock_value, 
+            (SELECT COALESCE(SUM(qty * cost), 0) FROM purchase_details pd JOIN purchases pr ON pr.id = pd.purchase_id WHERE pr.status IN ('received','partial_paid','paid')) as global_investment 
+        ")->getRow();
+
+        $data['total_items_in_stock'] = (int)($stockRow->total_qty ?? 0);
+        $data['total_stock_value']    = (float)($stockRow->stock_value ?? 0);
+        $data['global_investment']    = (float)($stockRow->global_investment ?? 0);
+
+        // Doctor Receivables
         $data['total_doctor_receivables'] = $db->query("SELECT (SELECT COALESCE(SUM(total_amount), 0) FROM sales WHERE doctor_id IS NOT NULL) - (SELECT COALESCE(SUM(amount), 0) FROM doctor_payments) as net_receivable")->getRow()->net_receivable ?? 0;
 
-        // Chart Data (Last 7 Days Sales)
-        $sevenDaysAgo = date('Y-m-d', strtotime('-6 days'));
-        $chartSales = $db->table('sale_details sd')
-                           ->select("DATE(s.sale_date) as day, SUM((sd.qty * sd.sale_price) - sd.discount) as total")
-                           ->join('sales s', 's.id = sd.sale_id')
-                           ->where('s.sale_date >=', $sevenDaysAgo)
-                           ->groupBy('day')
-                           ->orderBy('day', 'ASC')
-                           ->get()->getResultArray();
-    
-        $chartLabels = [];
-        $chartValues = [];
-        for($i = 6; $i >= 0; $i--) {
-            $date = date('Y-m-d', strtotime("-$i days"));
-            $label = date('D', strtotime($date));
-            $chartLabels[] = $label;
-            
-            $val = 0;
-            foreach($chartSales as $cs) {
-                if($cs['day'] == $date) {
-                    $val = $cs['total'];
-                    break;
-                }
-            }
-            $chartValues[] = $val;
+        // Global Profit Calculation (Revenue - Cost of Goods Sold - Expenses)
+        $globalSales = $db->query("SELECT 
+            COALESCE(SUM((sd.qty * sd.sale_price) - sd.discount), 0) as revenue,
+            COALESCE(SUM(sd.qty * pd.cost), 0) as cogs
+            FROM sale_details sd 
+            JOIN purchase_details pd ON pd.id = sd.stock_id")->getRow();
+        
+        $globalExpenses = $db->query("SELECT SUM(amount) as total FROM expenses")->getRow()->total ?? 0;
+        
+        $data['lifetime_sales'] = (float)$globalSales->revenue;
+        $data['lifetime_net_profit'] = (float)($globalSales->revenue - $globalSales->cogs - $globalExpenses);
+
+        // --- SECTION B: PERIOD PERFORMANCE (Today, Week, Month, Year) ---
+        $periods = [
+            'today' => ['start' => $today, 'end' => $today],
+            'week'  => ['start' => date('Y-m-d', strtotime('monday this week')), 'end' => date('Y-m-d', strtotime('sunday this week'))],
+            'month' => ['start' => date('Y-m-01'), 'end' => date('Y-m-t')],
+            'year'  => ['start' => date('Y-01-01'), 'end' => date('Y-12-31')]
+        ];
+        
+        $stats = [];
+        foreach ($periods as $key => $p) {
+            $stats[$key] = $this->getDetailedMetrics($db, $p['start'], $p['end']);
         }
-        $data['chart_labels'] = json_encode($chartLabels);
-        $data['chart_values'] = json_encode($chartValues);
+        $data['stats'] = $stats;
+        
+        // --- SECTION C: CHARTS & TRENDS ---
+        // 7-Day Revenue Chart
+        $data['chart_labels'] = [];
+        $data['chart_values'] = [];
+        for($i = 6; $i >= 0; $i--) {
+            $d = date('Y-m-d', strtotime("-$i days"));
+            $data['chart_labels'][] = date('D', strtotime($d));
+            $data['chart_values'][] = $db->table('sale_details sd')
+                                        ->join('sales s', 's.id = sd.sale_id')
+                                        ->select('SUM((sd.qty * sd.sale_price) - sd.discount) as total')
+                                        ->where('DATE(s.sale_date)', $d)
+                                        ->get()->getRow()->total ?? 0;
+        }
+        $data['chart_labels'] = json_encode($data['chart_labels']);
+        $data['chart_values'] = json_encode($data['chart_values']);
 
-        // Expiring Soon (Next 90 days)
-        $threeMonthsFromNow = date('Y-m-d', strtotime('+90 days'));
-        $data['expiring_soon'] = $db->query("SELECT s.*, p.name as product_name, 
-                                            (s.qty - COALESCE((SELECT SUM(qty) FROM sale_details WHERE sale_details.stock_id = s.id), 0)) as current_qty
-                                            FROM purchase_details s 
-                                            JOIN products p ON p.id = s.product_id 
-                                            WHERE s.exp_date <= ? AND s.exp_date >= ?
-                                            HAVING current_qty > 0 LIMIT 3", [$threeMonthsFromNow, date('Y-m-d')])->getResultArray();
+        // 12-Month Profitability Trend
+        $monthsTrend = ['labels' => [], 'revenue' => [], 'profit' => []];
+        for($i = 11; $i >= 0; $i--) {
+            $ms = date('Y-m-01', strtotime("-$i months"));
+            $me = date('Y-m-t', strtotime("-$i months"));
+            $mm = $this->getDetailedMetrics($db, $ms, $me);
+            $monthsTrend['labels'][]  = date('M Y', strtotime($ms));
+            $monthsTrend['revenue'][] = $mm['revenue'];
+            $monthsTrend['profit'][]  = $mm['net_profit'];
+        }
+        $data['months_trend'] = $monthsTrend;
 
-        // Low Stock (Less than 10 units)
-        $data['low_stock'] = $db->query("SELECT s.*, p.name as product_name, 
-                                            (s.qty - COALESCE((SELECT SUM(qty) FROM sale_details WHERE sale_details.stock_id = s.id), 0)) as current_qty
-                                            FROM purchase_details s 
-                                            JOIN products p ON p.id = s.product_id 
-                                            HAVING current_qty < 10 AND current_qty > 0 LIMIT 3")->getResultArray();
+        // --- SECTION D: INVENTORY ALERTS ---
+        // Expiring Soon (90 Days)
+        $data['expiring_soon'] = $db->query("SELECT pd.id, pd.batch_id, pd.exp_date, p.name as product_name, 
+            (pd.qty - COALESCE((SELECT SUM(qty) FROM sale_details sd WHERE sd.stock_id = pd.id), 0)) as current_qty
+            FROM purchase_details pd JOIN products p ON p.id = pd.product_id 
+            WHERE pd.exp_date <= ? AND pd.exp_date >= ?
+            HAVING current_qty > 0 ORDER BY pd.exp_date ASC LIMIT 5", [date('Y-m-d', strtotime('+90 days')), $today])->getResultArray();
 
-        // Top 5 Selling Products (Last 30 Days)
+        // Low Stock (Under 10 units)
+        $data['low_stock'] = $db->query("SELECT pd.id, pd.batch_id, p.name as product_name, 
+            (pd.qty - COALESCE((SELECT SUM(qty) FROM sale_details sd WHERE sd.stock_id = pd.id), 0)) as current_qty
+            FROM purchase_details pd JOIN products p ON p.id = pd.product_id 
+            HAVING current_qty < 10 AND current_qty > 0 ORDER BY current_qty ASC LIMIT 5")->getResultArray();
+
+        // --- SECTION E: RANKINGS & LISTS ---
+        // Top 5 Products (Last 30 Days)
         $data['top_products'] = $db->query("SELECT p.name, SUM(sd.qty) as total_units, SUM(sd.qty * sd.sale_price - sd.discount) as total_revenue
-                                            FROM sale_details sd
-                                            JOIN sales s ON s.id = sd.sale_id
-                                            JOIN products p ON p.id = sd.product_id
-                                            WHERE s.sale_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-                                            GROUP BY sd.product_id
-                                            ORDER BY total_units DESC
-                                            LIMIT 5")->getResultArray();
+            FROM sale_details sd JOIN sales s ON s.id = sd.sale_id JOIN products p ON p.id = sd.product_id
+            WHERE s.sale_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            GROUP BY sd.product_id ORDER BY total_units DESC LIMIT 5")->getResultArray();
 
-        $data['today_profit_margin'] = ($todayRevenue > 0) ? ($todayProfit / $todayRevenue) * 100 : 0;
+        // Vendor Spending
+        $data['vendor_spending'] = $db->query("SELECT v.name, SUM(p.total_amount) as total 
+            FROM purchases p JOIN vendors v ON v.id = p.vendor_id
+            GROUP BY p.vendor_id ORDER BY total DESC LIMIT 5")->getResultArray();
 
+        // Recent Sales
+        $data['recent_sales'] = $db->table('sales s')
+            ->select('s.*, d.name as doctor_name')
+            ->join('doctors d', 'd.id = s.doctor_id', 'left')
+            ->orderBy('s.id', 'DESC')
+            ->limit(10)
+            ->get()->getResultArray();
+
+        // --- SECTION F: STOCK FLOW AUDIT ---
+        $monthStart = date('Y-m-01');
+        $monthEnd   = date('Y-m-t');
+
+        // Opening Qty = (Purchases before this month) - (Sales before this month)
+        $opQty = $db->query("SELECT (
+            SELECT COALESCE(SUM(pd.qty), 0) FROM purchase_details pd 
+            JOIN purchases pr ON pr.id = pd.purchase_id 
+            WHERE DATE(pr.date) < ? AND pr.status IN('received','partial_paid','paid')
+        ) - (
+            SELECT COALESCE(SUM(sd.qty), 0) FROM sale_details sd 
+            JOIN sales s ON s.id = sd.sale_id 
+            WHERE DATE(s.sale_date) < ?
+        ) as opening", [$monthStart, $monthStart])->getRow()->opening ?? 0;
+
+        // In Qty = Purchases this month
+        $inQty = $db->query("SELECT COALESCE(SUM(pd.qty), 0) as total 
+            FROM purchase_details pd 
+            JOIN purchases pr ON pr.id = pd.purchase_id 
+            WHERE (DATE(pr.date) BETWEEN ? AND ?) AND pr.status IN('received','partial_paid','paid')", [$monthStart, $monthEnd])->getRow()->total ?? 0;
+
+        // Out Qty = Sales this month
+        $outQty = $db->query("SELECT COALESCE(SUM(sd.qty), 0) as total 
+            FROM sale_details sd 
+            JOIN sales s ON s.id = sd.sale_id 
+            WHERE (DATE(s.sale_date) BETWEEN ? AND ?)", [$monthStart, $monthEnd])->getRow()->total ?? 0;
+
+        $data['audit'] = [
+            'opening' => $opQty,
+            'in'      => $inQty,
+            'out'     => $outQty,
+            'closing' => ($opQty + $inQty - $outQty)
+        ];
+
+        // All time top sellers
+        $data['top_selling_products'] = $db->query("SELECT p.name, SUM(sd.qty) as units, SUM(sd.qty * sd.sale_price - sd.discount) as revenue
+            FROM sale_details sd JOIN products p ON p.id = sd.product_id
+            GROUP BY sd.product_id ORDER BY units DESC LIMIT 10")->getResultArray();
+
+        // Legacy values for view compatibility (if any)
+        
         return view('products/dashboard', $data);
+    }
+
+    /**
+     * Easy helper for fetching financial metrics
+     */
+    private function getDetailedMetrics($db, $start, $end)
+    {
+        // Purchases (Inflow cost)
+        $purchases = $db->query("SELECT SUM(pd.qty * pd.cost) as total 
+            FROM purchase_details pd 
+            JOIN purchases pr ON pr.id = pd.purchase_id 
+            WHERE (DATE(pr.date) BETWEEN ? AND ?) AND pr.status IN ('received','partial_paid','paid')", [$start, $end])->getRow()->total ?? 0;
+
+        // Sales Metrics
+        $salesRow = $db->query("SELECT 
+            COALESCE(SUM((sd.qty * sd.sale_price) - sd.discount), 0) as revenue,
+            COALESCE(SUM(((sd.sale_price * sd.qty) - sd.discount) - (sp.cost * sd.qty)), 0) as gross_profit,
+            COUNT(DISTINCT s.id) as tx
+            FROM sale_details sd 
+            JOIN sales s ON s.id = sd.sale_id
+            JOIN purchase_details sp ON sp.id = sd.stock_id
+            WHERE DATE(s.sale_date) BETWEEN ? AND ?", [$start, $end])->getRow();
+
+        // Expenses
+        $expenses = $db->query("SELECT SUM(amount) as total FROM expenses WHERE expense_date BETWEEN ? AND ?", [$start, $end])->getRow()->total ?? 0;
+
+        return [
+            'purchases'    => (float)$purchases,
+            'revenue'      => (float)$salesRow->revenue,
+            'gross_profit' => (float)$salesRow->gross_profit,
+            'expenses'     => (float)$expenses,
+            'net_profit'   => (float)($salesRow->gross_profit - $expenses),
+            'tx_count'     => (int)$salesRow->tx,
+            'avg_order'    => $salesRow->tx > 0 ? (float)($salesRow->revenue / $salesRow->tx) : 0
+        ];
     }
 
     public function index()

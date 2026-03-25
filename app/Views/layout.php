@@ -467,11 +467,8 @@
 
         <div class="sidebar-content">
             <ul class="list-unstyled components">
-                <li class="<?= url_is('analytics') ? 'active' : '' ?>">
-                    <a href="<?= base_url('analytics') ?>"><i class="fas fa-chart-pie"></i> Business Intelligence</a>
-                </li>
-                <li class="<?= url_is('/') ? 'active' : '' ?>">
-                    <a href="<?= base_url('/') ?>"><i class="fas fa-house"></i> Dashboard</a>
+                <li class="<?= (url_is('/') || url_is('analytics')) ? 'active' : '' ?>">
+                    <a href="<?= base_url('/') ?>"><i class="fas fa-chart-pie"></i> Dashboard</a>
                 </li>
                 <li class="<?= url_is('products*') ? 'active' : '' ?>">
                     <a href="#productsSubmenu" data-bs-toggle="collapse" class="dropdown-toggle <?= url_is('products*') ? '' : 'collapsed' ?>">

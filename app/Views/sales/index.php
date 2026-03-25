@@ -187,17 +187,19 @@
                             <select name="doctor_id" id="doctor_id" class="form-select border-0 bg-light py-3 rounded-4 fw-bold">
                                 <option value="">Walking Customer (Retail)</option>
                                 <?php foreach($doctors as $dr): ?>
-                                    <option value="<?= $dr['id'] ?>"><?= esc($dr['name']) ?> (<?= esc($dr['phone']) ?>)</option>
+                                    <option value="<?= $dr['id'] ?>" data-name="<?= esc($dr['name']) ?>" data-phone="<?= esc($dr['phone']) ?>">
+                                        <?= esc($dr['name']) ?> (<?= esc($dr['phone']) ?>)
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="total-labels">Manual Dr Name</label>
-                            <input type="text" name="manual_dr_name" class="form-control border-0 bg-light py-3 rounded-4 fw-bold" placeholder="Optional Name">
+                            <label class="total-labels">Manual Dr Name/Reference</label>
+                            <input type="text" name="manual_dr_name" id="manual_dr_name" class="form-control border-0 bg-light py-3 rounded-4 fw-bold" placeholder="Optional Name">
                         </div>
                         <div class="col-md-3">
                             <label class="total-labels">Phone</label>
-                            <input type="text" name="manual_dr_phone" class="form-control border-0 bg-light py-3 rounded-4 fw-bold" placeholder="03XXXXXXXXX" maxlength="11" pattern="\d{11}" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');">
+                            <input type="text" name="manual_dr_phone" id="manual_dr_phone" class="form-control border-0 bg-light py-3 rounded-4 fw-bold" placeholder="03XXXXXXXXX" maxlength="11" pattern="\d{11}" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');">
                         </div>
                     </div>
                 </div>
@@ -325,6 +327,16 @@
             e.preventDefault();
             addEmptyRow();
         }
+    });
+
+    // Auto-fill Doctor Name and Phone
+    document.getElementById('doctor_id').addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const name = selectedOption.getAttribute('data-name') || '';
+        const phone = selectedOption.getAttribute('data-phone') || '';
+        
+        document.getElementById('manual_dr_name').value = name;
+        document.getElementById('manual_dr_phone').value = phone;
     });
 
     function searchPanel() {
